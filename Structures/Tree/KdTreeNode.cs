@@ -14,7 +14,7 @@ namespace Structures.Tree
 
         public bool IsLeaf { get => Right == null && Left == null; }
 
-        public int Level { get; }
+        public int Level { get; set; }
 
         public KdTreeNode<T> Left { get; set; }
 
@@ -23,6 +23,21 @@ namespace Structures.Tree
         public KdTreeNode<T> Parent { get; set; }
 
         public T Data { get; set; }
+
+        public void Delete()
+        {
+            if (Parent != null)
+            {
+                if (Parent.Left == this)
+                    Parent.Left = null;
+                else
+                    Parent.Right = null;
+            }
+
+            Parent = null;
+            Left = null;
+            Right = null;
+        }
 
         public IEnumerator<KdTreeNode<T>> GetEnumerator() => new KdTreeNodeEnumerator(this);
 

@@ -11,7 +11,7 @@ namespace StructuresTests
 {
     public class BSPTreeTests
     {
-        public static string ResultsFolder = "C:\\FRI\\ING\\1_rocnik\\AUS2\\TestResults";
+        public static string RESULTS_FOLDER = "C:\\FRI\\ING\\1_rocnik\\AUS2\\TestResults";
 
         #region Construction
 
@@ -90,7 +90,7 @@ namespace StructuresTests
                 csv.AppendLine($"{node.X};{node.Y}");
             }
 
-            File.WriteAllText(Path.Join(ResultsFolder, "BSPTreeIteration.csv"), csv.ToString());
+            File.WriteAllText(Path.Join(RESULTS_FOLDER, "BSPTreeIteration.csv"), csv.ToString());
         }
 
         #endregion
@@ -110,7 +110,7 @@ namespace StructuresTests
                 csv.AppendLine($"{node.X},{node.Y}");
             }
 
-            File.WriteAllText(Path.Join(ResultsFolder, "BSPTreeIntervalSearch.csv"), csv.ToString());
+            File.WriteAllText(Path.Join(RESULTS_FOLDER, "BSPTreeIntervalSearch.csv"), csv.ToString());
         }
 
         [Theory]
@@ -226,7 +226,7 @@ namespace StructuresTests
         public void InsertionTest(int nodeCount)
         {
             var results = new List<Result>();
-            var data = GenerateRandomData(nodeCount, 1);
+            var data = GenerateRandomData(nodeCount);
             var tree = StructureFactory.Instance.GetBSPTree<TwoDimObject>();
 
             foreach (var obj in data)
@@ -253,6 +253,74 @@ namespace StructuresTests
 
         #endregion
 
+        #region Deletion
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        [InlineData(100)]
+        [InlineData(1000)]
+        [InlineData(10000)]
+        [InlineData(100000)]
+        [InlineData(200000)]
+        [InlineData(400000)]
+        public void DeletionTest(int nodeCount)
+        {
+            var results = new List<Result>();
+            var data = GenerateRandomData(nodeCount, 1);
+            var tree = StructureFactory.Instance.GetBSPTree(data);
+            var expectedCount = nodeCount;
+
+            foreach (var obj in data)
+            {
+                tree.Delete(obj);
+
+                //int actualCount = 0;
+                //foreach (var node in tree) actualCount++;
+
+                //Assert.Equal(--expectedCount, actualCount);
+            }
+        }
+
+        #endregion
+
+        #region Updating
+
+
+
+        #endregion
+
+        #region Custom tests
+
+        [Fact]
+        public void TestListArray()
+        {
+            IEnumerable<TwoDimObject> data = GenerateRandomData(10);
+            TwoDimObject[] dataArray;
+            if (data is TwoDimObject[])
+            {
+                dataArray = data as TwoDimObject[];
+            }
+            else
+            {
+                dataArray = data.ToArray();
+            }
+
+            Array.Sort(dataArray, (x, y) => x.GetKey(0).CompareTo(y.GetKey(0)));
+
+            foreach (var obj in data)
+            {
+                Console.WriteLine($"[{obj.X}, {obj.Y}]");
+            }
+
+            foreach (var obj in dataArray)
+            {
+                Console.WriteLine($"[{obj.X}, {obj.Y}]");
+            }
+        }
+
+        #endregion
+
         #region Private methods
 
         private List<TwoDimObject> GenerateRandomData(int dataCount) => GenerateRandomData(dataCount, 0);
@@ -269,8 +337,8 @@ namespace StructuresTests
 
             for (int i = 0; i < dataCount; i++)
             {
-                data.Add(new TwoDimObject(i, rand.Next(0, 1000), rand.Next(0, 1000)));
-                //data.Add(new TwoDimObject(i, rand.NextDouble() * 1000, rand.NextDouble() * 1000));
+                //data.Add(new TwoDimObject(i, rand.Next(0, 1000), rand.Next(0, 1000)));
+                data.Add(new TwoDimObject(i, rand.NextDouble() * 1000, rand.NextDouble() * 1000));
             }
 
             return data;
@@ -301,7 +369,7 @@ namespace StructuresTests
                 csv.AppendLine($"{result.N};{result.Time}");
             }
 
-            File.AppendAllText(Path.Join(ResultsFolder, fileName), csv.ToString());
+            File.AppendAllText(Path.Join(RESULTS_FOLDER, fileName), csv.ToString());
         }
 
         private int GetExpectedDepth(int nodeCount)

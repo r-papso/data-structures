@@ -64,6 +64,7 @@ namespace Structures.Tree
                 throw new ArgumentException("Cannot insert exact same data");
 
             var newNode = new KdTreeNode<T>(data, nearest.Level + 1);
+            newNode.Parent = nearest;
             if (CompareKeys(data, nearest.Data, nearest.Level) <= 0)
                 nearest.Left = newNode;
             else
@@ -82,11 +83,21 @@ namespace Structures.Tree
 
         public void Delete(T data)
         {
-            throw new NotImplementedException();
+            var nodeToDelete = Nearest(data, true);
+
+            if (nodeToDelete == null)
+                throw new ArgumentException("Data not found");
+
+            Delete(nodeToDelete);
         }
 
         public IEnumerator<T> GetEnumerator()
         {
+            if (_root == null)
+            {
+                yield break;
+            }
+
             foreach (var node in _root)
             {
                 yield return node.Data;
@@ -125,6 +136,105 @@ namespace Structures.Tree
                 return actualNode;
             else
                 return null;
+        }
+
+        private void Delete(KdTreeNode<T> nodeToDelete)
+        {
+            if (nodeToDelete.IsLeaf)
+            {
+                if (nodeToDelete == _root)
+                    _root = null;
+                nodeToDelete.Delete();
+                return;
+            }
+
+            KdTreeNode<T> substitute = null;
+            var replaced = new Stack<KdTreeNode<T>>();
+            var reinserted = new List<KdTreeNode<T>>();
+            replaced.Push(nodeToDelete);
+
+            while (true)
+            {
+                substitute = InOrderNearest(nodeToDelete, out bool successor);
+
+                if (successor)
+                {
+                    reinserted.AddRange(nodeToDelete.Right.Where(x => CompareKeys(x.Data, substitute.Data, nodeToDelete.Level) == 0 &&
+                                                                      !x.Data.Identical(substitute.Data))
+                                                          .OrderByDescending(x => x.Level));
+                }
+
+                if (substitute.IsLeaf)
+                    break;
+
+                replaced.Push(substitute);
+                nodeToDelete = substitute;
+            }
+
+            nodeToDelete = substitute;
+            var substituteData = substitute.Data;
+
+            while (replaced.Count > 0)
+            {
+                var predecessor = replaced.Pop();
+                var temp = substituteData;
+                substituteData = predecessor.Data;
+                predecessor.Data = temp;
+            }
+
+            nodeToDelete.Delete();
+
+            foreach (var node in reinserted)
+            {
+                var data = node.Data;
+                Delete(node);
+                Insert(data);
+            }
+        }
+
+        private KdTreeNode<T> InOrderNearest(KdTreeNode<T> node, out bool successor)
+        {
+            KdTreeNode<T> result = null;
+            successor = false;
+
+            if (node.Left != null)
+            {
+                foreach (var child in node.Left)
+                {
+                    if (result == null)
+                        result = child;
+                    else if (CompareKeys(child.Data, result.Data, node.Level) > 0)
+                        result = child;
+                    else if (CompareKeys(child.Data, result.Data, node.Level) == 0)
+                    {
+                        if (child.IsLeaf)
+                            result = child;
+                        else if (child.Level > result.Level && !result.IsLeaf)
+                            result = child;
+                    }
+                }
+            }
+            else if (node.Right != null)
+            {
+                foreach (var child in node.Right)
+                {
+                    if (result == null)
+                        result = child;
+                    else if (CompareKeys(child.Data, result.Data, node.Level) < 0)
+                        result = child;
+                    else if (CompareKeys(child.Data, result.Data, node.Level) == 0)
+                    {
+                        if (child.IsLeaf)
+                            result = child;
+                        else if (child.Level > result.Level && !result.IsLeaf)
+                            result = child;
+                    }
+                }
+
+                successor = true;
+            }
+
+            return result;
         }
 
         private int CompareKeys(T left, T right, int level)
