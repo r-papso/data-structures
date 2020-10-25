@@ -16,6 +16,7 @@ namespace StructuresTests
 
         public static string RESULTS_FOLDER = "C:\\FRI\\ING\\1_rocnik\\AUS2\\TestResults";
 
+        private static bool _saveResults = false;
         private static bool _integerValues = true;
         private static int _minVal = 0;
         private static int _maxVal = 1000;
@@ -52,7 +53,8 @@ namespace StructuresTests
 
             results.Add(new Result(nodeCount, timer.ElapsedMilliseconds));
 
-            WriteResultsToCsv(results, "BSPTreeConstructionTime.csv");
+            if (_saveResults)
+                WriteResultsToCsv(results, "BSPTreeConstructionTime.csv");
         }
 
         #endregion
@@ -84,7 +86,8 @@ namespace StructuresTests
             Assert.Equal(iterations, nodeCount);
             results.Add(new Result(nodeCount, timer.ElapsedMilliseconds));
 
-            WriteResultsToCsv(results, "BSPTreeIterationTime.csv");
+            if (_saveResults)
+                WriteResultsToCsv(results, "BSPTreeIterationTime.csv");
         }
 
         [Theory]
@@ -100,7 +103,8 @@ namespace StructuresTests
                 csv.AppendLine($"{node.X};{node.Y}");
             }
 
-            File.WriteAllText(Path.Join(RESULTS_FOLDER, "BSPTreeIteration.csv"), csv.ToString());
+            if (_saveResults)
+                File.WriteAllText(Path.Join(RESULTS_FOLDER, "BSPTreeIteration.csv"), csv.ToString());
         }
 
         #endregion
@@ -120,7 +124,8 @@ namespace StructuresTests
                 csv.AppendLine($"{node.X},{node.Y}");
             }
 
-            File.WriteAllText(Path.Join(RESULTS_FOLDER, "BSPTreeIntervalSearch.csv"), csv.ToString());
+            if (_saveResults)
+                File.WriteAllText(Path.Join(RESULTS_FOLDER, "BSPTreeIntervalSearch.csv"), csv.ToString());
         }
 
         [Theory]
@@ -163,7 +168,8 @@ namespace StructuresTests
             Assert.True(count == pointsInInterval, $"Invalid number of found elements -> expected: {pointsInInterval}, found {count}");
             results.Add(new Result(nodeCount, timer.ElapsedMilliseconds));
 
-            WriteResultsToCsv(results, "BSPTreeIntervalSearchTime.csv");
+            if (_saveResults)
+                WriteResultsToCsv(results, "BSPTreeIntervalSearchTime.csv");
         }
 
         [Theory]
@@ -199,7 +205,9 @@ namespace StructuresTests
             }
 
             results.Add(new Result(nodeCount, times.Average()));
-            WriteResultsToCsv(results, "BSPTreePointSearchTime.csv");
+
+            if (_saveResults)
+                WriteResultsToCsv(results, "BSPTreePointSearchTime.csv");
         }
 
         [Fact]
@@ -233,15 +241,22 @@ namespace StructuresTests
         [InlineData(100_000)]
         [InlineData(200_000)]
         [InlineData(400_000)]
+        [InlineData(800_000)]
+        [InlineData(1_600_000)]
         public void InsertionTest(int nodeCount)
         {
             var results = new List<Result>();
+            var times = new List<long>();
             var data = GenerateRandomData(nodeCount);
             var tree = StructureFactory.Instance.GetBSPTree<TwoDimObject>();
 
             foreach (var obj in data)
             {
+                var timer = Stopwatch.StartNew();
                 tree.Insert(obj);
+                timer.Stop();
+
+                times.Add(timer.ElapsedMilliseconds);
             }
 
             int i = 0;
@@ -259,6 +274,11 @@ namespace StructuresTests
             foreach (var node in tree) i++;
 
             Assert.Equal(nodeCount, i);
+
+            results.Add(new Result(nodeCount, times.Average()));
+
+            if (_saveResults)
+                WriteResultsToCsv(results, "BSPTreeInsertionTime.csv");
         }
 
         #endregion
@@ -299,7 +319,9 @@ namespace StructuresTests
             }
 
             results.Add(new Result(nodeCount, times.Average()));
-            WriteResultsToCsv(results, "BSPTreeDeletionTime.csv");
+
+            if (_saveResults)
+                WriteResultsToCsv(results, "BSPTreeDeletionTime.csv");
         }
 
         #endregion
@@ -341,7 +363,9 @@ namespace StructuresTests
             }
 
             results.Add(new Result(nodeCount, times.Average()));
-            WriteResultsToCsv(results, "BSPTreeUpdatingTime.csv");
+
+            if (_saveResults)
+                WriteResultsToCsv(results, "BSPTreeUpdatingTime.csv");
         }
 
         #endregion
