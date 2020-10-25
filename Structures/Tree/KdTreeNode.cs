@@ -57,7 +57,7 @@ namespace Structures.Tree
 
             int dimension = level % dataArray[0].DimensionsCount;
             var stack = new Stack<ConstructionNode>();
-            var comparer = new IKDComparer<T>(dimension);
+            var comparer = new KDComparer<T>(dimension);
 
             Array.Sort(dataArray, 0, dataArray.Length, comparer);
 

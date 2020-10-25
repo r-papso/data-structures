@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Structures.Hepler;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ namespace Structures.Tree
     internal class KdTree<T> : IBSPTree<T> where T : IKDComparable
     {
         private KdTreeNode<T> _root;
+        private KDComparer<T> _comparer = new KDComparer<T>();
 
         public KdTree() { }
 
@@ -22,7 +24,7 @@ namespace Structures.Tree
 
         public ICollection<T> Find(T lowerBound, T upperBound)
         {
-            if (_root == null || (!upperBound.GreaterThan(lowerBound) && !upperBound.Equal(lowerBound)))
+            if (_root == null || (!_comparer.GreaterThan(upperBound, lowerBound) && !_comparer.Equal(upperBound, lowerBound)))
                 return Enumerable.Empty<T>().ToList();
 
             var result = new LinkedList<T>();
@@ -39,7 +41,8 @@ namespace Structures.Tree
                 else
                 {
                     actualNode = stack.Pop();
-                    if (actualNode.Data.Between(lowerBound, upperBound))
+
+                    if (_comparer.Between(actualNode.Data, lowerBound, upperBound))
                     {
                         result.AddLast(actualNode.Data);
                     }
@@ -78,7 +81,7 @@ namespace Structures.Tree
             if (nearestOld == null)
                 throw new ArgumentException($"Data passed as argument {nameof(oldData)} not found");
 
-            if (!nearestOld.Data.Equal(newData))
+            if (!_comparer.Equal(nearestOld.Data, newData))
             {
                 var nearestNew = Nearest(newData, false);
 
