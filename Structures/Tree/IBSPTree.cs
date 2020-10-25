@@ -11,7 +11,7 @@ namespace Structures.Tree
 
         public ICollection<T> Find(T lowerBound, T upperBound);
 
-        public void Update(T data);
+        public void Update(T oldData, T newData);
 
         public void Insert(T data);
 

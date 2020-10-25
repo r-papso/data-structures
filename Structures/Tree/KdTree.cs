@@ -16,7 +16,7 @@ namespace Structures.Tree
         public KdTree(IEnumerable<T> data) => _root = new KdTreeNode<T>(data, 0);
 
         //Only for testing purposes
-        public int GetDepth() => _root.Max(x => x.Level) + 1;
+        public int GetDepth() => _root?.Max(x => x.Level + 1) ?? 0;
 
         public ICollection<T> Find(T data) => Find(data, data);
 
@@ -61,7 +61,7 @@ namespace Structures.Tree
             var nearest = Nearest(data, false);
 
             if (nearest.Data.Identical(data))
-                throw new ArgumentException("Cannot insert exact same data");
+                throw new ArgumentException($"Data with same values as {nameof(data)} already exist");
 
             var newNode = new KdTreeNode<T>(data, nearest.Level + 1);
             newNode.Parent = nearest;
@@ -71,14 +71,33 @@ namespace Structures.Tree
                 nearest.Right = newNode;
         }
 
-        public void Update(T data)
+        public void Update(T oldData, T newData)
         {
-            var nearest = Nearest(data, true);
+            var nearestOld = Nearest(oldData, true);
 
-            if (nearest == null)
-                throw new ArgumentException("Data not found");
+            if (nearestOld == null)
+                throw new ArgumentException($"Data passed as argument {nameof(oldData)} not found");
 
-            nearest.Data = data;
+            if (!nearestOld.Data.Equal(newData))
+            {
+                var nearestNew = Nearest(newData, false);
+
+                if (nearestNew.Data.Identical(newData))
+                    throw new ArgumentException($"Data with same values as {nameof(newData)} already exist");
+
+                var newNode = new KdTreeNode<T>(newData, nearestNew.Level + 1);
+                newNode.Parent = nearestNew;
+                if (CompareKeys(newData, nearestNew.Data, nearestNew.Level) <= 0)
+                    nearestNew.Left = newNode;
+                else
+                    nearestNew.Right = newNode;
+
+                Delete(nearestOld);
+            }
+            else
+            {
+                nearestOld.Data = newData;
+            }
         }
 
         public void Delete(T data)
@@ -86,7 +105,7 @@ namespace Structures.Tree
             var nodeToDelete = Nearest(data, true);
 
             if (nodeToDelete == null)
-                throw new ArgumentException("Data not found");
+                throw new ArgumentException($"Data passed as argument {nameof(data)} not found");
 
             Delete(nodeToDelete);
         }
@@ -160,8 +179,7 @@ namespace Structures.Tree
                 if (successor)
                 {
                     reinserted.AddRange(nodeToDelete.Right.Where(x => CompareKeys(x.Data, substitute.Data, nodeToDelete.Level) == 0 &&
-                                                                      !x.Data.Identical(substitute.Data))
-                                                          .OrderByDescending(x => x.Level));
+                                                                      !x.Data.Identical(substitute.Data)));
                 }
 
                 if (substitute.IsLeaf)
@@ -184,7 +202,7 @@ namespace Structures.Tree
 
             nodeToDelete.Delete();
 
-            foreach (var node in reinserted)
+            foreach (var node in reinserted.OrderByDescending(x => x.Level))
             {
                 var data = node.Data;
                 Delete(node);

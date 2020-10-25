@@ -19,13 +19,13 @@ namespace StructuresTests
         [InlineData(1)]
         [InlineData(10)]
         [InlineData(100)]
-        [InlineData(1000)]
-        [InlineData(10000)]
-        [InlineData(100000)]
-        [InlineData(200000)]
-        [InlineData(400000)]
-        [InlineData(800000)]
-        [InlineData(1600000)]
+        [InlineData(1_000)]
+        [InlineData(10_000)]
+        [InlineData(100_000)]
+        [InlineData(200_000)]
+        [InlineData(400_000)]
+        [InlineData(800_000)]
+        [InlineData(1_600_000)]
         public void ConstructionTimeTest(int nodeCount)
         {
             var results = new List<Result>();
@@ -53,13 +53,13 @@ namespace StructuresTests
         [InlineData(1)]
         [InlineData(10)]
         [InlineData(100)]
-        [InlineData(1000)]
-        [InlineData(10000)]
-        [InlineData(100000)]
-        [InlineData(200000)]
-        [InlineData(400000)]
-        [InlineData(800000)]
-        [InlineData(1600000)]
+        [InlineData(1_000)]
+        [InlineData(10_000)]
+        [InlineData(100_000)]
+        [InlineData(200_000)]
+        [InlineData(400_000)]
+        [InlineData(800_000)]
+        [InlineData(1_600_000)]
         public void IterationTimeTest(int nodeCount)
         {
             var results = new List<Result>();
@@ -117,13 +117,13 @@ namespace StructuresTests
         [InlineData(1)]
         [InlineData(10)]
         [InlineData(100)]
-        [InlineData(1000)]
-        [InlineData(10000)]
-        [InlineData(100000)]
-        [InlineData(200000)]
-        [InlineData(400000)]
-        [InlineData(800000)]
-        [InlineData(1600000)]
+        [InlineData(1_000)]
+        [InlineData(10_000)]
+        [InlineData(100_000)]
+        [InlineData(200_000)]
+        [InlineData(400_000)]
+        [InlineData(800_000)]
+        [InlineData(1_600_000)]
         public void IntervalSearchTimeTest(int nodeCount)
         {
             var results = new List<Result>();
@@ -156,13 +156,13 @@ namespace StructuresTests
         [InlineData(1)]
         [InlineData(10)]
         [InlineData(100)]
-        [InlineData(1000)]
-        [InlineData(10000)]
-        [InlineData(100000)]
-        [InlineData(200000)]
-        [InlineData(400000)]
-        [InlineData(800000)]
-        [InlineData(1600000)]
+        [InlineData(1_000)]
+        [InlineData(10_000)]
+        [InlineData(100_000)]
+        [InlineData(200_000)]
+        [InlineData(400_000)]
+        [InlineData(800_000)]
+        [InlineData(1_600_000)]
         public void PointSearchTimeTest(int nodeCount)
         {
             var results = new List<Result>();
@@ -199,14 +199,10 @@ namespace StructuresTests
             for (int i = 0; i < 100_000; i++)
             {
                 var searchData = data[rand.Next(0, 10)];
-                try
-                {
-                    tree.Find(searchData);
-                }
-                catch (ArgumentException)
-                {
-                    Assert.True(false, $"Item at index {i} not found");
-                }
+                var result = tree.Find(searchData);
+
+                Assert.True(result.Count > 0, $"Item at index {i} not found");
+
             }
         }
 
@@ -218,11 +214,11 @@ namespace StructuresTests
         [InlineData(1)]
         [InlineData(10)]
         [InlineData(100)]
-        [InlineData(1000)]
-        [InlineData(10000)]
-        [InlineData(100000)]
-        [InlineData(200000)]
-        [InlineData(400000)]
+        [InlineData(1_000)]
+        [InlineData(10_000)]
+        [InlineData(100_000)]
+        [InlineData(200_000)]
+        [InlineData(400_000)]
         public void InsertionTest(int nodeCount)
         {
             var results = new List<Result>();
@@ -259,34 +255,75 @@ namespace StructuresTests
         [InlineData(1)]
         [InlineData(10)]
         [InlineData(100)]
-        [InlineData(1000)]
-        [InlineData(10000)]
-        [InlineData(100000)]
-        [InlineData(200000)]
-        [InlineData(400000)]
+        [InlineData(1_000)]
+        [InlineData(10_000)]
+        [InlineData(100_000)]
+        [InlineData(200_000)]
+        [InlineData(400_000)]
+        [InlineData(800_000)]
+        [InlineData(1_600_000)]
         public void DeletionTest(int nodeCount)
         {
             var results = new List<Result>();
-            var data = GenerateRandomData(nodeCount, 1);
+            var times = new List<long>();
+            var data = GenerateRandomData(nodeCount);
             var tree = StructureFactory.Instance.GetBSPTree(data);
             var expectedCount = nodeCount;
 
             foreach (var obj in data)
             {
+                var timer = Stopwatch.StartNew();
                 tree.Delete(obj);
+                timer.Stop();
+
+                times.Add(timer.ElapsedMilliseconds);
 
                 //int actualCount = 0;
                 //foreach (var node in tree) actualCount++;
 
                 //Assert.Equal(--expectedCount, actualCount);
             }
+
+            results.Add(new Result(nodeCount, times.Average()));
+            WriteResultsToCsv(results, "BSPTreeDeletionTime.csv");
         }
 
         #endregion
 
         #region Updating
 
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        [InlineData(100)]
+        [InlineData(1_000)]
+        [InlineData(10_000)]
+        [InlineData(100_000)]
+        [InlineData(200_000)]
+        [InlineData(400_000)]
+        [InlineData(800_000)]
+        [InlineData(1_600_000)]
+        public void UpdatingTest(int nodeCount)
+        {
+            var results = new List<Result>();
+            var times = new List<long>();
+            var data = GenerateRandomData(nodeCount);
+            var tree = StructureFactory.Instance.GetBSPTree(data);
+            var rand = new Random();
+            var i = 0;
 
+            foreach (var obj in data)
+            {
+                var timer = Stopwatch.StartNew();
+                tree.Update(obj, new TwoDimObject(nodeCount + i, rand.NextDouble(), rand.NextDouble()));
+                timer.Stop();
+
+                times.Add(timer.ElapsedMilliseconds);
+            }
+
+            results.Add(new Result(nodeCount, times.Average()));
+            WriteResultsToCsv(results, "BSPTreeUpdatingTime.csv");
+        }
 
         #endregion
 
