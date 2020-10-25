@@ -6,10 +6,10 @@ using System.Linq;
 
 namespace Structures.Tree
 {
-    internal class KdTree<T> : IBSPTree<T> where T : IKDComparable
+    internal class KdTree<T> : IBSPTree<T> where T : IKdComparable
     {
         private KdTreeNode<T> _root;
-        private KDComparer<T> _comparer = new KDComparer<T>();
+        private KdComparer<T> _comparer = new KdComparer<T>();
 
         public KdTree() { }
 

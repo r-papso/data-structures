@@ -2,7 +2,7 @@
 
 namespace Structures.Tree
 {
-    public interface IBSPTree<T> : IEnumerable<T> where T : IKDComparable
+    public interface IBSPTree<T> : IEnumerable<T> where T : IKdComparable
     {
         //Only for testing purposes
         public int GetDepth();

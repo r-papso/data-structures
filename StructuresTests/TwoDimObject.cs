@@ -4,9 +4,9 @@ using System;
 
 namespace StructuresTests
 {
-    public class TwoDimObject : IKDComparable
+    public class TwoDimObject : IKdComparable
     {
-        private static int DIM_COUNT = 2;
+        private static int _dimCount = 2;
 
         public int PrimaryKey { get; }
 
@@ -14,7 +14,7 @@ namespace StructuresTests
 
         public double Y { get; }
 
-        public int DimensionsCount => DIM_COUNT;
+        public int DimensionsCount => _dimCount;
 
         public TwoDimObject(int primaryKey, double x, double y)
         {
@@ -32,11 +32,11 @@ namespace StructuresTests
                 case 1:
                     return Y;
                 default:
-                    throw new DimensionRangeException(dimension, DIM_COUNT);
+                    throw new DimensionRangeException(dimension, _dimCount);
             }
         }
 
-        public bool Identical(IKDComparable other)
+        public bool Identical(IKdComparable other)
         {
             var obj = other as TwoDimObject;
             return X == obj.X && Y == obj.Y && PrimaryKey == obj.PrimaryKey;

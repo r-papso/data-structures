@@ -28,12 +28,12 @@ namespace Structures
             }
         }
 
-        public IBSPTree<T> GetBSPTree<T>() where T : IKDComparable
+        public IBSPTree<T> GetBSPTree<T>() where T : IKdComparable
         {
             return new KdTree<T>();
         }
 
-        public IBSPTree<T> GetBSPTree<T>(IEnumerable<T> data) where T : IKDComparable
+        public IBSPTree<T> GetBSPTree<T>(IEnumerable<T> data) where T : IKdComparable
         {
             return new KdTree<T>(data);
         }

@@ -6,13 +6,13 @@ using System.Linq;
 
 namespace Structures.Tree
 {
-    internal class KdTreeNode<T> : IEnumerable<KdTreeNode<T>> where T : IKDComparable
+    internal class KdTreeNode<T> : IEnumerable<KdTreeNode<T>> where T : IKdComparable
     {
         public KdTreeNode(T data, int level) => (Data, Level) = (data, level);
 
         public KdTreeNode(IEnumerable<T> data, int level) => BuildTree(data, level);
 
-        public bool IsLeaf { get => Right == null && Left == null; }
+        public bool IsLeaf => Right == null && Left == null;
 
         public int Level { get; set; }
 
@@ -57,7 +57,7 @@ namespace Structures.Tree
 
             int dimension = level % dataArray[0].DimensionsCount;
             var stack = new Stack<ConstructionNode>();
-            var comparer = new KDComparer<T>(dimension);
+            var comparer = new KdComparer<T>(dimension);
 
             Array.Sort(dataArray, 0, dataArray.Length, comparer);
 

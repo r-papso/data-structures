@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace Structures.Hepler
 {
-    public class KDComparer<T> : IComparer<T> where T : IKDComparable
+    public class KdComparer<T> : IComparer<T> where T : IKdComparable
     {
         public int Dimension { get; set; }
 
-        public KDComparer() { }
+        public KdComparer() { }
 
-        public KDComparer(int dimension) => Dimension = dimension;
+        public KdComparer(int dimension) => Dimension = dimension;
 
         public int Compare(T left, T right)
         {

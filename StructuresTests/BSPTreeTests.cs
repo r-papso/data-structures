@@ -20,7 +20,7 @@ namespace StructuresTests
         private static bool _integerValues = true;
         private static int _minVal = 0;
         private static int _maxVal = 1000;
-        private static KDComparer<TwoDimObject> _comparer = new KDComparer<TwoDimObject>();
+        private static KdComparer<TwoDimObject> _comparer = new KdComparer<TwoDimObject>();
 
         #endregion
 
