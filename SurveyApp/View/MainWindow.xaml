@@ -51,32 +51,44 @@
         <Button Grid.Row="2" Grid.Column="4" Margin="5,2.5,5,2.5" Command="{Binding ResetCommand}">Reset</Button>
         <Button Grid.Row="3" Grid.Column="4" Margin="5,2.5,5,2.5" Command="{Binding NewCommand}">New</Button>
 
-        <ListView Grid.Row="5" Grid.Column="1" Grid.RowSpan="6" Grid.ColumnSpan="3" Margin="5,2.5,5,2.5" ItemsSource="{Binding DisplayedLocations}">
+        <ListView Grid.Row="5" Grid.Column="1" Grid.RowSpan="6" Grid.ColumnSpan="3" Margin="5,2.5,5,2.5" HorizontalContentAlignment="Stretch" SelectedItem="{Binding SelectedLocation}" ItemsSource="{Binding DisplayedLocations}">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Expander>
-                        <Expander.Header>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding ID}" />
-                                <TextBlock Text="{Binding Description}" Margin="20,0,0,0" />
-                                <TextBlock Text="{Binding Latitude}" Margin="20,0,0,0" />
-                                <TextBlock Text="{Binding Longitude}" Margin="20,0,0,0" />
-                            </StackPanel>
-                        </Expander.Header>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                        </Grid.ColumnDefinitions>
 
-                        <ListView ItemsSource="{Binding Locations}">
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding ID}" />
-                                        <TextBlock Text="{Binding Description}" Margin="20,0,0,0" />
-                                        <TextBlock Text="{Binding Latitude}" Margin="20,0,0,0" />
-                                        <TextBlock Text="{Binding Longitude}" Margin="20,0,0,0" />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </Expander>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="25"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="{Binding ID, StringFormat=ID: {0:F0}}" />
+                        <TextBlock Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Text="{Binding Description}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" Text="{Binding Latitude, StringFormat=Lat: {0:F4}}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="4" VerticalAlignment="Center" Text="{Binding Longitude, StringFormat=Long: {0:F4}}"/>
+
+                        <Expander Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3">
+                            <ListView ItemsSource="{Binding Locations}">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding ID, StringFormat=ID: {0:F0}}" />
+                                            <TextBlock Text="{Binding Description}" Margin="20,0,0,0" />
+                                            <TextBlock Text="{Binding Latitude, StringFormat=Latitude: {0:F4}}" Margin="20,0,0,0" />
+                                            <TextBlock Text="{Binding Longitude, StringFormat=Longitude: {0:F4}}" Margin="20,0,0,0" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </Expander>
+                    </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
