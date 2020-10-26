@@ -2,7 +2,7 @@
 {
     public class SearchCriteria
     {
-        public LocationType LocationType { get; set; }
+        public LocationType? LocationType { get; set; }
 
         public double? MinLatitude { get; set; }
 

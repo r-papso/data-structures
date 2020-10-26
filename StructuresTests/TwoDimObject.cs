@@ -39,6 +39,10 @@ namespace StructuresTests
         public bool Identical(IKdComparable other)
         {
             var obj = other as TwoDimObject;
+
+            if (obj == null)
+                return false;
+
             return X == obj.X && Y == obj.Y && PrimaryKey == obj.PrimaryKey;
         }
     }

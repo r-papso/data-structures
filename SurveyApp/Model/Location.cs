@@ -25,6 +25,17 @@ namespace SurveyApp.Model
 
         public int DimensionsCount => _dimensionsCount;
 
+        public Location() { }
+
+        public Location(int id, LocationType locationType, string description, double latitude, double longitude)
+        {
+            ID = id;
+            LocationType = locationType;
+            Description = description;
+            Latitude = latitude;
+            Longitude = longitude;
+        }
+
         public IComparable GetKey(int dimension)
         {
             switch (dimension)
@@ -41,6 +52,10 @@ namespace SurveyApp.Model
         public bool Identical(IKdComparable other)
         {
             var otherLoc = other as Location;
+
+            if (otherLoc == null)
+                return false;
+
             return ID == otherLoc.ID && LocationType == otherLoc.LocationType && Latitude == otherLoc.Latitude && Longitude == otherLoc.Longitude;
         }
     }

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.DependencyInjection;
+using SurveyApp.Service;
+using SurveyApp.View;
+using SurveyApp.ViewModel;
 using System.Windows;
 
 namespace SurveyApp
@@ -13,5 +11,23 @@ namespace SurveyApp
     /// </summary>
     public partial class App : Application
     {
+        private void OnStartup(object sender, StartupEventArgs e)
+        {
+            var services = new ServiceCollection();
+            ConfigureServices(services);
+            var serviceProvider = services.BuildServiceProvider();
+
+            var mainWindow = serviceProvider.GetRequiredService<MainWindow>();
+            mainWindow.Show();
+        }
+
+        private void ConfigureServices(IServiceCollection services)
+        {
+            services.AddSingleton<WindowService>();
+            services.AddSingleton<LocationManager>();
+            services.AddSingleton<GenerateViewModel>();
+            services.AddSingleton<MainViewModel>();
+            services.AddSingleton<MainWindow>();
+        }
     }
 }
