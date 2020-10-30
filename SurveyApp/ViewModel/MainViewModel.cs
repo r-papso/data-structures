@@ -2,10 +2,8 @@
 using SurveyApp.Model;
 using SurveyApp.Service;
 using SurveyApp.View;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
@@ -13,7 +11,8 @@ namespace SurveyApp.ViewModel
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        private IEnumerable<Location> _displayedLocations;
+        private IEnumerable<Location> _displayedProperties;
+        private IEnumerable<Location> _displayedSites;
 
         private LocationManager _locationManager;
         private WindowService _windowService;
@@ -21,20 +20,25 @@ namespace SurveyApp.ViewModel
 
         public SearchCriteria SearchCriteria { get; } = new SearchCriteria();
 
-        public IEnumerable<LocationType> LocationTypeValues => Enum.GetValues(typeof(LocationType)).Cast<LocationType>();
-
         public Location SelectedLocation { get; set; }
 
-        public IEnumerable<Location> DisplayedLocations
+        public IEnumerable<Location> DisplayedProperties
         {
-            get => _displayedLocations;
+            get => _displayedProperties;
             set
             {
-                if (_displayedLocations != value)
-                {
-                    _displayedLocations = value;
-                    OnPropertyChanged();
-                }
+                _displayedProperties = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public IEnumerable<Location> DisplayedSites
+        {
+            get => _displayedSites;
+            set
+            {
+                _displayedSites = value;
+                OnPropertyChanged();
             }
         }
 
@@ -66,68 +70,18 @@ namespace SurveyApp.ViewModel
 
             InitRelayCommands();
             RegisterListeners();
-
-            var locations = new List<Location>();
-
-            var prop1 = new Location()
-            {
-                ID = 0,
-                Description = "Prop 1",
-                Latitude = 10,
-                Longitude = 20,
-                LocationType = LocationType.Property,
-                Locations = new LinkedList<Location>()
-            };
-            var prop2 = new Location()
-            {
-                ID = 0,
-                Description = "Prop 2",
-                Latitude = 10,
-                Longitude = 20,
-                LocationType = LocationType.Property,
-                Locations = new LinkedList<Location>()
-            };
-
-            var site1 = new Location()
-            {
-                ID = 0,
-                Description = "Site 1",
-                Latitude = 10,
-                Longitude = 20,
-                LocationType = LocationType.Site
-            };
-            var site2 = new Location()
-            {
-                ID = 1,
-                Description = "Site 2",
-                Latitude = 10,
-                Longitude = 20,
-                LocationType = LocationType.Site
-            };
-
-            prop1.Locations.Add(site1);
-            prop1.Locations.Add(site2);
-            prop2.Locations.Add(site1);
-            prop2.Locations.Add(site2);
-
-            locations.Add(prop1);
-            locations.Add(prop2);
-
-            DisplayedLocations = locations;
         }
 
-        public bool CanSearch(object parameter) => SearchCriteria.LocationType != null && SearchCriteria.MinLatitude != null && SearchCriteria.MinLongitude != null;
-
-        public void Search(object parameter) => DisplayedLocations = _locationManager.GetLocationsByCriteria(SearchCriteria);
+        public void Search(object parameter) => _locationManager.FindLocationsByCriteria(SearchCriteria);
 
         public void Reset(object parameter)
         {
-            SearchCriteria.MinLatitude = null;
-            SearchCriteria.MaxLatitude = null;
-            SearchCriteria.MinLongitude = null;
-            SearchCriteria.MaxLongitude = null;
+            SearchCriteria.MinLatitude = 0;
+            SearchCriteria.MaxLatitude = 0;
+            SearchCriteria.MinLongitude = 0;
+            SearchCriteria.MaxLongitude = 0;
 
-            DisplayedLocations = SearchCriteria.LocationType == LocationType.Property ? _locationManager.Properties : _locationManager.Sites;
+            _locationManager.Reset();
         }
 
         public void New(object parameter)
@@ -144,12 +98,9 @@ namespace SurveyApp.ViewModel
 
         public bool CanDelete(object parameter) => SelectedLocation != null;
 
-        public void Delete(object parameter)
-        {
+        public void Delete(object parameter) => _locationManager.DeleteLocation(SelectedLocation);
 
-        }
-
-        public void Generate(object parameter) => _windowService.ShowWindow<GenerateWindow>(_generateViewModel);
+        public void Generate(object parameter) => _windowService.ShowDialog<GenerateWindow>(_generateViewModel);
 
         public void Load(object parameter)
         {
@@ -168,7 +119,7 @@ namespace SurveyApp.ViewModel
 
         private void InitRelayCommands()
         {
-            SearchCommand = new RelayCommand(Search, CanSearch);
+            SearchCommand = new RelayCommand(Search);
             ResetCommand = new RelayCommand(Reset);
             NewCommand = new RelayCommand(New);
             UpdateCommand = new RelayCommand(Update, CanUpdate);
@@ -180,7 +131,13 @@ namespace SurveyApp.ViewModel
 
         private void RegisterListeners()
         {
-            _locationManager.LocationsChanged += (sender, args) => DisplayedLocations = args.Locations;
+            _locationManager.LocationsChanged += LocationsChanged;
+        }
+
+        private void LocationsChanged(object sender, Event.LocationsChangedEventArgs args)
+        {
+            DisplayedProperties = args.Properties;
+            DisplayedSites = args.Sites;
         }
     }
 }

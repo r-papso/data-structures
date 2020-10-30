@@ -8,7 +8,7 @@
         xmlns:viewModel="clr-namespace:SurveyApp.ViewModel"
         xmlns:helper="clr-namespace:SurveyApp.Helper"
         mc:Ignorable="d"
-        Title="GenerateWindow" Height="300" Width="400"
+        Title="GenerateWindow" Height="280" Width="400"
         d:DataContext="{d:DesignInstance Type=viewModel:GenerateViewModel, IsDesignTimeCreatable=True}">
 
     <Grid>
@@ -26,7 +26,6 @@
             <RowDefinition Height="30"/>
             <RowDefinition Height="30"/>
             <RowDefinition Height="30"/>
-            <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="30"/>
             <RowDefinition Height="20"/>
@@ -38,18 +37,15 @@
         <Label Grid.Row="2" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Integral values:" VerticalContentAlignment="Center"/>
         <CheckBox Grid.Row="2" Grid.Column="2" Margin="5,2.5,5,2.5" VerticalContentAlignment="Center" IsChecked="{Binding GenerationCriteria.IntegralValues}"/>
 
-        <Label Grid.Row="3" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Random values:" VerticalContentAlignment="Center"/>
-        <CheckBox Grid.Row="3" Grid.Column="2" Margin="5,2.5,5,2.5" VerticalContentAlignment="Center" IsChecked="{Binding GenerationCriteria.RandomValues}"/>
-
-        <Label Grid.Row="4" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Number of locations:" VerticalContentAlignment="Center"/>
-        <TextBox Grid.Row="4" Grid.Column="2" Margin="5,2.5,5,2.5" VerticalContentAlignment="Center" Text="{Binding GenerationCriteria.LocationsCount}"/>
+        <Label Grid.Row="3" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Number of locations:" VerticalContentAlignment="Center"/>
+        <TextBox Grid.Row="3" Grid.Column="2" Margin="5,2.5,5,2.5" VerticalContentAlignment="Center" Text="{Binding GenerationCriteria.LocationsCount}"/>
         
-        <Label Grid.Row="5" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Minimal value:" VerticalContentAlignment="Center"/>
-        <TextBox Grid.Row="5" Grid.Column="2" Margin="5,2.5,5,2.5" VerticalContentAlignment="Center" Text="{Binding GenerationCriteria.MinValue}"/>
+        <Label Grid.Row="4" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Minimal value:" VerticalContentAlignment="Center"/>
+        <TextBox Grid.Row="4" Grid.Column="2" Margin="5,2.5,5,2.5" VerticalContentAlignment="Center" Text="{Binding GenerationCriteria.MinValue}"/>
 
-        <Label Grid.Row="6" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Maximal value:" VerticalContentAlignment="Center"/>
-        <TextBox Grid.Row="6" Grid.Column="2" Margin="5,2.5,5,2.5" VerticalContentAlignment="Center" Text="{Binding GenerationCriteria.MaxValue}"/>
+        <Label Grid.Row="5" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Maximal value:" VerticalContentAlignment="Center"/>
+        <TextBox Grid.Row="5" Grid.Column="2" Margin="5,2.5,5,2.5" VerticalContentAlignment="Center" Text="{Binding GenerationCriteria.MaxValue}"/>
 
-        <Button Grid.Row="8" Grid.Column="2" Margin="5,2.5,5,2.5" HorizontalAlignment="Right" Width="90" Command="{Binding SubmitCommand}">Submit</Button>
+        <Button Grid.Row="7" Grid.Column="2" Margin="5,2.5,5,2.5" HorizontalAlignment="Right" Width="90" Command="{Binding SubmitCommand}">Submit</Button>
     </Grid>
 </Window>

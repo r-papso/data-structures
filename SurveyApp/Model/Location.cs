@@ -21,7 +21,7 @@ namespace SurveyApp.Model
 
         public double Longitude { get; set; }
 
-        public ICollection<Location> Locations { get; set; } = new LinkedList<Location>();
+        public IEnumerable<Location> SituatedLocations { get; set; } = new LinkedList<Location>();
 
         public int DimensionsCount => _dimensionsCount;
 

@@ -5,11 +5,14 @@ namespace SurveyApp.Event
 {
     public class LocationsChangedEventArgs
     {
-        public IEnumerable<Location> Locations { get; }
+        public IEnumerable<Location> Properties { get; }
 
-        public LocationsChangedEventArgs(IEnumerable<Location> locations)
+        public IEnumerable<Location> Sites { get; }
+
+        public LocationsChangedEventArgs(IEnumerable<Location> properties, IEnumerable<Location> sites)
         {
-            Locations = locations;
+            Properties = properties;
+            Sites = sites;
         }
     }
 }

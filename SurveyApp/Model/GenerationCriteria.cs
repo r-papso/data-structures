@@ -2,11 +2,9 @@
 {
     public class GenerationCriteria
     {
-        public LocationType? LocationType { get; set; }
+        public LocationType LocationType { get; set; }
 
         public bool IntegralValues { get; set; }
-
-        public bool RandomValues { get; set; }
 
         public int LocationsCount { get; set; }
 

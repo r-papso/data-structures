@@ -10,5 +10,12 @@ namespace SurveyApp.Service
             window.DataContext = viewModel;
             window.Show();
         }
+
+        public void ShowDialog<T>(object viewModel) where T : Window, new()
+        {
+            var dialog = new T();
+            dialog.DataContext = viewModel;
+            dialog.ShowDialog();
+        }
     }
 }

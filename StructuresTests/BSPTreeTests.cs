@@ -145,10 +145,13 @@ namespace StructuresTests
             var data = GenerateRandomData(nodeCount);
             var tree = StructureFactory.Instance.GetBSPTree(data);
 
-            var lowerIndex = (_maxVal - _minVal) / 2 - (_maxVal - _minVal) / 10;
-            var upperIndex = (_maxVal - _minVal) / 2 + (_maxVal - _minVal) / 10;
-            var lower = new TwoDimObject(nodeCount + 1, lowerIndex, upperIndex);
-            var upper = new TwoDimObject(nodeCount + 2, lowerIndex, upperIndex);
+            //var lowerIndex = (_maxVal - _minVal) / 2 - (_maxVal - _minVal) / 10;
+            //var upperIndex = (_maxVal - _minVal) / 2 + (_maxVal - _minVal) / 10;
+            var lowerIndex = _minVal;
+            var upperIndex = _minVal + (_maxVal - _minVal) / 10;
+
+            var lower = new TwoDimObject(nodeCount + 1, lowerIndex, lowerIndex);
+            var upper = new TwoDimObject(nodeCount + 2, upperIndex, upperIndex);
 
             var pointsInInterval = 0;
 

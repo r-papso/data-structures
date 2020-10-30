@@ -5,15 +5,15 @@ namespace SurveyApp.Helper
 {
     public class RelayCommand : ICommand
     {
-        private readonly Action<object> _execute;
+        private readonly Action<object> _action;
         private readonly Predicate<object> _predicate;
 
-        public RelayCommand(Action<object> execute) : this(execute, null)
+        public RelayCommand(Action<object> action) : this(action, null)
         { }
 
-        public RelayCommand(Action<object> execute, Predicate<object> predicate)
+        public RelayCommand(Action<object> action, Predicate<object> predicate)
         {
-            _execute = execute;
+            _action = action;
             _predicate = predicate;
         }
 
@@ -30,7 +30,7 @@ namespace SurveyApp.Helper
 
         public void Execute(object parameter)
         {
-            _execute(parameter);
+            _action(parameter);
         }
     }
 }
