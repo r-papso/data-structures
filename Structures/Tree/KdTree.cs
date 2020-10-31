@@ -24,10 +24,11 @@ namespace Structures.Tree
 
         public ICollection<T> Find(T lowerBound, T upperBound)
         {
-            if (_root == null || (!_comparer.GreaterThan(upperBound, lowerBound) && !_comparer.Equal(upperBound, lowerBound)))
-                return Enumerable.Empty<T>().ToList();
-
             var result = new LinkedList<T>();
+
+            if (_root == null || (!_comparer.GreaterThan(upperBound, lowerBound) && !_comparer.Equal(upperBound, lowerBound)))
+                return result;
+
             var stack = new Stack<KdTreeNode<T>>();
             var actualNode = _root;
 

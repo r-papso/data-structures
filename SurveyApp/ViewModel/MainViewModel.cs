@@ -11,36 +11,45 @@ namespace SurveyApp.ViewModel
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        private IEnumerable<Location> _displayedProperties;
-        private IEnumerable<Location> _displayedSites;
+        private IEnumerable<Location> _properties;
+        private IEnumerable<Location> _sites;
 
-        private LocationManager _locationManager;
-        private WindowService _windowService;
-        private GenerateViewModel _generateViewModel;
+        private readonly LocationManager _locationManager;
+        private readonly WindowService _windowService;
+        private readonly GenerateViewModel _generateViewModel;
+        private readonly LocationViewModel _locationViewModel;
 
         public SearchCriteria SearchCriteria { get; } = new SearchCriteria();
 
         public Location SelectedLocation { get; set; }
 
-        public IEnumerable<Location> DisplayedProperties
+        public CollectionAdapter<Location> Properties { get; }
+
+        public CollectionAdapter<Location> Sites { get; }
+
+        /*public IEnumerable<Location> Properties
         {
-            get => _displayedProperties;
-            set
+            get => _properties;
+            private set
             {
-                _displayedProperties = value;
+                _properties = value;
                 OnPropertyChanged();
             }
         }
 
-        public IEnumerable<Location> DisplayedSites
+        public IEnumerable<Location> Sites
         {
-            get => _displayedSites;
-            set
+            get => _sites;
+            private set
             {
-                _displayedSites = value;
+                _sites = value;
                 OnPropertyChanged();
             }
-        }
+        }*/
+
+        //public ObservableCollection<Location> Properties { get; set; }
+
+        //public ObservableCollection<Location> Sites { get; set; }
 
         public ICommand SearchCommand { get; private set; }
 
@@ -62,19 +71,28 @@ namespace SurveyApp.ViewModel
 
         public MainViewModel() { }
 
-        public MainViewModel(LocationManager locationManager, WindowService windowService, GenerateViewModel generateViewModel)
+        public MainViewModel(LocationManager locationManager, WindowService windowService, GenerateViewModel generateViewModel, LocationViewModel locationViewModel)
         {
             _locationManager = locationManager;
             _windowService = windowService;
             _generateViewModel = generateViewModel;
+            _locationViewModel = locationViewModel;
+
+            Properties = _locationManager.Properties;
+            Sites = _locationManager.Sites;
 
             InitRelayCommands();
-            RegisterListeners();
+            //RegisterListeners();
         }
 
-        public void Search(object parameter) => _locationManager.FindLocationsByCriteria(SearchCriteria);
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
 
-        public void Reset(object parameter)
+        private void Search(object parameter) => _locationManager.FindLocationsByCriteria(SearchCriteria);
+
+        private void Reset(object parameter)
         {
             SearchCriteria.MinLatitude = 0;
             SearchCriteria.MaxLatitude = 0;
@@ -84,37 +102,34 @@ namespace SurveyApp.ViewModel
             _locationManager.Reset();
         }
 
-        public void New(object parameter)
+        private void New(object parameter)
+        {
+            _locationViewModel.New();
+            _windowService.ShowDialog<LocationWindow>(_locationViewModel);
+        }
+
+        private bool CanUpdate(object parameter) => SelectedLocation != null;
+
+        private void Update(object parameter)
+        {
+            _locationViewModel.Updating(SelectedLocation);
+            _windowService.ShowDialog<LocationWindow>(_locationViewModel);
+        }
+
+        private bool CanDelete(object parameter) => SelectedLocation != null;
+
+        private void Delete(object parameter) => _locationManager.DeleteLocation(SelectedLocation);
+
+        private void Generate(object parameter) => _windowService.ShowDialog<GenerateWindow>(_generateViewModel);
+
+        private void Load(object parameter)
         {
 
         }
 
-        public bool CanUpdate(object parameter) => SelectedLocation != null;
-
-        public void Update(object parameter)
+        private void Save(object parameter)
         {
 
-        }
-
-        public bool CanDelete(object parameter) => SelectedLocation != null;
-
-        public void Delete(object parameter) => _locationManager.DeleteLocation(SelectedLocation);
-
-        public void Generate(object parameter) => _windowService.ShowDialog<GenerateWindow>(_generateViewModel);
-
-        public void Load(object parameter)
-        {
-
-        }
-
-        public void Save(object parameter)
-        {
-
-        }
-
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
         private void InitRelayCommands()
@@ -129,15 +144,21 @@ namespace SurveyApp.ViewModel
             SaveCommand = new RelayCommand(Save);
         }
 
-        private void RegisterListeners()
+        /*private void RegisterListeners()
         {
             _locationManager.LocationsChanged += LocationsChanged;
-        }
+        }*/
 
-        private void LocationsChanged(object sender, Event.LocationsChangedEventArgs args)
+        /*private void LocationsChanged(object sender, Event.LocationsChangedEventArgs args)
         {
-            DisplayedProperties = args.Properties;
-            DisplayedSites = args.Sites;
-        }
+            if (args.Properties != null)
+            {
+                Properties = new LinkedList<Location>(args.Properties);
+            }
+            if (args.Sites != null)
+            {
+                Sites = new LinkedList<Location>(args.Sites);
+            }
+        }*/
     }
 }

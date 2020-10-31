@@ -21,7 +21,7 @@ namespace SurveyApp.Model
 
         public double Longitude { get; set; }
 
-        public IEnumerable<Location> SituatedLocations { get; set; } = new LinkedList<Location>();
+        public ICollection<Location> SituatedLocations { get; set; } = new LinkedList<Location>();
 
         public int DimensionsCount => _dimensionsCount;
 
@@ -34,6 +34,18 @@ namespace SurveyApp.Model
             Description = description;
             Latitude = latitude;
             Longitude = longitude;
+        }
+
+        public Location(Location other)
+        {
+            if (other != null)
+            {
+                ID = other.ID;
+                LocationType = other.LocationType;
+                Description = other.Description;
+                Latitude = other.Latitude;
+                Longitude = other.Longitude;
+            }
         }
 
         public IComparable GetKey(int dimension)

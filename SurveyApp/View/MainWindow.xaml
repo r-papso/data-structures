@@ -53,8 +53,8 @@
 
         <ListView Grid.Row="5" Grid.Column="1" Grid.RowSpan="6" Grid.ColumnSpan="3" Margin="5,2.5,5,2.5" HorizontalContentAlignment="Stretch" SelectedItem="{Binding SelectedLocation}">
             <ListView.Resources>
-                <CollectionViewSource x:Key="Properties" Source="{Binding DisplayedProperties}"/>
-                <CollectionViewSource x:Key="Sites" Source="{Binding DisplayedSites}"/>
+                <CollectionViewSource x:Key="Properties" Source="{Binding Properties}"/>
+                <CollectionViewSource x:Key="Sites" Source="{Binding Sites}"/>
             </ListView.Resources>
             <ListView.ItemsSource>
                 <CompositeCollection>

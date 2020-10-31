@@ -22,7 +22,7 @@ namespace SurveyApp.ViewModel
             InitRelayCommands();
         }
 
-        public void Submit(object parameter) => _locationManager.GenerateLocations(GenerationCriteria);
+        private void Submit(object parameter) => _locationManager.GenerateLocations(GenerationCriteria);
 
         private void InitRelayCommands()
         {

@@ -3,12 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:System="clr-namespace:System;assembly=mscorlib"
-        xmlns:model="clr-namespace:SurveyApp.Model"
         xmlns:viewModel="clr-namespace:SurveyApp.ViewModel"
         xmlns:helper="clr-namespace:SurveyApp.Helper"
         mc:Ignorable="d"
-        Title="GenerateWindow" Height="280" Width="400"
+        Title="Generate Locations" Height="280" Width="400"
         d:DataContext="{d:DesignInstance Type=viewModel:GenerateViewModel, IsDesignTimeCreatable=True}">
 
     <Grid>
