@@ -17,7 +17,7 @@ namespace StructuresTests
         public static string RESULTS_FOLDER = "C:\\FRI\\ING\\1_rocnik\\AUS2\\TestResults";
 
         private static bool _saveResults = false;
-        private static bool _integerValues = true;
+        private static bool _integerValues = false;
         private static int _minVal = 0;
         private static int _maxVal = 1000;
         private static KdComparer<TwoDimObject> _comparer = new KdComparer<TwoDimObject>();
@@ -369,6 +369,31 @@ namespace StructuresTests
 
             if (_saveResults)
                 WriteResultsToCsv(results, "BSPTreeUpdatingTime.csv");
+        }
+
+        #endregion
+
+        #region Saving/Loading
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        [InlineData(100)]
+        [InlineData(1_000)]
+        [InlineData(10_000)]
+        [InlineData(100_000)]
+        public void SavingLoadingTest(int nodeCount)
+        {
+            var data = GenerateRandomData(nodeCount);
+            var tree = StructureFactory.Instance.GetBSPTree(data);
+            var filePath = Path.Combine(RESULTS_FOLDER, $"SavingTest_{nodeCount}.csv");
+
+            tree.ToCsvFile(filePath, ";");
+
+            var loadedTree = StructureFactory.Instance.GetBSPTree<TwoDimObject>();
+            loadedTree.FromCsvFile(filePath, ";");
+
+            Assert.True(tree.ComparePairWise(loadedTree, (x, y) => x.Identical(y)));
         }
 
         #endregion

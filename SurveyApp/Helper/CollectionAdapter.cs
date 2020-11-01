@@ -3,91 +3,123 @@ using Structures.Tree;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 
 namespace SurveyApp.Helper
 {
-    public class CollectionAdapter<T> : INotifyCollectionChanged, IEnumerable<T> where T : IKdComparable
+    public class CollectionAdapter<T> : INotifyCollectionChanged, IEnumerable<T> where T : IKdComparable, ISaveable, new()
     {
-        private IBSPTree<T> _tree;
-        private IEnumerable<T> _found;
+        public IBSPTree<T> Tree { get; private set; }
+
+        public IEnumerable<T> Found { get; private set; }
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-        public CollectionAdapter() => _tree = StructureFactory.Instance.GetBSPTree<T>();
+        public CollectionAdapter() => Tree = StructureFactory.Instance.GetBSPTree<T>();
 
-        public CollectionAdapter(IBSPTree<T> tree) => _tree = tree;
+        public CollectionAdapter(IBSPTree<T> tree) => Tree = tree;
 
-        public ICollection<T> Get(T data) => _tree.Find(data);
+        public ICollection<T> Get(T data) => Tree.Find(data);
 
-        public ICollection<T> Get(T lowerBound, T upperBound) => _tree.Find(lowerBound, upperBound);
+        public ICollection<T> Get(T lowerBound, T upperBound) => Tree.Find(lowerBound, upperBound);
 
         public void Find(T data)
         {
-            _found = _tree.Find(data);
-            OnCollectionChanged();
+            Found = Tree.Find(data);
+
+            var args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
+            OnCollectionChanged(args);
         }
 
         public void Find(T lowerBound, T upperBound)
         {
-            _found = _tree.Find(lowerBound, upperBound);
-            OnCollectionChanged();
+            Found = Tree.Find(lowerBound, upperBound);
+
+            var args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
+            OnCollectionChanged(args);
+        }
+
+        public void SetEmptyFound()
+        {
+            Found = Enumerable.Empty<T>();
+
+            var args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
+            OnCollectionChanged(args);
         }
 
         public void Insert(T data)
         {
-            _tree.Insert(data);
+            Tree.Insert(data);
 
-            if (_found == null)
+            if (Found == null)
             {
-                OnCollectionChanged();
+                var args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, data);
+                OnCollectionChanged(args);
             }
         }
 
         public void Update(T oldData, T newData)
         {
-            _tree.Update(oldData, newData);
+            Tree.Update(oldData, newData);
 
-            if (_found == null)
+            if (Found == null)
             {
-                OnCollectionChanged();
+                var args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
+                OnCollectionChanged(args);
             }
         }
 
         public void Delete(T data)
         {
-            _tree.Delete(data);
+            Tree.Delete(data);
 
-            if (_found == null)
+            if (Found == null)
             {
-                OnCollectionChanged();
+                var args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
+                OnCollectionChanged(args);
             }
         }
 
         public void Reset()
         {
-            _found = null;
-            OnCollectionChanged();
+            Found = null;
+
+            var args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
+            OnCollectionChanged(args);
         }
 
         public void Generate(IEnumerable<T> data)
         {
-            _tree = StructureFactory.Instance.GetBSPTree(data);
-            OnCollectionChanged();
+            Tree = StructureFactory.Instance.GetBSPTree(data);
+
+            var args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
+            OnCollectionChanged(args);
+        }
+
+        public void Save(string filePath, string delimiter) => Tree.ToCsvFile(filePath, delimiter);
+
+        public void Load(string filePath, string delimiter)
+        {
+            Tree = StructureFactory.Instance.GetBSPTree<T>();
+            Tree.FromCsvFile(filePath, delimiter);
+
+            var args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
+            OnCollectionChanged(args);
         }
 
         public IEnumerator<T> GetEnumerator()
         {
-            if (_found != null)
-                return _found.GetEnumerator();
+            if (Found != null)
+                return Found.GetEnumerator();
             else
-                return _tree.GetEnumerator();
+                return Tree.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        protected void OnCollectionChanged()
+        protected void OnCollectionChanged(NotifyCollectionChangedEventArgs args)
         {
-            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            CollectionChanged?.Invoke(this, args);
         }
     }
 }

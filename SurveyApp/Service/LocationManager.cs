@@ -1,93 +1,57 @@
-﻿using SurveyApp.Helper;
+﻿using Structures.Hepler;
+using SurveyApp.Helper;
 using SurveyApp.Model;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace SurveyApp.Service
 {
     public class LocationManager
     {
-        //private IBSPTree<Location> _properties;
-        //private IBSPTree<Location> _sites;
+        private static string _delimiter = ";";
+        private static string _propertiesFile = "Properties.csv";
+        private static string _sitesFile = "Sites.csv";
 
         public CollectionAdapter<Location> Properties { get; }
 
         public CollectionAdapter<Location> Sites { get; }
 
-        //public delegate void LocationsChangedEventHandler(object sender, LocationsChangedEventArgs e);
-
-        //public event LocationsChangedEventHandler LocationsChanged;
-
         public LocationManager()
         {
-            //_properties = StructureFactory.Instance.GetBSPTree<Location>();
-            //_sites = StructureFactory.Instance.GetBSPTree<Location>();
             Properties = new CollectionAdapter<Location>();
             Sites = new CollectionAdapter<Location>();
         }
 
         public void FindLocationsByCriteria(SearchCriteria criteria)
         {
-            /*if (criteria.LocationType == LocationType.Property)
+            (var lowerBound, var upperBound) = LocationPrototype.GetLocationsByCriteria(criteria);
+
+            if (criteria.LocationType == LocationType.Property)
             {
-                OnLocationsChanged(Find(criteria), Enumerable.Empty<Location>());
+                Properties.Find(lowerBound, upperBound);
+                Sites.SetEmptyFound();
             }
             else
             {
-                OnLocationsChanged(Enumerable.Empty<Location>(), Find(criteria));
-            }*/
-            var minLocation = new Location()
-            {
-                Latitude = criteria.MinLatitude,
-                Longitude = criteria.MinLongitude
-            };
-
-            var maxLocation = new Location()
-            {
-                Latitude = criteria.MaxLatitude,
-                Longitude = criteria.MaxLongitude
-            };
-
-            if (criteria.LocationType == LocationType.Property)
-                Properties.Find(minLocation, maxLocation);
-            else
-                Sites.Find(minLocation, maxLocation);
+                Sites.Find(lowerBound, upperBound);
+                Properties.SetEmptyFound();
+            }
         }
 
         public void InsertLocation(Location location)
         {
-            /*if (location.LocationType == LocationType.Property)
-            {
-                _properties.Insert(location);
-            }
-            else
-            {
-                _sites.Insert(location);
-            }
-
-            OnLocationsChanged(_properties, _sites);*/
             if (location.LocationType == LocationType.Property)
                 Properties.Insert(location);
             else
                 Sites.Insert(location);
+
+            AddSituatedLocations(location);
         }
 
         public void UpdateLocation(Location oldLocation, Location newLocation)
         {
-            /*if (oldLocation.LocationType != newLocation.LocationType)
-                throw new ArgumentException("Changing type of existing location is not allowed");
-
-            if (oldLocation.LocationType == LocationType.Property)
-            {
-                _properties.Update(oldLocation, newLocation);
-                OnLocationsChanged(_properties, null);
-            }
-            else
-            {
-                _sites.Update(oldLocation, newLocation);
-                OnLocationsChanged(null, _sites);
-            }*/
-
             if (oldLocation.LocationType != newLocation.LocationType)
                 throw new ArgumentException("Changing type of existing location is not allowed");
 
@@ -95,58 +59,81 @@ namespace SurveyApp.Service
                 Properties.Update(oldLocation, newLocation);
             else
                 Sites.Update(oldLocation, newLocation);
+
+            var comparer = new KdComparer<Location>();
+
+            if (!comparer.Equal(oldLocation, newLocation))
+            {
+                AddSituatedLocations(newLocation);
+                RemoveSituatedLocations(oldLocation);
+            }
         }
 
         public void DeleteLocation(Location location)
         {
-            /*if (location.LocationType == LocationType.Property)
-            {
-                _properties.Delete(location);
-                OnLocationsChanged(_properties, null);
-            }
-            else
-            {
-                _sites.Delete(location);
-                OnLocationsChanged(null, _sites);
-            }*/
-
             if (location.LocationType == LocationType.Property)
                 Properties.Delete(location);
             else
                 Sites.Delete(location);
+
+            RemoveSituatedLocations(location);
         }
 
         public void GenerateLocations(GenerationCriteria criteria)
         {
-            /*if (criteria.LocationType == LocationType.Property)
-            {
-                _properties = StructureFactory.Instance.GetBSPTree(Generate(criteria));
-                OnLocationsChanged(_properties, null);
-            }
-            else
-            {
-                _sites = StructureFactory.Instance.GetBSPTree(Generate(criteria));
-                OnLocationsChanged(null, _sites);
-            }*/
             if (criteria.LocationType == LocationType.Property)
-                //Properties = new CollectionAdapter<Location>(Generate(criteria));
                 Properties.Generate(Generate(criteria));
             else
-                //Sites = new CollectionAdapter<Location>(Generate(criteria));
                 Sites.Generate(Generate(criteria));
         }
 
-        //public void Reset() => OnLocationsChanged(_properties, _sites);
+        public void SaveLocations(string folderPath)
+        {
+            Properties.Save(Path.Combine(folderPath, _propertiesFile), _delimiter);
+            Sites.Save(Path.Combine(folderPath, _sitesFile), _delimiter);
+        }
+
+        public void LoadLocations(string folderPath)
+        {
+            var propFilePath = Path.Combine(folderPath, _propertiesFile);
+            var siteFilePath = Path.Combine(folderPath, _sitesFile);
+
+            if (File.Exists(propFilePath))
+                Properties.Load(Path.Combine(folderPath, _propertiesFile), _delimiter);
+
+            if (File.Exists(siteFilePath))
+                Sites.Load(Path.Combine(folderPath, _sitesFile), _delimiter);
+
+            if (File.Exists(propFilePath) && File.Exists(siteFilePath))
+            {
+                var propDict = new Dictionary<int, Location>(Properties.Tree.Select(x => new KeyValuePair<int, Location>(x.ID, x)));
+                var siteDict = new Dictionary<int, Location>(Sites.Tree.Select(x => new KeyValuePair<int, Location>(x.ID, x)));
+
+                foreach (var property in Properties.Tree)
+                {
+                    foreach (var siteId in property.SituatedLocationIds)
+                    {
+                        property.SituatedLocations.Add(siteDict[siteId]);
+                    }
+                    property.SituatedLocationIds = null;
+                }
+
+                foreach (var site in Sites.Tree)
+                {
+                    foreach (var propertyId in site.SituatedLocationIds)
+                    {
+                        site.SituatedLocations.Add(propDict[propertyId]);
+                    }
+                    site.SituatedLocationIds = null;
+                }
+            }
+        }
+
         public void Reset()
         {
             Properties.Reset();
             Sites.Reset();
         }
-
-        /*protected void OnLocationsChanged(IEnumerable<Location> properties, IEnumerable<Location> sites)
-        {
-            LocationsChanged?.Invoke(this, new LocationsChangedEventArgs(properties, sites));
-        }*/
 
         private IEnumerable<Location> Generate(GenerationCriteria criteria)
         {
@@ -162,39 +149,35 @@ namespace SurveyApp.Service
                                                         : (rand.NextDouble() + criteria.MinValue) * (criteria.MaxValue - criteria.MinValue);
                 var location = new Location(i, criteria.LocationType, description, latitude, longitude);
 
-                var searchCriteriaLocType = criteria.LocationType == LocationType.Property ? LocationType.Site : LocationType.Property;
-                var searchCriteria = new SearchCriteria()
-                {
-                    LocationType = searchCriteriaLocType,
-                    MinLatitude = latitude,
-                    MinLongitude = longitude
-                };
-
-                location.SituatedLocations = Get(searchCriteria);
+                AddSituatedLocations(location);
                 locations.Add(location);
             }
 
             return locations;
         }
 
-        private ICollection<Location> Get(SearchCriteria criteria)
+        private void RemoveSituatedLocations(Location location)
         {
-            var minLocation = new Location()
+            foreach (var situated in location.SituatedLocations)
             {
-                Latitude = criteria.MinLatitude,
-                Longitude = criteria.MinLongitude
-            };
+                situated.SituatedLocations.Remove(location);
+            }
+        }
 
-            var maxLocation = new Location()
-            {
-                Latitude = criteria.MaxLatitude,
-                Longitude = criteria.MaxLongitude
-            };
+        private void AddSituatedLocations(Location location)
+        {
+            var criteria = LocationPrototype.GetCriteriaByLocation(location);
+            (var lowerBound, var upperBound) = LocationPrototype.GetLocationsByCriteria(criteria);
 
             if (criteria.LocationType == LocationType.Property)
-                return Properties.Get(minLocation, maxLocation);
+                location.SituatedLocations = Properties.Get(lowerBound, upperBound);
             else
-                return Sites.Get(minLocation, maxLocation);
+                location.SituatedLocations = Sites.Get(lowerBound, upperBound);
+
+            foreach (var situated in location.SituatedLocations)
+            {
+                situated.SituatedLocations.Add(location);
+            }
         }
     }
 }

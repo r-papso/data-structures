@@ -2,18 +2,13 @@
 using SurveyApp.Model;
 using SurveyApp.Service;
 using SurveyApp.View;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using System.Windows.Forms;
 using System.Windows.Input;
 
 namespace SurveyApp.ViewModel
 {
-    public class MainViewModel : INotifyPropertyChanged
+    public class MainViewModel
     {
-        private IEnumerable<Location> _properties;
-        private IEnumerable<Location> _sites;
-
         private readonly LocationManager _locationManager;
         private readonly WindowService _windowService;
         private readonly GenerateViewModel _generateViewModel;
@@ -26,30 +21,6 @@ namespace SurveyApp.ViewModel
         public CollectionAdapter<Location> Properties { get; }
 
         public CollectionAdapter<Location> Sites { get; }
-
-        /*public IEnumerable<Location> Properties
-        {
-            get => _properties;
-            private set
-            {
-                _properties = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public IEnumerable<Location> Sites
-        {
-            get => _sites;
-            private set
-            {
-                _sites = value;
-                OnPropertyChanged();
-            }
-        }*/
-
-        //public ObservableCollection<Location> Properties { get; set; }
-
-        //public ObservableCollection<Location> Sites { get; set; }
 
         public ICommand SearchCommand { get; private set; }
 
@@ -67,8 +38,6 @@ namespace SurveyApp.ViewModel
 
         public ICommand SaveCommand { get; private set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public MainViewModel() { }
 
         public MainViewModel(LocationManager locationManager, WindowService windowService, GenerateViewModel generateViewModel, LocationViewModel locationViewModel)
@@ -82,12 +51,6 @@ namespace SurveyApp.ViewModel
             Sites = _locationManager.Sites;
 
             InitRelayCommands();
-            //RegisterListeners();
-        }
-
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
         private void Search(object parameter) => _locationManager.FindLocationsByCriteria(SearchCriteria);
@@ -124,12 +87,22 @@ namespace SurveyApp.ViewModel
 
         private void Load(object parameter)
         {
+            var folderDialog = new FolderBrowserDialog();
 
+            if (folderDialog.ShowDialog() == DialogResult.OK)
+            {
+                _locationManager.LoadLocations(folderDialog.SelectedPath);
+            }
         }
 
         private void Save(object parameter)
         {
+            var folderDialog = new FolderBrowserDialog();
 
+            if (folderDialog.ShowDialog() == DialogResult.OK)
+            {
+                _locationManager.SaveLocations(folderDialog.SelectedPath);
+            }
         }
 
         private void InitRelayCommands()
@@ -143,22 +116,5 @@ namespace SurveyApp.ViewModel
             LoadCommand = new RelayCommand(Load);
             SaveCommand = new RelayCommand(Save);
         }
-
-        /*private void RegisterListeners()
-        {
-            _locationManager.LocationsChanged += LocationsChanged;
-        }*/
-
-        /*private void LocationsChanged(object sender, Event.LocationsChangedEventArgs args)
-        {
-            if (args.Properties != null)
-            {
-                Properties = new LinkedList<Location>(args.Properties);
-            }
-            if (args.Sites != null)
-            {
-                Sites = new LinkedList<Location>(args.Sites);
-            }
-        }*/
     }
 }

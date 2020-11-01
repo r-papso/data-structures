@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Structures.Tree
 {
-    internal class KdTree<T> : IBSPTree<T> where T : IKdComparable
+    internal class KdTree<T> : IBSPTree<T> where T : IKdComparable, ISaveable, new()
     {
         private KdTreeNode<T> _root;
         private KdComparer<T> _comparer = new KdComparer<T>();
@@ -15,7 +15,7 @@ namespace Structures.Tree
 
         public KdTree(T data) => _root = new KdTreeNode<T>(data, 0);
 
-        public KdTree(IEnumerable<T> data) => _root = new KdTreeNode<T>(data, 0);
+        public KdTree(IEnumerable<T> data) => _root = new KdTreeNode<T>(data);
 
         //Only for testing purposes
         public int GetDepth() => _root?.Max(x => x.Level + 1) ?? 0;
@@ -113,6 +113,20 @@ namespace Structures.Tree
 
             Delete(nodeToDelete);
         }
+
+        public string ToCsv(string delimiter = ",")
+        {
+            throw new NotImplementedException();
+        }
+
+        public void FromCsv(string csv, string delimiter = ",")
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ToCsvFile(string filePath, string delimiter = ",") => _root?.TreeToCsv(filePath, delimiter);
+
+        public void FromCsvFile(string filePath, string delimiter = ",") => _root = new KdTreeNode<T>(filePath, delimiter);
 
         public IEnumerator<T> GetEnumerator()
         {
