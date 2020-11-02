@@ -5,16 +5,32 @@ using System.Windows.Input;
 
 namespace SurveyApp.ViewModel
 {
+    /// <summary>
+    /// View model used by <see cref="View.GenerateWindow"/>
+    /// </summary>
     public class GenerateViewModel
     {
         private readonly LocationManager _locationManager;
 
+        /// <summary>
+        /// Criteria of locations to be generated
+        /// </summary>
         public GenerationCriteria GenerationCriteria { get; } = new GenerationCriteria();
 
+        /// <summary>
+        /// Provides binding for <see cref="Submit(object)"/> method execution
+        /// </summary>
         public ICommand SubmitCommand { get; private set; }
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public GenerateViewModel() { }
 
+        /// <summary>
+        /// Constructor used by <see cref="Microsoft.Extensions.DependencyInjection"/>
+        /// </summary>
+        /// <param name="locationManager">Instance of <see cref="LocationManager"/></param>
         public GenerateViewModel(LocationManager locationManager)
         {
             _locationManager = locationManager;

@@ -1,32 +1,70 @@
 ﻿using Structures.Exception;
-using Structures.Tree;
+using Structures.Interface;
 using System;
 using System.Collections.Generic;
 
 namespace SurveyApp.Model
 {
+    /// <summary>
+    /// Represents possible location types
+    /// </summary>
     public enum LocationType : byte { Property, Site };
 
+    /// <summary>
+    /// Represents instance if either property or site
+    /// </summary>
     public class Location : IKdComparable, ISaveable
     {
         private static int _dimensionsCount = 2;
 
+        /// <summary>
+        /// ID of location
+        /// </summary>
         public int ID { get; set; }
 
+        /// <summary>
+        /// Location's type
+        /// </summary>
         public LocationType LocationType { get; set; }
 
+        /// <summary>
+        /// Location's description
+        /// </summary>
         public string Description { get; set; }
 
+        /// <summary>
+        /// Location's latitude
+        /// </summary>
         public double Latitude { get; set; }
 
+        /// <summary>
+        /// Location's longitude
+        /// </summary>
         public double Longitude { get; set; }
 
+        /// <summary>
+        /// Locations with same <see cref="Latitude"/> and <see cref="Longitude"/>
+        /// </summary>
         public ICollection<Location> SituatedLocations { get; set; } = new LinkedList<Location>();
 
+        /// <summary>
+        /// Number of location's dimensions
+        /// </summary>
         public int DimensionsCount => _dimensionsCount;
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public Location() { }
 
+        /// <summary>
+        /// Constructor specifying all properties
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="locationType"></param>
+        /// <param name="description"></param>
+        /// <param name="latitude"></param>
+        /// <param name="longitude"></param>
         public Location(int id, LocationType locationType, string description, double latitude, double longitude)
         {
             ID = id;
@@ -36,6 +74,10 @@ namespace SurveyApp.Model
             Longitude = longitude;
         }
 
+        /// <summary>
+        /// Copy constructor
+        /// </summary>
+        /// <param name="other">location to be copied from</param>
         public Location(Location other)
         {
             if (other != null)

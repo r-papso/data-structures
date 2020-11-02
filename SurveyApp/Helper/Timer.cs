@@ -4,6 +4,9 @@ using System.Runtime.CompilerServices;
 
 namespace SurveyApp.Helper
 {
+    /// <summary>
+    /// Provides functionality used for methods execution time measurement
+    /// </summary>
     public class Timer : INotifyPropertyChanged
     {
         private static object _lock = new object();
@@ -13,6 +16,9 @@ namespace SurveyApp.Helper
 
         protected Timer() { }
 
+        /// <summary>
+        /// Instance of the <see cref="Timer"/> class
+        /// </summary>
         public static Timer Instance
         {
             get
@@ -31,10 +37,19 @@ namespace SurveyApp.Helper
             }
         }
 
+        /// <summary>
+        /// Execution time of last measured execution
+        /// </summary>
         public long ElapsedMilliseconds => _stopwatch.ElapsedMilliseconds;
 
+        /// <summary>
+        /// Invoked when <see cref="ElapsedMilliseconds"/> property changes
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// Starts new execution measurement
+        /// </summary>
         public void Start()
         {
             _stopwatch.Reset();
@@ -43,6 +58,9 @@ namespace SurveyApp.Helper
 
         }
 
+        /// <summary>
+        /// Stops execution measurement
+        /// </summary>
         public void Stop()
         {
             _stopwatch.Stop();

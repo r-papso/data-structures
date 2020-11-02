@@ -7,12 +7,18 @@ using System.Windows.Input;
 
 namespace SurveyApp.ViewModel
 {
+    /// <summary>
+    /// View model used by <see cref="View.LocationWindow"/>
+    /// </summary>
     public class LocationViewModel : INotifyPropertyChanged
     {
         private Location _updatingLocation;
         private Location _newLocation;
         private readonly LocationManager _locationManager;
 
+        /// <summary>
+        /// Represents new location to be created
+        /// </summary>
         public Location NewLocation
         {
             get => _newLocation;
@@ -23,12 +29,25 @@ namespace SurveyApp.ViewModel
             }
         }
 
+        /// <summary>
+        /// Provides binding <see cref="Submit(object)"/> method execution
+        /// </summary>
         public ICommand SubmitCommand { get; private set; }
 
+        /// <summary>
+        /// Event invoked when <see cref="NewLocation"/> property changes
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public LocationViewModel() { }
 
+        /// <summary>
+        /// Constructor used by <see cref="Microsoft.Extensions.DependencyInjection"/>
+        /// </summary>
+        /// <param name="locationManager">Instance of <see cref="LocationManager"/></param>
         public LocationViewModel(LocationManager locationManager)
         {
             _locationManager = locationManager;
@@ -36,12 +55,19 @@ namespace SurveyApp.ViewModel
             InitRelayCommands();
         }
 
+        /// <summary>
+        /// Prepares its internal state for updating <paramref name="locationToUpdate"/>
+        /// </summary>
+        /// <param name="locationToUpdate">Location to be updated</param>
         public void Updating(Location locationToUpdate)
         {
             _updatingLocation = locationToUpdate;
             NewLocation = new Location(_updatingLocation);
         }
 
+        /// <summary>
+        /// Prepares its interal state for creating new location
+        /// </summary>
         public void New()
         {
             _updatingLocation = null;

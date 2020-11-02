@@ -1,5 +1,5 @@
 ﻿using Structures.Exception;
-using Structures.Tree;
+using Structures.Interface;
 using System;
 
 namespace StructuresTests
