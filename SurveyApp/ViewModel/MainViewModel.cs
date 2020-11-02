@@ -22,6 +22,8 @@ namespace SurveyApp.ViewModel
 
         public CollectionAdapter<Location> Sites { get; }
 
+        public Helper.Timer Timer => Helper.Timer.Instance;
+
         public ICommand SearchCommand { get; private set; }
 
         public ICommand ResetCommand { get; private set; }
@@ -107,14 +109,14 @@ namespace SurveyApp.ViewModel
 
         private void InitRelayCommands()
         {
-            SearchCommand = new RelayCommand(Search);
-            ResetCommand = new RelayCommand(Reset);
+            SearchCommand = new MeasurableRelayCommand(Search);
+            ResetCommand = new MeasurableRelayCommand(Reset);
             NewCommand = new RelayCommand(New);
             UpdateCommand = new RelayCommand(Update, CanUpdate);
-            DeleteCommand = new RelayCommand(Delete, CanDelete);
+            DeleteCommand = new MeasurableRelayCommand(Delete, CanDelete);
             GenerateCommand = new RelayCommand(Generate);
-            LoadCommand = new RelayCommand(Load);
-            SaveCommand = new RelayCommand(Save);
+            LoadCommand = new MeasurableRelayCommand(Load);
+            SaveCommand = new MeasurableRelayCommand(Save);
         }
     }
 }

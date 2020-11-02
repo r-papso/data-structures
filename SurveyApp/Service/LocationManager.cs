@@ -4,13 +4,11 @@ using SurveyApp.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace SurveyApp.Service
 {
     public class LocationManager
     {
-        private static string _delimiter = ";";
         private static string _propertiesFile = "Properties.csv";
         private static string _sitesFile = "Sites.csv";
 
@@ -89,42 +87,28 @@ namespace SurveyApp.Service
 
         public void SaveLocations(string folderPath)
         {
-            Properties.Save(Path.Combine(folderPath, _propertiesFile), _delimiter);
-            Sites.Save(Path.Combine(folderPath, _sitesFile), _delimiter);
+            Properties.Save(Path.Combine(folderPath, _propertiesFile));
+            Sites.Save(Path.Combine(folderPath, _sitesFile));
         }
 
         public void LoadLocations(string folderPath)
         {
             var propFilePath = Path.Combine(folderPath, _propertiesFile);
             var siteFilePath = Path.Combine(folderPath, _sitesFile);
+            bool propFileExists = File.Exists(propFilePath);
+            bool siteFileExists = File.Exists(siteFilePath);
 
-            if (File.Exists(propFilePath))
-                Properties.Load(Path.Combine(folderPath, _propertiesFile), _delimiter);
+            if (propFileExists)
+                Properties.Load(propFilePath);
 
-            if (File.Exists(siteFilePath))
-                Sites.Load(Path.Combine(folderPath, _sitesFile), _delimiter);
+            if (siteFileExists)
+                Sites.Load(siteFilePath);
 
-            if (File.Exists(propFilePath) && File.Exists(siteFilePath))
+            if (propFileExists && siteFileExists)
             {
-                var propDict = new Dictionary<int, Location>(Properties.Tree.Select(x => new KeyValuePair<int, Location>(x.ID, x)));
-                var siteDict = new Dictionary<int, Location>(Sites.Tree.Select(x => new KeyValuePair<int, Location>(x.ID, x)));
-
                 foreach (var property in Properties.Tree)
                 {
-                    foreach (var siteId in property.SituatedLocationIds)
-                    {
-                        property.SituatedLocations.Add(siteDict[siteId]);
-                    }
-                    property.SituatedLocationIds = null;
-                }
-
-                foreach (var site in Sites.Tree)
-                {
-                    foreach (var propertyId in site.SituatedLocationIds)
-                    {
-                        site.SituatedLocations.Add(propDict[propertyId]);
-                    }
-                    site.SituatedLocationIds = null;
+                    AddSituatedLocations(property);
                 }
             }
         }
@@ -166,13 +150,10 @@ namespace SurveyApp.Service
 
         private void AddSituatedLocations(Location location)
         {
-            var criteria = LocationPrototype.GetCriteriaByLocation(location);
-            (var lowerBound, var upperBound) = LocationPrototype.GetLocationsByCriteria(criteria);
-
-            if (criteria.LocationType == LocationType.Property)
-                location.SituatedLocations = Properties.Get(lowerBound, upperBound);
+            if (location.LocationType == LocationType.Property)
+                location.SituatedLocations = Sites.Get(location);
             else
-                location.SituatedLocations = Sites.Get(lowerBound, upperBound);
+                location.SituatedLocations = Properties.Get(location);
 
             foreach (var situated in location.SituatedLocations)
             {

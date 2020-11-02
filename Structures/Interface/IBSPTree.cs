@@ -2,7 +2,7 @@
 
 namespace Structures.Tree
 {
-    public interface IBSPTree<T> : IEnumerable<T>, ISaveable where T : IKdComparable, ISaveable, new()
+    public interface IBSPTree<T> : IEnumerable<T> where T : IKdComparable, ISaveable, new()
     {
         //Only for testing purposes
         public int GetDepth();
@@ -16,5 +16,9 @@ namespace Structures.Tree
         public void Insert(T data);
 
         public void Delete(T data);
+
+        public void Save(string filePath);
+
+        public void Load(string filePath);
     }
 }

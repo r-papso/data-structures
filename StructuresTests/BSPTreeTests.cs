@@ -388,10 +388,10 @@ namespace StructuresTests
             var tree = StructureFactory.Instance.GetBSPTree(data);
             var filePath = Path.Combine(RESULTS_FOLDER, $"SavingTest_{nodeCount}.csv");
 
-            tree.ToCsvFile(filePath, ";");
+            tree.Save(filePath);
 
             var loadedTree = StructureFactory.Instance.GetBSPTree<TwoDimObject>();
-            loadedTree.FromCsvFile(filePath, ";");
+            loadedTree.Load(filePath);
 
             Assert.True(tree.ComparePairWise(loadedTree, (x, y) => x.Identical(y)));
         }

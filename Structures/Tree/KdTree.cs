@@ -114,19 +114,9 @@ namespace Structures.Tree
             Delete(nodeToDelete);
         }
 
-        public string ToCsv(string delimiter = ",")
-        {
-            throw new NotImplementedException();
-        }
+        public void Save(string filePath) => _root?.Save(filePath);
 
-        public void FromCsv(string csv, string delimiter = ",")
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ToCsvFile(string filePath, string delimiter = ",") => _root?.TreeToCsv(filePath, delimiter);
-
-        public void FromCsvFile(string filePath, string delimiter = ",") => _root = new KdTreeNode<T>(filePath, delimiter);
+        public void Load(string filePath) => _root = new KdTreeNode<T>(filePath);
 
         public IEnumerator<T> GetEnumerator()
         {

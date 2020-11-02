@@ -53,22 +53,12 @@ namespace StructuresTests
             return $"{PrimaryKey}{delimiter}{X}{delimiter}{Y}";
         }
 
-        public void ToCsvFile(string filePath, string delimiter = ",")
-        {
-            throw new NotImplementedException();
-        }
-
         public void FromCsv(string csv, string delimiter = ",")
         {
             var props = csv.Split(new string[] { delimiter }, StringSplitOptions.None);
             PrimaryKey = Int32.Parse(props[0]);
             X = Double.Parse(props[1]);
             Y = Double.Parse(props[2]);
-        }
-
-        public void FromCsvFile(string filePath, string delimiter = ",")
-        {
-            throw new NotImplementedException();
         }
     }
 }

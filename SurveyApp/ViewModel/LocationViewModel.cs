@@ -69,7 +69,7 @@ namespace SurveyApp.ViewModel
 
         private void InitRelayCommands()
         {
-            SubmitCommand = new RelayCommand(Submit);
+            SubmitCommand = new MeasurableRelayCommand(Submit);
         }
     }
 }

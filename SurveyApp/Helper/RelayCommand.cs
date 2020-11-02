@@ -28,7 +28,7 @@ namespace SurveyApp.Helper
             return _predicate == null ? true : _predicate(parameter);
         }
 
-        public void Execute(object parameter)
+        public virtual void Execute(object parameter)
         {
             _action(parameter);
         }

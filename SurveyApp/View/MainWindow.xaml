@@ -3,8 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:System="clr-namespace:System;assembly=mscorlib"
-        xmlns:model="clr-namespace:SurveyApp.Model"
         xmlns:viewModel="clr-namespace:SurveyApp.ViewModel"
         xmlns:helper="clr-namespace:SurveyApp.Helper"
         Title="Survey App" Height="450" Width="650"
@@ -33,7 +31,7 @@
             <RowDefinition Height="30"/>
             <RowDefinition Height="30"/>
             <RowDefinition Height="30"/>
-            <RowDefinition Height="20"/>
+            <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
 
         <Label Grid.Row="1" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Location type:" VerticalContentAlignment="Center"/>
@@ -111,5 +109,8 @@
         <Button Grid.Row="8" Grid.Column="4" Margin="5,2.5,5,2.5" Command="{Binding GenerateCommand}">Generate</Button>
         <Button Grid.Row="9" Grid.Column="4" Margin="5,2.5,5,2.5" Command="{Binding LoadCommand}">Load</Button>
         <Button Grid.Row="10" Grid.Column="4" Margin="5,2.5,5,2.5" Command="{Binding SaveCommand}">Save</Button>
+
+        <Label Grid.Row="11" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Elapsed time (ms):" VerticalContentAlignment="Center"/>
+        <TextBlock Grid.Row="11" Grid.Column="2" Margin="5,2.5,5,2.5" VerticalAlignment="Center" Text="{Binding Timer.ElapsedMilliseconds}"/>
     </Grid>
 </Window>

@@ -2,7 +2,6 @@
 using Structures.Tree;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace SurveyApp.Model
 {
@@ -23,8 +22,6 @@ namespace SurveyApp.Model
         public double Longitude { get; set; }
 
         public ICollection<Location> SituatedLocations { get; set; } = new LinkedList<Location>();
-
-        public ICollection<int> SituatedLocationIds { get; set; }
 
         public int DimensionsCount => _dimensionsCount;
 
@@ -76,13 +73,7 @@ namespace SurveyApp.Model
 
         public string ToCsv(string delimiter = ",")
         {
-            var ids = string.Join(delimiter, SituatedLocations.Select(x => x.ID));
-            return $"{ID}{delimiter}{LocationType:D}{delimiter}{Description}{delimiter}{Latitude}{delimiter}{Longitude}{delimiter}{ids}";
-        }
-
-        public void ToCsvFile(string filePath, string delimiter = ",")
-        {
-            throw new NotImplementedException();
+            return $"{ID}{delimiter}{LocationType:D}{delimiter}{Description}{delimiter}{Latitude}{delimiter}{Longitude}";
         }
 
         public void FromCsv(string csv, string delimiter = ",")
@@ -94,14 +85,6 @@ namespace SurveyApp.Model
             Description = props[2];
             Latitude = Double.Parse(props[3]);
             Longitude = Double.Parse(props[4]);
-
-            SituatedLocationIds = !string.IsNullOrEmpty(props[5]) ? new LinkedList<int>(Array.ConvertAll(props.Skip(5).ToArray(), int.Parse))
-                                                                  : new LinkedList<int>();
-        }
-
-        public void FromCsvFile(string filePath, string delimiter = ",")
-        {
-            throw new NotImplementedException();
         }
     }
 }

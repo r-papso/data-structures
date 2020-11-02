@@ -9,9 +9,11 @@ namespace Structures.Tree
 {
     internal class KdTreeNode<T> : IEnumerable<KdTreeNode<T>> where T : IKdComparable, ISaveable, new()
     {
+        private static string _csvDelimiter = ";";
+
         public KdTreeNode(T data, int level) => (Data, Level) = (data, level);
 
-        public KdTreeNode(string filePath, string delimiter) => TreeFromCsv(filePath, delimiter);
+        public KdTreeNode(string filePath) => TreeFromCsv(filePath);
 
         public KdTreeNode(IEnumerable<T> data) => TreeFromData(data);
 
@@ -50,28 +52,7 @@ namespace Structures.Tree
 
         public IEnumerable<KdTreeNode<T>> GetLevelOrderEnumerable() => new LevelOrderEnumerable(this);
 
-        public void TreeToCsv(string filePath, string delimiter)
-        {
-            int id = 0;
-            using var writer = new StreamWriter(filePath);
-            var queue = new Queue<SaveableNode>();
-            queue.Enqueue(new SaveableNode(id, this, null));
-
-            while (queue.Count > 0)
-            {
-                var node = queue.Dequeue();
-                var sign = node.Parent != null ? (node.Parent.Node.Left == node.Node ? "L" : "R") : string.Empty;
-                var parentId = node.Parent?.Id ?? -1;
-
-                writer.WriteLine($"{node.Id}{delimiter}{parentId}{delimiter}{sign}{delimiter}{node.Node.Data.ToCsv(delimiter)}");
-
-                if (node.Node.Left != null)
-                    queue.Enqueue(new SaveableNode(++id, node.Node.Left, node));
-
-                if (node.Node.Right != null)
-                    queue.Enqueue(new SaveableNode(++id, node.Node.Right, node));
-            }
-        }
+        public void Save(string filePath) => TreeToCsv(filePath);
 
         private void TreeFromData(IEnumerable<T> data)
         {
@@ -130,7 +111,7 @@ namespace Structures.Tree
             }
         }
 
-        private void TreeFromCsv(string filePath, string delimiter)
+        private void TreeFromCsv(string filePath)
         {
             var dictionary = new Dictionary<int, KdTreeNode<T>>();
             using var reader = new StreamReader(filePath);
@@ -139,19 +120,19 @@ namespace Structures.Tree
             if (root == null)
                 return;
 
-            var props = root.Split(new string[] { delimiter }, StringSplitOptions.None);
+            var props = root.Split(new string[] { _csvDelimiter }, StringSplitOptions.None);
             Level = 0;
             Data = new T();
-            Data.FromCsv(String.Join(delimiter, props.Skip(3)), delimiter);
+            Data.FromCsv(String.Join(_csvDelimiter, props.Skip(3)), _csvDelimiter);
             dictionary.Add(Int32.Parse(props[0]), this);
 
             string line;
             while ((line = reader.ReadLine()) != null)
             {
-                props = line.Split(new string[] { delimiter }, StringSplitOptions.None);
+                props = line.Split(new string[] { _csvDelimiter }, StringSplitOptions.None);
                 var parent = dictionary[Int32.Parse(props[1])];
                 var data = new T();
-                data.FromCsv(String.Join(delimiter, props.Skip(3)), delimiter);
+                data.FromCsv(String.Join(_csvDelimiter, props.Skip(3)), _csvDelimiter);
 
                 var newNode = new KdTreeNode<T>(data, parent.Level + 1);
                 newNode.Parent = parent;
@@ -162,6 +143,29 @@ namespace Structures.Tree
                     newNode.Parent.Right = newNode;
 
                 dictionary.Add(Int32.Parse(props[0]), newNode);
+            }
+        }
+
+        private void TreeToCsv(string filePath)
+        {
+            int id = 0;
+            using var writer = new StreamWriter(filePath);
+            var queue = new Queue<SaveableNode>();
+            queue.Enqueue(new SaveableNode(id, this, null));
+
+            while (queue.Count > 0)
+            {
+                var node = queue.Dequeue();
+                var sign = node.Parent != null ? (node.Parent.Node.Left == node.Node ? "L" : "R") : string.Empty;
+                var parentId = node.Parent?.Id ?? -1;
+
+                writer.WriteLine($"{node.Id}{_csvDelimiter}{parentId}{_csvDelimiter}{sign}{_csvDelimiter}{node.Node.Data.ToCsv(_csvDelimiter)}");
+
+                if (node.Node.Left != null)
+                    queue.Enqueue(new SaveableNode(++id, node.Node.Left, node));
+
+                if (node.Node.Right != null)
+                    queue.Enqueue(new SaveableNode(++id, node.Node.Right, node));
             }
         }
 
