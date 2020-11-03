@@ -17,7 +17,7 @@ namespace StructuresTests
         public static string RESULTS_FOLDER = "C:\\FRI\\ING\\1_rocnik\\AUS2\\TestResults";
 
         private static bool _saveResults = false;
-        private static bool _integerValues = false;
+        private static bool _integerValues = true;
         private static int _minVal = 0;
         private static int _maxVal = 1000;
         private static KdComparer<TwoDimObject> _comparer = new KdComparer<TwoDimObject>();
@@ -46,10 +46,10 @@ namespace StructuresTests
             var tree = StructureFactory.Instance.GetBSPTree(data);
             timer.Stop();
 
-            //int actualDepth = tree.GetDepth();
-            //int expectedDepth = GetExpectedDepth(nodeCount);
-            //if (actualDepth != expectedDepth)
-            //    Assert.True(false, $"Actual depth of tree ({actualDepth}) was greater than expected ({expectedDepth})");
+            /*int actualDepth = tree.GetDepth();
+            int expectedDepth = GetExpectedDepth(nodeCount);
+            if (actualDepth != expectedDepth)
+                Assert.True(false, $"Actual depth of tree ({actualDepth}) was greater than expected ({expectedDepth})");*/
 
             results.Add(new Result(nodeCount, timer.ElapsedMilliseconds));
 
@@ -406,9 +406,9 @@ namespace StructuresTests
 
         #region Private methods
 
-        private List<TwoDimObject> GenerateRandomData(int dataCount) => GenerateRandomData(dataCount, 0);
+        private TwoDimObject[] GenerateRandomData(int dataCount) => GenerateRandomData(dataCount, 0);
 
-        private List<TwoDimObject> GenerateRandomData(int dataCount, int seed)
+        private TwoDimObject[] GenerateRandomData(int dataCount, int seed)
         {
             Random rand;
             if (seed != 0)
@@ -416,29 +416,29 @@ namespace StructuresTests
             else
                 rand = new Random();
 
-            var data = new List<TwoDimObject>(dataCount);
+            var data = new TwoDimObject[dataCount];
 
             for (int i = 0; i < dataCount; i++)
             {
                 if (_integerValues)
-                    data.Add(new TwoDimObject(i, rand.Next(_minVal, _maxVal), rand.Next(_minVal, _maxVal)));
+                    data[i] = new TwoDimObject(i, rand.Next(_minVal, _maxVal), rand.Next(_minVal, _maxVal));
                 else
-                    data.Add(new TwoDimObject(i, (rand.NextDouble() + _minVal) * _maxVal, (rand.NextDouble() + _minVal) * _maxVal));
+                    data[i] = new TwoDimObject(i, (rand.NextDouble() + _minVal) * _maxVal, (rand.NextDouble() + _minVal) * _maxVal);
             }
 
             return data;
         }
 
-        private List<TwoDimObject> GenerateDataGrid(int gridSize)
+        private TwoDimObject[] GenerateDataGrid(int gridSize)
         {
-            var data = new List<TwoDimObject>(Convert.ToInt32(Math.Pow(gridSize, 2)));
+            var data = new TwoDimObject[Convert.ToInt32(Math.Pow(gridSize, 2))];
 
             int k = 0;
             for (int i = 0; i < gridSize; i++)
             {
                 for (int j = 0; j < gridSize; j++)
                 {
-                    data.Add(new TwoDimObject(k++, i, j));
+                    data[i * gridSize + j] = new TwoDimObject(k++, i, j);
                 }
             }
 

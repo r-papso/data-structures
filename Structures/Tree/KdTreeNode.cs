@@ -82,13 +82,21 @@ namespace Structures.Tree
             while (stack.Count > 0)
             {
                 var currNode = stack.Pop();
-                dimension = currNode.Level % dataArray[0].DimensionsCount;
-                comparer.Dimension = dimension;
 
-                Array.Sort(dataArray, currNode.Min, currNode.Max - currNode.Min + 1, comparer);
-                median = Convert.ToInt32((currNode.Min + currNode.Max) / 2);
-                while (median < currNode.Max && dataArray[median].GetKey(dimension).CompareTo(dataArray[median + 1].GetKey(dimension)) == 0)
-                    median++;
+                if (currNode.Min != currNode.Max)
+                {
+                    dimension = currNode.Level % dataArray[0].DimensionsCount;
+                    comparer.Dimension = dimension;
+
+                    Array.Sort(dataArray, currNode.Min, currNode.Max - currNode.Min + 1, comparer);
+                    median = Convert.ToInt32((currNode.Min + currNode.Max) / 2);
+                    while (median < currNode.Max && dataArray[median].GetKey(dimension).CompareTo(dataArray[median + 1].GetKey(dimension)) == 0)
+                        median++;
+                }
+                else
+                {
+                    median = currNode.Min;
+                }
 
                 var newNode = new KdTreeNode<T>(dataArray[median], currNode.Level);
                 newNode.Parent = currNode.Parent;

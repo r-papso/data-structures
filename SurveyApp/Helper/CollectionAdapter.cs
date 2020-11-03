@@ -110,16 +110,10 @@ namespace SurveyApp.Helper
             Tree.Insert(data);
 
             if (Found != null)
-            {
                 Found = Tree.Find(_lastLower, _lastUpper);
-                var args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
-                OnCollectionChanged(args);
-            }
-            else
-            {
-                var args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, data);
-                OnCollectionChanged(args);
-            }
+
+            var args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
+            OnCollectionChanged(args);
         }
 
         /// <summary>

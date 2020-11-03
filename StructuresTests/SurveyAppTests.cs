@@ -11,7 +11,7 @@ namespace StructuresTests
     public class SurveyAppTests
     {
         private static bool _skip = true;
-        private static bool _integerValues = false;
+        private static bool _integerValues = true;
         private static int _minVal = 0;
         private static int _maxVal = 1000;
 

@@ -4,6 +4,7 @@ using SurveyApp.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace SurveyApp.Service
 {
@@ -165,7 +166,7 @@ namespace SurveyApp.Service
 
         private IEnumerable<Location> Generate(GenerationCriteria criteria)
         {
-            var locations = new List<Location>();
+            var locations = new Location[criteria.LocationsCount];
             var rand = new Random();
 
             for (int i = 0; i < criteria.LocationsCount; i++)
@@ -178,7 +179,7 @@ namespace SurveyApp.Service
                 var location = new Location(i, criteria.LocationType, description, latitude, longitude);
 
                 AddSituatedLocations(location);
-                locations.Add(location);
+                locations[i] = location;
             }
 
             return locations;
@@ -195,9 +196,9 @@ namespace SurveyApp.Service
         private void AddSituatedLocations(Location location)
         {
             if (location.LocationType == LocationType.Property)
-                location.SituatedLocations = Sites.Get(location);
+                location.SituatedLocations = Sites.Get(location).ToHashSet(new LocationEqualityComparer());
             else
-                location.SituatedLocations = Properties.Get(location);
+                location.SituatedLocations = Properties.Get(location).ToHashSet(new LocationEqualityComparer());
 
             foreach (var situated in location.SituatedLocations)
             {

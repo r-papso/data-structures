@@ -46,7 +46,7 @@ namespace SurveyApp.Model
         /// <summary>
         /// Locations with same <see cref="Latitude"/> and <see cref="Longitude"/>
         /// </summary>
-        public ICollection<Location> SituatedLocations { get; set; } = new LinkedList<Location>();
+        public ISet<Location> SituatedLocations { get; set; } = new HashSet<Location>();
 
         /// <summary>
         /// Number of location's dimensions
