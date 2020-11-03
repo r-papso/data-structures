@@ -7,6 +7,9 @@ namespace SurveyApp.Helper
     /// </summary>
     public static class LocationPrototype
     {
+        private static Location _lowerBound = new Location();
+        private static Location _upperBound = new Location();
+
         /// <summary>
         /// Returns tuple of two locations based on <paramref name="criteria"/>
         /// </summary>
@@ -14,19 +17,13 @@ namespace SurveyApp.Helper
         /// <returns>Tuple of two locations created according to <paramref name="criteria"/></returns>
         public static (Location lowerBound, Location upperBound) GetLocationsByCriteria(SearchCriteria criteria)
         {
-            var lowerBound = new Location()
-            {
-                Latitude = criteria.MinLatitude,
-                Longitude = criteria.MinLongitude
-            };
+            _lowerBound.Latitude = criteria.MinLatitude;
+            _lowerBound.Longitude = criteria.MinLongitude;
 
-            var upperBound = new Location()
-            {
-                Latitude = criteria.MaxLatitude,
-                Longitude = criteria.MaxLongitude
-            };
+            _upperBound.Latitude = criteria.MaxLatitude;
+            _upperBound.Longitude = criteria.MaxLongitude;
 
-            return (lowerBound, upperBound);
+            return (_lowerBound, _upperBound);
         }
     }
 }

@@ -8,6 +8,16 @@ namespace Structures.Interface
     /// <typeparam name="T">Type of elements stored in BSP tree</typeparam>
     public interface IBSPTree<T> : IEnumerable<T> where T : IKdComparable
     {
+        /// <summary>
+        /// Provides in order traversal over BSP tree
+        /// </summary>
+        public IEnumerable<T> InOrderTraversal { get; }
+
+        /// <summary>
+        /// Provides level order traversal over BSP tree
+        /// </summary>
+        public IEnumerable<T> LevelOrderTraversal { get; }
+
         //Only for testing purposes
         public int GetDepth();
 
@@ -44,15 +54,5 @@ namespace Structures.Interface
         /// </summary>
         /// <param name="data">Element <see cref="IKdComparable.Identical(IKdComparable)"/> to removing element</param>
         public void Delete(T data);
-
-        /// <summary>
-        /// Provides in order traversal over BSP tree
-        /// </summary>
-        public IEnumerable<T> InOrderTraversal { get; }
-
-        /// <summary>
-        /// Provides level order traversal over BSP tree
-        /// </summary>
-        public IEnumerable<T> LevelOrderTraversal { get; }
     }
 }

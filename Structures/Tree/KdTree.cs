@@ -12,6 +12,30 @@ namespace Structures.Tree
         private KdTreeNode<T> _root;
         private KdComparer<T> _comparer = new KdComparer<T>();
 
+        public IEnumerable<T> InOrderTraversal
+        {
+            get
+            {
+                if (_root == null)
+                    yield break;
+
+                foreach (var node in _root.GetInOrderEnumerable())
+                    yield return node.Data;
+            }
+        }
+
+        public IEnumerable<T> LevelOrderTraversal
+        {
+            get
+            {
+                if (_root == null)
+                    yield break;
+
+                foreach (var node in _root.GetLevelOrderEnumerable())
+                    yield return node.Data;
+            }
+        }
+
         public KdTree() { }
 
         public KdTree(T data) => _root = new KdTreeNode<T>(data, 0);
@@ -113,30 +137,6 @@ namespace Structures.Tree
                 throw new ArgumentException($"Data passed as argument {nameof(data)} not found");
 
             Delete(nodeToDelete);
-        }
-
-        public IEnumerable<T> InOrderTraversal
-        {
-            get
-            {
-                if (_root == null)
-                    yield break;
-
-                foreach (var node in _root.GetInOrderEnumerable())
-                    yield return node.Data;
-            }
-        }
-
-        public IEnumerable<T> LevelOrderTraversal
-        {
-            get
-            {
-                if (_root == null)
-                    yield break;
-
-                foreach (var node in _root.GetLevelOrderEnumerable())
-                    yield return node.Data;
-            }
         }
 
         public IEnumerator<T> GetEnumerator()

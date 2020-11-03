@@ -10,6 +10,7 @@ namespace StructuresTests
 {
     public class SurveyAppTests
     {
+        private static bool _skip = true;
         private static bool _integerValues = false;
         private static int _minVal = 0;
         private static int _maxVal = 1000;
@@ -25,16 +26,19 @@ namespace StructuresTests
         [InlineData(100_000)]
         public void SavingLoadingTest(int nodeCount)
         {
-            var data = GenerateRandomData(nodeCount);
-            var tree = StructureFactory.Instance.GetBSPTree(data);
-            var filePath = Path.Combine(BSPTreeTests.RESULTS_FOLDER, $"SavingTest_{nodeCount}.csv");
-            var adapter1 = new CollectionAdapter<TwoDimObject>(tree);
-            var adapter2 = new CollectionAdapter<TwoDimObject>();
+            if (!_skip)
+            {
+                var data = GenerateRandomData(nodeCount);
+                var tree = StructureFactory.Instance.GetBSPTree(data);
+                var filePath = Path.Combine(BSPTreeTests.RESULTS_FOLDER, $"SavingTest_{nodeCount}.csv");
+                var adapter1 = new CollectionAdapter<TwoDimObject>(tree);
+                var adapter2 = new CollectionAdapter<TwoDimObject>();
 
-            adapter1.Save(filePath);
-            adapter2.Load(filePath);
+                adapter1.Save(filePath);
+                adapter2.Load(filePath);
 
-            Assert.True(adapter1.Tree.ComparePairWise(adapter2.Tree, (x, y) => x.Identical(y)));
+                Assert.True(adapter1.Tree.ComparePairWise(adapter2.Tree, (x, y) => x.Identical(y)));
+            }
         }
 
         #endregion
