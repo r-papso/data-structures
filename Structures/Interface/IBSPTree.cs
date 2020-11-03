@@ -6,7 +6,7 @@ namespace Structures.Interface
     /// Defines operations available in BSP tree structure
     /// </summary>
     /// <typeparam name="T">Type of elements stored in BSP tree</typeparam>
-    public interface IBSPTree<T> : IEnumerable<T> where T : IKdComparable, ISaveable, new()
+    public interface IBSPTree<T> : IEnumerable<T> where T : IKdComparable
     {
         //Only for testing purposes
         public int GetDepth();
@@ -46,19 +46,13 @@ namespace Structures.Interface
         public void Delete(T data);
 
         /// <summary>
-        /// Saves BSP tree to CSV file
+        /// Provides in order traversal over BSP tree
         /// </summary>
-        /// <param name="filePath">Path of file, the file should have .csv extension</param>
-        public void Save(string filePath);
-
-        /// <summary>
-        /// Loads BSP tree from CSV file
-        /// </summary>
-        /// <param name="filePath">Path of file, the file has to be created by <see cref="Save(string)"/> method</param>
-        public void Load(string filePath);
-
         public IEnumerable<T> InOrderTraversal { get; }
 
+        /// <summary>
+        /// Provides level order traversal over BSP tree
+        /// </summary>
         public IEnumerable<T> LevelOrderTraversal { get; }
     }
 }

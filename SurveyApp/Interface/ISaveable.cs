@@ -1,4 +1,4 @@
-﻿namespace Structures.Interface
+﻿namespace SurveyApp.Interface
 {
     /// <summary>
     /// Defines operations used in saving/loading (serializing/deserializing) object

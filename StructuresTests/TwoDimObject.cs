@@ -1,5 +1,6 @@
 ﻿using Structures.Exception;
 using Structures.Interface;
+using SurveyApp.Interface;
 using System;
 
 namespace StructuresTests
