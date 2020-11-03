@@ -3,6 +3,7 @@ using Structures.Interface;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 
 namespace SurveyApp.Helper
@@ -174,11 +175,22 @@ namespace SurveyApp.Helper
             OnCollectionChanged(args);
         }
 
+
         /// <summary>
         /// Saves <see cref="IBSPTree{T}"/> to CSV file
         /// </summary>
         /// <param name="filePath">Path of file, should have .csv extension</param>
-        public void Save(string filePath) => Tree.Save(filePath);
+        //public void Save(string filePath) => Tree.Save(filePath);
+        public void Save(string filePath)
+        {
+            using var writer = new StreamWriter(filePath);
+
+            foreach (var location in Tree.LevelOrderTraversal)
+            {
+                writer.WriteLine(location.ToCsv(";"));
+            }
+        }
+
 
         /// <summary>
         /// Loads <see cref="IBSPTree{T}"/> from CSV file
@@ -187,7 +199,16 @@ namespace SurveyApp.Helper
         public void Load(string filePath)
         {
             Tree = StructureFactory.Instance.GetBSPTree<T>();
-            Tree.Load(filePath);
+            //Tree.Load(filePath);
+            using var reader = new StreamReader(filePath);
+
+            string line;
+            while ((line = reader.ReadLine()) != null)
+            {
+                var data = new T();
+                data.FromCsv(line, ";");
+                Tree.Insert(data);
+            }
 
             var args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
             OnCollectionChanged(args);

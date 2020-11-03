@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Structures\Structures.csproj" />
+    <ProjectReference Include="..\SurveyApp\SurveyApp.csproj" />
   </ItemGroup>
 
 </Project>

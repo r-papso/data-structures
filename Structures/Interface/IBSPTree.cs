@@ -56,5 +56,9 @@ namespace Structures.Interface
         /// </summary>
         /// <param name="filePath">Path of file, the file has to be created by <see cref="Save(string)"/> method</param>
         public void Load(string filePath);
+
+        public IEnumerable<T> InOrderTraversal { get; }
+
+        public IEnumerable<T> LevelOrderTraversal { get; }
     }
 }

@@ -119,17 +119,37 @@ namespace Structures.Tree
 
         public void Load(string filePath) => _root = new KdTreeNode<T>(filePath);
 
+        public IEnumerable<T> InOrderTraversal
+        {
+            get
+            {
+                if (_root == null)
+                    yield break;
+
+                foreach (var node in _root.GetInOrderEnumerable())
+                    yield return node.Data;
+            }
+        }
+
+        public IEnumerable<T> LevelOrderTraversal
+        {
+            get
+            {
+                if (_root == null)
+                    yield break;
+
+                foreach (var node in _root.GetLevelOrderEnumerable())
+                    yield return node.Data;
+            }
+        }
+
         public IEnumerator<T> GetEnumerator()
         {
             if (_root == null)
-            {
                 yield break;
-            }
 
             foreach (var node in _root)
-            {
                 yield return node.Data;
-            }
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
