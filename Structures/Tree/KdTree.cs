@@ -51,7 +51,7 @@ namespace Structures.Tree
         {
             var result = new LinkedList<T>();
 
-            if (_root == null || (!_comparer.GreaterThan(upperBound, lowerBound) && !_comparer.Equal(upperBound, lowerBound)))
+            if (_root == null || !_comparer.GreaterThanOrEqual(upperBound, lowerBound))
                 return result;
 
             var stack = new Stack<KdTreeNode<T>>();
