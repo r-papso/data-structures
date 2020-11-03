@@ -84,6 +84,22 @@ namespace Structures.Hepler
         }
 
         /// <summary>
+        /// Determines if <paramref name="left"/> is less than or equal to <paramref name="right"/>
+        /// </summary>
+        /// <param name="left">Left operand</param>
+        /// <param name="right">Right operand</param>
+        /// <returns>True if <paramref name="left"/> is less than or equal to <paramref name="right"/>, False otherwise</returns>
+        public bool LessThanOrEqual(T left, T right)
+        {
+            for (int i = 0; i < left.DimensionCount; i++)
+            {
+                if (left.GetKey(i).CompareTo(right.GetKey(i)) > 0)
+                    return false;
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Determines if <paramref name="left"/> is equal to <paramref name="right"/>
         /// </summary>
         /// <param name="left">Left operand</param>
@@ -110,6 +126,22 @@ namespace Structures.Hepler
             for (int i = 0; i < left.DimensionCount; i++)
             {
                 if (left.GetKey(i).CompareTo(right.GetKey(i)) <= 0)
+                    return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Determines if <paramref name="left"/> is greater than or equal to <paramref name="right"/>
+        /// </summary>
+        /// <param name="left">Left operand</param>
+        /// <param name="right">Right operand</param>
+        /// <returns>True if <paramref name="left"/> is greater than or equal to <paramref name="right"/>, False otherwise</returns>
+        public bool GreaterThanOrEqual(T left, T right)
+        {
+            for (int i = 0; i < left.DimensionCount; i++)
+            {
+                if (left.GetKey(i).CompareTo(right.GetKey(i)) < 0)
                     return false;
             }
             return true;
