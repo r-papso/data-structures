@@ -22,7 +22,7 @@ namespace Structures.Interface
         public int GetDepth();
 
         /// <summary>
-        /// Finds all occurences in <see cref="IBSPTree{T}"/> based on <paramref name="data"/> parameter
+        /// Finds all occurences in <see cref="IBSPTree{T}"/> equal to <paramref name="data"/> parameter
         /// </summary>
         /// <param name="data">Data to be found</param>
         /// <returns>All elements that are <see cref="Hepler.KdComparer{T}.Equal(T, T)"/> to <paramref name="data"/></returns>

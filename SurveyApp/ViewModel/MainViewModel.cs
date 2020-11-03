@@ -107,7 +107,7 @@ namespace SurveyApp.ViewModel
             InitRelayCommands();
         }
 
-        private void Search(object parameter) => _locationManager.FindLocationsByCriteria(SearchCriteria);
+        private void Search(object parameter) => _locationManager.FindLocations(SearchCriteria);
 
         private void Reset(object parameter)
         {

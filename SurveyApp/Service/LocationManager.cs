@@ -39,7 +39,7 @@ namespace SurveyApp.Service
         /// Finds locations by specified <paramref name="criteria"/>
         /// </summary>
         /// <param name="criteria">Criteria used in locations' search</param>
-        public void FindLocationsByCriteria(SearchCriteria criteria)
+        public void FindLocations(SearchCriteria criteria)
         {
             (var lowerBound, var upperBound) = LocationPrototype.GetLocationsByCriteria(criteria);
 

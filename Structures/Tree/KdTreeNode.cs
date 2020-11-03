@@ -61,7 +61,7 @@ namespace Structures.Tree
             if (dataArray == null || dataArray.Length < 1)
                 throw new ArgumentNullException($"{nameof(data)} cannot be null or empty");
 
-            int dimension = level % dataArray[0].DimensionsCount;
+            int dimension = level % dataArray[0].DimensionCount;
             var stack = new Stack<ConstructionNode>();
             var comparer = new KdComparer<T>(dimension);
 
@@ -85,7 +85,7 @@ namespace Structures.Tree
 
                 if (currNode.Min != currNode.Max)
                 {
-                    dimension = currNode.Level % dataArray[0].DimensionsCount;
+                    dimension = currNode.Level % dataArray[0].DimensionCount;
                     comparer.Dimension = dimension;
 
                     Array.Sort(dataArray, currNode.Min, currNode.Max - currNode.Min + 1, comparer);

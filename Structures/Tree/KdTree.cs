@@ -194,18 +194,17 @@ namespace Structures.Tree
 
             KdTreeNode<T> substitute = null;
             var replaced = new Stack<KdTreeNode<T>>();
-            var reinserted = new List<KdTreeNode<T>>();
             replaced.Push(nodeToDelete);
 
             while (true)
             {
-                substitute = InOrderNearest(nodeToDelete, out bool successor);
-
-                if (successor)
+                if (nodeToDelete.Left == null)
                 {
-                    reinserted.AddRange(nodeToDelete.Right.Where(x => CompareKeys(x.Data, substitute.Data, nodeToDelete.Level) == 0 &&
-                                                                      !x.Data.Identical(substitute.Data)));
+                    nodeToDelete.Left = nodeToDelete.Right;
+                    nodeToDelete.Right = null;
                 }
+
+                substitute = InOrderNearest(nodeToDelete, out bool _);
 
                 if (substitute.IsLeaf)
                     break;
@@ -226,13 +225,6 @@ namespace Structures.Tree
             }
 
             nodeToDelete.Delete();
-
-            foreach (var node in reinserted.OrderByDescending(x => x.Level))
-            {
-                var data = node.Data;
-                Delete(node);
-                Insert(data);
-            }
         }
 
         private KdTreeNode<T> InOrderNearest(KdTreeNode<T> node, out bool successor)
@@ -282,7 +274,7 @@ namespace Structures.Tree
 
         private int CompareKeys(T left, T right, int level)
         {
-            var dimension = level % left.DimensionsCount;
+            var dimension = level % left.DimensionCount;
             return left.GetKey(dimension).CompareTo(right.GetKey(dimension));
         }
     }

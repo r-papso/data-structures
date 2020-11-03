@@ -16,7 +16,7 @@ namespace SurveyApp.Model
     /// </summary>
     public class Location : IKdComparable, ISaveable
     {
-        private static int _dimensionsCount = 2;
+        private static int _dimensionCount = 2;
 
         /// <summary>
         /// ID of location
@@ -51,7 +51,7 @@ namespace SurveyApp.Model
         /// <summary>
         /// Number of location's dimensions
         /// </summary>
-        public int DimensionsCount => _dimensionsCount;
+        public int DimensionCount => _dimensionCount;
 
         /// <summary>
         /// Default constructor
@@ -100,7 +100,7 @@ namespace SurveyApp.Model
                 case 1:
                     return Longitude;
                 default:
-                    throw new DimensionRangeException(dimension, _dimensionsCount);
+                    throw new DimensionRangeException(dimension, _dimensionCount);
             }
         }
 
