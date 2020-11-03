@@ -373,31 +373,6 @@ namespace StructuresTests
 
         #endregion
 
-        #region Saving/Loading
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        [InlineData(100)]
-        [InlineData(1_000)]
-        [InlineData(10_000)]
-        [InlineData(100_000)]
-        public void SavingLoadingTest(int nodeCount)
-        {
-            var data = GenerateRandomData(nodeCount);
-            var tree = StructureFactory.Instance.GetBSPTree(data);
-            var filePath = Path.Combine(RESULTS_FOLDER, $"SavingTest_{nodeCount}.csv");
-
-            tree.Save(filePath);
-
-            var loadedTree = StructureFactory.Instance.GetBSPTree<TwoDimObject>();
-            loadedTree.Load(filePath);
-
-            Assert.True(tree.ComparePairWise(loadedTree, (x, y) => x.Identical(y)));
-        }
-
-        #endregion
-
         #region Custom tests
 
         [Fact]

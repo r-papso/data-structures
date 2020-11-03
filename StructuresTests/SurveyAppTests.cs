@@ -10,11 +10,9 @@ namespace StructuresTests
 {
     public class SurveyAppTests
     {
-        private static bool _saveResults = false;
         private static bool _integerValues = false;
         private static int _minVal = 0;
         private static int _maxVal = 1000;
-        private static KdComparer<TwoDimObject> _comparer = new KdComparer<TwoDimObject>();
 
         #region Saving/Loading
 

@@ -40,7 +40,7 @@ namespace Structures
         /// </summary>
         /// <typeparam name="T">Type of elements in BSP tree</typeparam>
         /// <returns>Empty BSP tree</returns>
-        public IBSPTree<T> GetBSPTree<T>() where T : IKdComparable, ISaveable, new()
+        public IBSPTree<T> GetBSPTree<T>() where T : IKdComparable
         {
             return new KdTree<T>();
         }
@@ -51,7 +51,7 @@ namespace Structures
         /// <typeparam name="T">Type of elements in BSP tree</typeparam>
         /// <param name="data">Data used in BSP tree construction</param>
         /// <returns>Balanced BSP tree constructed from <paramref name="data"/></returns>
-        public IBSPTree<T> GetBSPTree<T>(IEnumerable<T> data) where T : IKdComparable, ISaveable, new()
+        public IBSPTree<T> GetBSPTree<T>(IEnumerable<T> data) where T : IKdComparable
         {
             return new KdTree<T>(data);
         }

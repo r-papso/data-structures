@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Structures.Tree
 {
-    internal class KdTree<T> : IBSPTree<T> where T : IKdComparable, ISaveable, new()
+    internal class KdTree<T> : IBSPTree<T> where T : IKdComparable
     {
         private KdTreeNode<T> _root;
         private KdComparer<T> _comparer = new KdComparer<T>();
@@ -114,10 +114,6 @@ namespace Structures.Tree
 
             Delete(nodeToDelete);
         }
-
-        public void Save(string filePath) => _root?.Save(filePath);
-
-        public void Load(string filePath) => _root = new KdTreeNode<T>(filePath);
 
         public IEnumerable<T> InOrderTraversal
         {

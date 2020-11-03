@@ -1,5 +1,6 @@
 ﻿using Structures;
 using Structures.Interface;
+using SurveyApp.Interface;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -9,11 +10,13 @@ using System.Linq;
 namespace SurveyApp.Helper
 {
     /// <summary>
-    /// Adapter used to add <see cref="INotifyCollectionChanged"/> behavior to <see cref="IBSPTree{T}"/>
+    /// Adapter used to add <see cref="INotifyCollectionChanged"/> and <see cref="ISaveable"/> behavior to <see cref="IBSPTree{T}"/>
     /// </summary>
     /// <typeparam name="T">Type of elements in <see cref="IBSPTree{T}"/></typeparam>
     public class CollectionAdapter<T> : INotifyCollectionChanged, IEnumerable<T> where T : IKdComparable, ISaveable, new()
     {
+        private static string _csvDelimiter = ";";
+
         private T _lastUpper;
         private T _lastLower;
 
@@ -175,22 +178,19 @@ namespace SurveyApp.Helper
             OnCollectionChanged(args);
         }
 
-
         /// <summary>
         /// Saves <see cref="IBSPTree{T}"/> to CSV file
         /// </summary>
         /// <param name="filePath">Path of file, should have .csv extension</param>
-        //public void Save(string filePath) => Tree.Save(filePath);
         public void Save(string filePath)
         {
             using var writer = new StreamWriter(filePath);
 
             foreach (var location in Tree.LevelOrderTraversal)
             {
-                writer.WriteLine(location.ToCsv(";"));
+                writer.WriteLine(location.ToCsv(_csvDelimiter));
             }
         }
-
 
         /// <summary>
         /// Loads <see cref="IBSPTree{T}"/> from CSV file
@@ -199,14 +199,13 @@ namespace SurveyApp.Helper
         public void Load(string filePath)
         {
             Tree = StructureFactory.Instance.GetBSPTree<T>();
-            //Tree.Load(filePath);
             using var reader = new StreamReader(filePath);
 
             string line;
             while ((line = reader.ReadLine()) != null)
             {
                 var data = new T();
-                data.FromCsv(line, ";");
+                data.FromCsv(line, _csvDelimiter);
                 Tree.Insert(data);
             }
 
