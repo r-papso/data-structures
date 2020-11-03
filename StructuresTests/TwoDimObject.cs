@@ -15,7 +15,7 @@ namespace StructuresTests
 
         public double Y { get; private set; }
 
-        public int DimensionsCount => _dimCount;
+        public int DimensionCount => _dimCount;
 
         public TwoDimObject() { }
 

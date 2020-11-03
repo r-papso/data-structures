@@ -317,7 +317,9 @@ namespace StructuresTests
 
                 //int actualCount = 0;
                 //foreach (var node in tree) actualCount++;
+                var found = tree.Find(obj);
 
+                Assert.DoesNotContain(found, x => x.Identical(obj));
                 //Assert.Equal(--expectedCount, actualCount);
             }
 

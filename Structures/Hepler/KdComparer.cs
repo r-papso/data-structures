@@ -59,7 +59,7 @@ namespace Structures.Hepler
         /// <returns>True if <paramref name="data"/> is between <paramref name="lower"/> and <paramref name="upper"/>, False othwerwise</returns>
         public bool Between(T data, T lower, T upper)
         {
-            for (int i = 0; i < data.DimensionsCount; i++)
+            for (int i = 0; i < data.DimensionCount; i++)
             {
                 if (lower.GetKey(i).CompareTo(data.GetKey(i)) > 0 || upper.GetKey(i).CompareTo(data.GetKey(i)) < 0)
                     return false;
@@ -75,7 +75,7 @@ namespace Structures.Hepler
         /// <returns>True if <paramref name="left"/> is less than <paramref name="right"/>, False otherwise</returns>
         public bool LessThan(T left, T right)
         {
-            for (int i = 0; i < left.DimensionsCount; i++)
+            for (int i = 0; i < left.DimensionCount; i++)
             {
                 if (left.GetKey(i).CompareTo(right.GetKey(i)) >= 0)
                     return false;
@@ -91,7 +91,7 @@ namespace Structures.Hepler
         /// <returns>True if <paramref name="left"/> is equal to <paramref name="right"/>, False otherwise</returns>
         public bool Equal(T left, T right)
         {
-            for (int i = 0; i < left.DimensionsCount; i++)
+            for (int i = 0; i < left.DimensionCount; i++)
             {
                 if (left.GetKey(i).CompareTo(right.GetKey(i)) != 0)
                     return false;
@@ -107,7 +107,7 @@ namespace Structures.Hepler
         /// <returns>True if <paramref name="left"/> is greater than <paramref name="right"/>, False otherwise</returns>
         public bool GreaterThan(T left, T right)
         {
-            for (int i = 0; i < left.DimensionsCount; i++)
+            for (int i = 0; i < left.DimensionCount; i++)
             {
                 if (left.GetKey(i).CompareTo(right.GetKey(i)) <= 0)
                     return false;

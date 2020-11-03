@@ -10,7 +10,7 @@ namespace Structures.Interface
         /// <summary>
         /// Number of dimensions in which object is comparable
         /// </summary>
-        public int DimensionsCount { get; }
+        public int DimensionCount { get; }
 
         /// <summary>
         /// Gets key of k-th dimension
