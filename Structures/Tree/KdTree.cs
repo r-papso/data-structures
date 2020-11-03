@@ -1,4 +1,5 @@
 ﻿using Structures.Hepler;
+using Structures.Interface;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,16 +7,40 @@ using System.Linq;
 
 namespace Structures.Tree
 {
-    internal class KdTree<T> : IBSPTree<T> where T : IKDComparable
+    internal class KdTree<T> : IBSPTree<T> where T : IKdComparable
     {
         private KdTreeNode<T> _root;
-        private KDComparer<T> _comparer = new KDComparer<T>();
+        private KdComparer<T> _comparer = new KdComparer<T>();
+
+        public IEnumerable<T> InOrderTraversal
+        {
+            get
+            {
+                if (_root == null)
+                    yield break;
+
+                foreach (var node in _root.GetInOrderEnumerable())
+                    yield return node.Data;
+            }
+        }
+
+        public IEnumerable<T> LevelOrderTraversal
+        {
+            get
+            {
+                if (_root == null)
+                    yield break;
+
+                foreach (var node in _root.GetLevelOrderEnumerable())
+                    yield return node.Data;
+            }
+        }
 
         public KdTree() { }
 
         public KdTree(T data) => _root = new KdTreeNode<T>(data, 0);
 
-        public KdTree(IEnumerable<T> data) => _root = new KdTreeNode<T>(data, 0);
+        public KdTree(IEnumerable<T> data) => _root = new KdTreeNode<T>(data);
 
         //Only for testing purposes
         public int GetDepth() => _root?.Max(x => x.Level + 1) ?? 0;
@@ -24,10 +49,11 @@ namespace Structures.Tree
 
         public ICollection<T> Find(T lowerBound, T upperBound)
         {
-            if (_root == null || (!_comparer.GreaterThan(upperBound, lowerBound) && !_comparer.Equal(upperBound, lowerBound)))
-                return Enumerable.Empty<T>().ToList();
-
             var result = new LinkedList<T>();
+
+            if (_root == null || (!_comparer.GreaterThan(upperBound, lowerBound) && !_comparer.Equal(upperBound, lowerBound)))
+                return result;
+
             var stack = new Stack<KdTreeNode<T>>();
             var actualNode = _root;
 
@@ -116,14 +142,10 @@ namespace Structures.Tree
         public IEnumerator<T> GetEnumerator()
         {
             if (_root == null)
-            {
                 yield break;
-            }
 
             foreach (var node in _root)
-            {
                 yield return node.Data;
-            }
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

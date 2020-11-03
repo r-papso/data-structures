@@ -1,0 +1,116 @@
+﻿<Window x:Class="SurveyApp.View.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModel="clr-namespace:SurveyApp.ViewModel"
+        xmlns:helper="clr-namespace:SurveyApp.Helper"
+        Title="Survey App" Height="450" Width="650"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=viewModel:MainViewModel, IsDesignTimeCreatable=True}">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="120"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition Width="20"/>
+        </Grid.ColumnDefinitions>
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+
+        <Label Grid.Row="1" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Location type:" VerticalContentAlignment="Center"/>
+        <ComboBox Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Margin="5,2.5,5,2.5" ItemsSource="{x:Static helper:StaticFields.LocationTypeValues}" SelectedItem="{Binding SearchCriteria.LocationType}"/>
+
+        <Label Grid.Row="2" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Latitude:" VerticalContentAlignment="Center"/>
+        <TextBox Grid.Row="2" Grid.Column="2" Margin="5,2.5,5,2.5" VerticalContentAlignment="Center" Text="{Binding SearchCriteria.MinLatitude}"/>
+        <TextBox Grid.Row="2" Grid.Column="3" Margin="5,2.5,5,2.5" VerticalContentAlignment="Center" Text="{Binding SearchCriteria.MaxLatitude}"/>
+
+        <Label Grid.Row="3" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Longitude:" VerticalContentAlignment="Center"/>
+        <TextBox Grid.Row="3" Grid.Column="2" Margin="5,2.5,5,2.5" VerticalContentAlignment="Center" Text="{Binding SearchCriteria.MinLongitude}"/>
+        <TextBox Grid.Row="3" Grid.Column="3" Margin="5,2.5,5,2.5" VerticalContentAlignment="Center" Text="{Binding SearchCriteria.MaxLongitude}"/>
+
+        <Button Grid.Row="1" Grid.Column="4" Margin="5,2.5,5,2.5" Command="{Binding SearchCommand}">Search</Button>
+        <Button Grid.Row="2" Grid.Column="4" Margin="5,2.5,5,2.5" Command="{Binding ResetCommand}">Reset</Button>
+        <Button Grid.Row="3" Grid.Column="4" Margin="5,2.5,5,2.5" Command="{Binding NewCommand}">New</Button>
+
+        <ListView Grid.Row="5" Grid.Column="1" Grid.RowSpan="6" Grid.ColumnSpan="3" Margin="5,2.5,5,2.5" HorizontalContentAlignment="Stretch" SelectedItem="{Binding SelectedLocation}">
+            <ListView.Resources>
+                <CollectionViewSource x:Key="Properties" Source="{Binding Properties}"/>
+                <CollectionViewSource x:Key="Sites" Source="{Binding Sites}"/>
+            </ListView.Resources>
+            <ListView.ItemsSource>
+                <CompositeCollection>
+                    <CollectionContainer Collection="{Binding Source={StaticResource Properties}}"/>
+                    <CollectionContainer Collection="{Binding Source={StaticResource Sites}}"/>
+                </CompositeCollection>
+            </ListView.ItemsSource>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="5"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="25"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="{Binding ID, StringFormat=ID: {0:F0}}" />
+                        <TextBlock Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Text="{Binding LocationType, StringFormat={}{0}}" />
+                        <TextBlock Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" Text="{Binding Description}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="4" VerticalAlignment="Center" Text="{Binding Latitude, StringFormat=Lat: {0:F4}}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="5" VerticalAlignment="Center" Text="{Binding Longitude, StringFormat=Lon: {0:F4}}"/>
+
+                        <Expander Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3">
+                            <ListView ItemsSource="{Binding SituatedLocations}">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding ID, StringFormat=ID: {0:F0}}" />
+                                            <TextBlock Text="{Binding Description}" Margin="20,0,0,0" />
+                                            <TextBlock Text="{Binding Latitude, StringFormat=Lat: {0:F4}}" Margin="20,0,0,0" />
+                                            <TextBlock Text="{Binding Longitude, StringFormat=Lon: {0:F4}}" Margin="20,0,0,0" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </Expander>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <Button Grid.Row="5" Grid.Column="4" Margin="5,2.5,5,2.5" Command="{Binding UpdateCommand}">Update</Button>
+        <Button Grid.Row="6" Grid.Column="4" Margin="5,2.5,5,2.5" Command="{Binding DeleteCommand}">Delete</Button>
+
+        <Button Grid.Row="8" Grid.Column="4" Margin="5,2.5,5,2.5" Command="{Binding GenerateCommand}">Generate</Button>
+        <Button Grid.Row="9" Grid.Column="4" Margin="5,2.5,5,2.5" Command="{Binding LoadCommand}">Load</Button>
+        <Button Grid.Row="10" Grid.Column="4" Margin="5,2.5,5,2.5" Command="{Binding SaveCommand}">Save</Button>
+
+        <Label Grid.Row="11" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Elapsed time (ms):" VerticalContentAlignment="Center"/>
+        <TextBlock Grid.Row="11" Grid.Column="2" Margin="5,2.5,5,2.5" VerticalAlignment="Center" Text="{Binding Timer.ElapsedMilliseconds}"/>
+    </Grid>
+</Window>
