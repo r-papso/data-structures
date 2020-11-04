@@ -8,7 +8,7 @@ namespace SurveyApp.ViewModel
     /// <summary>
     /// View model used by <see cref="View.GenerateWindow"/>
     /// </summary>
-    public class GenerateViewModel
+    public class GenerateViewModel : ViewModelBase
     {
         private readonly LocationManager _locationManager;
 
@@ -25,13 +25,14 @@ namespace SurveyApp.ViewModel
         /// <summary>
         /// Default constructor
         /// </summary>
-        public GenerateViewModel() { }
+        public GenerateViewModel() : base()
+        { }
 
         /// <summary>
         /// Constructor used by <see cref="Microsoft.Extensions.DependencyInjection"/>
         /// </summary>
         /// <param name="locationManager">Instance of <see cref="LocationManager"/></param>
-        public GenerateViewModel(LocationManager locationManager)
+        public GenerateViewModel(LocationManager locationManager) : base()
         {
             _locationManager = locationManager;
 
@@ -42,7 +43,7 @@ namespace SurveyApp.ViewModel
 
         private void InitRelayCommands()
         {
-            SubmitCommand = new MeasurableRelayCommand(Submit);
+            SubmitCommand = new RelayCommand(StartMeasurement, Submit, StopMeasurement);
         }
     }
 }

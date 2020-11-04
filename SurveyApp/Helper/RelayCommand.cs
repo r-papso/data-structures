@@ -5,24 +5,24 @@ namespace SurveyApp.Helper
 {
     public class RelayCommand : ICommand
     {
-        private readonly Action<object> _action;
+        private readonly Action<object>[] _actions;
         private readonly Predicate<object> _predicate;
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="action">Action invoked by this command</param>
-        public RelayCommand(Action<object> action) : this(action, null)
+        /// <param name="actions">Actions invoked by this command</param>
+        public RelayCommand(params Action<object>[] actions) : this(null, actions)
         { }
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="action">Action invoked by this command</param>
-        /// <param name="predicate">Predicate determining if <paramref name="action"/> can be invoked</param>
-        public RelayCommand(Action<object> action, Predicate<object> predicate)
+        /// <param name="actions">Actions invoked by this command</param>
+        /// <param name="predicate">Predicate determining if <paramref name="actions"/> can be invoked</param>
+        public RelayCommand(Predicate<object> predicate, params Action<object>[] actions)
         {
-            _action = action;
+            _actions = actions;
             _predicate = predicate;
         }
 
@@ -46,12 +46,15 @@ namespace SurveyApp.Helper
         }
 
         /// <summary>
-        /// Defines the method to be called when the command is invoked
+        /// Defines the methods to be called when the command is invoked
         /// </summary>
         /// <param name="parameter">Data used by the command. If the command does not require data to be passed, this object can be set to null</param>
         public virtual void Execute(object parameter)
         {
-            _action(parameter);
+            foreach (var action in _actions)
+            {
+                action(parameter);
+            }
         }
     }
 }

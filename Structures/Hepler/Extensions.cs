@@ -47,5 +47,26 @@ namespace Structures.Hepler
 
             return true;
         }
+
+        /// <summary>
+        /// Returns index of first element yielded by <paramref name="source"/> satisfying <paramref name="predicate"/> conditon, or -1 if no such element exists in <paramref name="source"/>
+        /// </summary>
+        /// <typeparam name="T">Type of elements in <see cref="IEnumerable{T}"/></typeparam>
+        /// <param name="source">Source <see cref="IEnumerable{T}"/></param>
+        /// <param name="predicate">Predicate, when satisfied, index of element is returned</param>
+        /// <returns></returns>
+        public static int IndexOf<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+        {
+            int index = 0;
+
+            foreach (var obj in source)
+            {
+                if (predicate(obj))
+                    return index;
+                index++;
+            }
+
+            return -1;
+        }
     }
 }

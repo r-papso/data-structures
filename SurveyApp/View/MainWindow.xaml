@@ -49,7 +49,7 @@
         <Button Grid.Row="2" Grid.Column="4" Margin="5,2.5,5,2.5" Command="{Binding ResetCommand}">Reset</Button>
         <Button Grid.Row="3" Grid.Column="4" Margin="5,2.5,5,2.5" Command="{Binding NewCommand}">New</Button>
 
-        <ListView Grid.Row="5" Grid.Column="1" Grid.RowSpan="6" Grid.ColumnSpan="3" Margin="5,2.5,5,2.5" HorizontalContentAlignment="Stretch" SelectedItem="{Binding SelectedLocation}">
+        <ListView Grid.Row="5" Grid.Column="1" Grid.RowSpan="6" Grid.ColumnSpan="3" Margin="5,2.5,5,2.5" HorizontalContentAlignment="Stretch" SelectionMode="Single" SelectedItem="{Binding SelectedLocation}">
             <ListView.Resources>
                 <CollectionViewSource x:Key="Properties" Source="{Binding Properties}"/>
                 <CollectionViewSource x:Key="Sites" Source="{Binding Sites}"/>

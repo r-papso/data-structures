@@ -10,7 +10,7 @@ namespace SurveyApp.ViewModel
     /// <summary>
     /// View model used by <see cref="MainWindow"/>
     /// </summary>
-    public class MainViewModel
+    public class MainViewModel : ViewModelBase
     {
         private readonly LocationManager _locationManager;
         private readonly WindowService _windowService;
@@ -85,7 +85,8 @@ namespace SurveyApp.ViewModel
         /// <summary>
         /// Default constructor
         /// </summary>
-        public MainViewModel() { }
+        public MainViewModel() : base()
+        { }
 
         /// <summary>
         /// Constructor used by <see cref="Microsoft.Extensions.DependencyInjection"/>
@@ -94,7 +95,7 @@ namespace SurveyApp.ViewModel
         /// <param name="windowService"><see cref="WindowService"/> instance</param>
         /// <param name="generateViewModel"><see cref="GenerateViewModel"/> instance</param>
         /// <param name="locationViewModel"><see cref="LocationManager"/> instance</param>
-        public MainViewModel(LocationManager locationManager, WindowService windowService, GenerateViewModel generateViewModel, LocationViewModel locationViewModel)
+        public MainViewModel(LocationManager locationManager, WindowService windowService, GenerateViewModel generateViewModel, LocationViewModel locationViewModel) : base()
         {
             _locationManager = locationManager;
             _windowService = windowService;
@@ -161,14 +162,14 @@ namespace SurveyApp.ViewModel
 
         private void InitRelayCommands()
         {
-            SearchCommand = new MeasurableRelayCommand(Search);
-            ResetCommand = new MeasurableRelayCommand(Reset);
+            SearchCommand = new RelayCommand(StartMeasurement, Search, StopMeasurement);
+            ResetCommand = new RelayCommand(StartMeasurement, Reset, StopMeasurement);
             NewCommand = new RelayCommand(New);
-            UpdateCommand = new RelayCommand(Update, CanUpdate);
-            DeleteCommand = new MeasurableRelayCommand(Delete, CanDelete);
+            UpdateCommand = new RelayCommand(CanUpdate, Update);
+            DeleteCommand = new RelayCommand(CanDelete, StartMeasurement, Delete, StopMeasurement);
             GenerateCommand = new RelayCommand(Generate);
-            LoadCommand = new MeasurableRelayCommand(Load);
-            SaveCommand = new MeasurableRelayCommand(Save);
+            LoadCommand = new RelayCommand(StartMeasurement, Load, StopMeasurement);
+            SaveCommand = new RelayCommand(StartMeasurement, Save, StopMeasurement);
         }
     }
 }
