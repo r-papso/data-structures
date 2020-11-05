@@ -275,7 +275,7 @@ namespace Structures.Tree
         private int CompareKeys(T left, T right, int level)
         {
             var dimension = level % left.DimensionCount;
-            return left.GetKey(dimension).CompareTo(right.GetKey(dimension));
+            return _comparer.Compare(left, right, dimension);
         }
     }
 }

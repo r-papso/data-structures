@@ -49,7 +49,7 @@ namespace Structures.Hepler
         }
 
         /// <summary>
-        /// Returns index of first element yielded by <paramref name="source"/> satisfying <paramref name="predicate"/> conditon, or -1 if no such element exists in <paramref name="source"/>
+        /// Returns index of first element of <paramref name="source"/> satisfying <paramref name="predicate"/> conditon, or -1 if no such element exists in <paramref name="source"/>
         /// </summary>
         /// <typeparam name="T">Type of elements in <see cref="IEnumerable{T}"/></typeparam>
         /// <param name="source">Source <see cref="IEnumerable{T}"/></param>
