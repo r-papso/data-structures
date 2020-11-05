@@ -96,6 +96,7 @@ namespace SurveyApp.Helper
         public void SetEmptyFound()
         {
             Found = Enumerable.Empty<T>();
+            (_lastLower, _lastUpper) = (default, default);
 
             var args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
             OnCollectionChanged(args);
@@ -109,7 +110,7 @@ namespace SurveyApp.Helper
         {
             Tree.Insert(data);
 
-            if (Found != null)
+            if (Found != null && _lastLower != null && _lastUpper != null)
                 Found = Tree.Find(_lastLower, _lastUpper);
 
             var args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
@@ -126,7 +127,7 @@ namespace SurveyApp.Helper
         {
             Tree.Update(oldData, newData);
 
-            if (Found != null)
+            if (Found != null && _lastLower != null && _lastUpper != null)
                 Found = Tree.Find(_lastLower, _lastUpper);
 
             var args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
@@ -141,7 +142,7 @@ namespace SurveyApp.Helper
         {
             Tree.Delete(data);
 
-            if (Found != null)
+            if (Found != null && _lastLower != null && _lastUpper != null)
                 Found = Tree.Find(_lastLower, _lastUpper);
 
             var args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
