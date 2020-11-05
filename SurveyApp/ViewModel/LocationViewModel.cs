@@ -1,6 +1,8 @@
 ﻿using SurveyApp.Helper;
 using SurveyApp.Model;
 using SurveyApp.Service;
+using System;
+using System.Windows;
 using System.Windows.Input;
 
 namespace SurveyApp.ViewModel
@@ -70,15 +72,22 @@ namespace SurveyApp.ViewModel
 
         private void Submit(object parameter)
         {
-            if (_updatingLocation != null)
+            try
             {
-                _locationManager.UpdateLocation(_updatingLocation, NewLocation);
-                Updating(NewLocation);
+                if (_updatingLocation != null)
+                {
+                    _locationManager.UpdateLocation(_updatingLocation, NewLocation);
+                    Updating(NewLocation);
+                }
+                else
+                {
+                    _locationManager.InsertLocation(NewLocation);
+                    New();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _locationManager.InsertLocation(NewLocation);
-                New();
+                MessageBox.Show(ex.Message, "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
             }
         }
 
