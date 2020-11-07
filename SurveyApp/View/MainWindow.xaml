@@ -78,7 +78,7 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="{Binding ID, StringFormat=ID: {0:F0}}" />
+                        <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="{Binding Number, StringFormat=Number: {0:F0}}" />
                         <TextBlock Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Text="{Binding LocationType, StringFormat={}{0}}" />
                         <TextBlock Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" Text="{Binding Description}"/>
                         <TextBlock Grid.Row="0" Grid.Column="4" VerticalAlignment="Center" Text="{Binding Latitude, StringFormat=Lat: {0:F4}}"/>
@@ -89,7 +89,7 @@
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="{Binding ID, StringFormat=ID: {0:F0}}" />
+                                            <TextBlock Text="{Binding Number, StringFormat=Number: {0:F0}}" />
                                             <TextBlock Text="{Binding Description}" Margin="20,0,0,0" />
                                             <TextBlock Text="{Binding Latitude, StringFormat=Lat: {0:F4}}" Margin="20,0,0,0" />
                                             <TextBlock Text="{Binding Longitude, StringFormat=Lon: {0:F4}}" Margin="20,0,0,0" />

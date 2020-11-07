@@ -1,10 +1,8 @@
-﻿using Structures.Hepler;
-using SurveyApp.Helper;
+﻿using SurveyApp.Helper;
 using SurveyApp.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace SurveyApp.Service
 {
@@ -84,13 +82,8 @@ namespace SurveyApp.Service
             else
                 Sites.Update(oldLocation, newLocation);
 
-            var comparer = new KdComparer<Location>();
-
-            if (!comparer.Equal(oldLocation, newLocation))
-            {
-                AddSituatedLocations(newLocation);
-                RemoveSituatedLocations(oldLocation);
-            }
+            AddSituatedLocations(newLocation);
+            RemoveSituatedLocations(oldLocation);
         }
 
         /// <summary>
@@ -196,9 +189,9 @@ namespace SurveyApp.Service
         private void AddSituatedLocations(Location location)
         {
             if (location.LocationType == LocationType.Property)
-                location.SituatedLocations = Sites.Get(location).ToHashSet(new LocationEqualityComparer());
+                location.SituatedLocations = Sites.Get(location);
             else
-                location.SituatedLocations = Properties.Get(location).ToHashSet(new LocationEqualityComparer());
+                location.SituatedLocations = Properties.Get(location);
 
             foreach (var situated in location.SituatedLocations)
             {
