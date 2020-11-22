@@ -3,7 +3,7 @@
 namespace Structures.Interface
 {
     /// <summary>
-    /// Defines operations required by <see cref="IBSPTree{T}"/> data structure
+    /// Defines operations required by <see cref="Tree.KdTree{T}"/> data structure
     /// </summary>
     public interface IKdComparable
     {

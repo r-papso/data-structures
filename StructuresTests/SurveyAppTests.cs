@@ -29,7 +29,7 @@ namespace StructuresTests
             if (!_skip)
             {
                 var data = GenerateRandomData(nodeCount);
-                var tree = StructureFactory.Instance.GetBSPTree(data);
+                var tree = StructureFactory.Instance.GetKdTree(data);
                 var filePath = Path.Combine(BSPTreeTests.RESULTS_FOLDER, $"SavingTest_{nodeCount}.csv");
                 var adapter1 = new CollectionAdapter<TwoDimObject>(tree);
                 var adapter2 = new CollectionAdapter<TwoDimObject>();

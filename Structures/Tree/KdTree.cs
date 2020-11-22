@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Structures.Tree
 {
-    internal class KdTree<T> : IBSPTree<T> where T : IKdComparable
+    internal class KdTree<T> : ITree<T> where T : IKdComparable
     {
         private KdTreeNode<T> _root;
         private KdComparer<T> _comparer = new KdComparer<T>();
@@ -42,8 +42,7 @@ namespace Structures.Tree
 
         public KdTree(IEnumerable<T> data) => _root = new KdTreeNode<T>(data);
 
-        //Only for testing purposes
-        public int GetDepth() => _root?.Max(x => x.Level + 1) ?? 0;
+        public int GetDepth() => _root?.Max(x => x.Level) ?? -1;
 
         public ICollection<T> Find(T data) => Find(data, data);
 

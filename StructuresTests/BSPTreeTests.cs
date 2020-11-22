@@ -43,7 +43,7 @@ namespace StructuresTests
             var data = GenerateRandomData(nodeCount);
 
             var timer = Stopwatch.StartNew();
-            var tree = StructureFactory.Instance.GetBSPTree(data);
+            var tree = StructureFactory.Instance.GetKdTree(data);
             timer.Stop();
 
             /*int actualDepth = tree.GetDepth();
@@ -76,7 +76,7 @@ namespace StructuresTests
         {
             var results = new List<Result>();
             var data = GenerateRandomData(nodeCount);
-            var tree = StructureFactory.Instance.GetBSPTree(data);
+            var tree = StructureFactory.Instance.GetKdTree(data);
             var iterations = 0;
 
             var timer = Stopwatch.StartNew();
@@ -96,7 +96,7 @@ namespace StructuresTests
         {
             var data = GenerateRandomData(nodeCount);
             var csv = new StringBuilder();
-            var tree = StructureFactory.Instance.GetBSPTree(data);
+            var tree = StructureFactory.Instance.GetKdTree(data);
 
             foreach (var node in tree)
             {
@@ -116,7 +116,7 @@ namespace StructuresTests
         {
             var data = GenerateDataGrid(50);
             var csv = new StringBuilder();
-            var tree = StructureFactory.Instance.GetBSPTree(data);
+            var tree = StructureFactory.Instance.GetKdTree(data);
             var interval = tree.Find(new TwoDimObject(51, 0, 1), new TwoDimObject(52, 48, 1));
 
             foreach (var node in interval)
@@ -143,7 +143,7 @@ namespace StructuresTests
         {
             var results = new List<Result>();
             var data = GenerateRandomData(nodeCount);
-            var tree = StructureFactory.Instance.GetBSPTree(data);
+            var tree = StructureFactory.Instance.GetKdTree(data);
 
             var lowerIndex = (_maxVal - _minVal) / 2 - (_maxVal - _minVal) / 10;
             var upperIndex = (_maxVal - _minVal) / 2 + (_maxVal - _minVal) / 10;
@@ -191,7 +191,7 @@ namespace StructuresTests
             var results = new List<Result>();
             var times = new List<long>(nodeCount);
             var data = GenerateRandomData(nodeCount);
-            var tree = StructureFactory.Instance.GetBSPTree(data);
+            var tree = StructureFactory.Instance.GetKdTree(data);
             int i = 0;
 
             foreach (var obj in data)
@@ -218,7 +218,7 @@ namespace StructuresTests
         {
             var seed = 1;
             var data = GenerateRandomData(10, seed);
-            var tree = StructureFactory.Instance.GetBSPTree(data);
+            var tree = StructureFactory.Instance.GetKdTree(data);
             var rand = new Random(seed);
 
             for (int i = 0; i < 100_000; i++)
@@ -251,7 +251,7 @@ namespace StructuresTests
             var results = new List<Result>();
             var times = new List<long>();
             var data = GenerateRandomData(nodeCount);
-            var tree = StructureFactory.Instance.GetBSPTree<TwoDimObject>();
+            var tree = StructureFactory.Instance.GetKdTree<TwoDimObject>();
 
             foreach (var obj in data)
             {
@@ -304,7 +304,7 @@ namespace StructuresTests
             var results = new List<Result>();
             var times = new List<long>();
             var data = GenerateRandomData(nodeCount);
-            var tree = StructureFactory.Instance.GetBSPTree(data);
+            var tree = StructureFactory.Instance.GetKdTree(data);
             var expectedCount = nodeCount;
 
             foreach (var obj in data)
@@ -349,7 +349,7 @@ namespace StructuresTests
             var results = new List<Result>();
             var times = new List<long>();
             var data = GenerateRandomData(nodeCount);
-            var tree = StructureFactory.Instance.GetBSPTree(data);
+            var tree = StructureFactory.Instance.GetKdTree(data);
             var rand = new Random();
             var i = 0;
 
