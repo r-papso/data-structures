@@ -6,6 +6,6 @@
 
         public byte[] ToByteArray();
 
-        public void FromByteArray(byte[] array);
+        public void FromByteArray(byte[] array, int offset = 0);
     }
 }

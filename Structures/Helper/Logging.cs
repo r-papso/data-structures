@@ -1,8 +1,6 @@
 ﻿using Serilog;
-using System;
-using System.IO;
 
-namespace Structures.Hepler
+namespace Structures.Helper
 {
     internal static class Logging
     {
@@ -19,8 +17,7 @@ namespace Structures.Hepler
                     {
                         if (_instance == null)
                         {
-                            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Structures", "Log", "log.txt");
-                            _instance = new LoggerConfiguration().WriteTo.File(path, rollingInterval: RollingInterval.Day).CreateLogger();
+                            _instance = new LoggerConfiguration().WriteTo.File(StaticFields.LogFile, rollingInterval: RollingInterval.Day).CreateLogger();
                         }
                     }
                 }

@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Structures.Hepler
+namespace Structures.Helper
 {
     public static class Extensions
     {
@@ -67,6 +68,43 @@ namespace Structures.Hepler
             }
 
             return -1;
+        }
+
+        public static int ToInt(this BitArray bitArray)
+        {
+            if (bitArray.Length > 32)
+                throw new ArgumentException("BitArray length longer than 32 bits.");
+
+            int[] array = new int[1];
+            bitArray.CopyTo(array, 0);
+            return array[0];
+        }
+
+        public static void ReplaceRange<T>(this T[] source, T[] subset, int offset)
+        {
+            if (source.Length < subset.Length)
+                throw new ArgumentException("Subset length greater than source length");
+
+            if (offset < 0 || subset.Length + offset > source.Length)
+                throw new ArgumentException("Offset out of range");
+
+            for (int i = 0; i < subset.Length; i++)
+                source[i + offset] = subset[i];
+        }
+
+        public static byte[] GetBytes(this string str)
+        {
+            var result = new byte[sizeof(char) * str.Length];
+            var offset = 0;
+
+            for (int i = 0; i < str.Length; i++)
+            {
+                var bytes = BitConverter.GetBytes(str[i]);
+                result.ReplaceRange(bytes, offset);
+                offset += bytes.Length;
+            }
+
+            return result;
         }
     }
 }

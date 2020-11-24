@@ -1,7 +1,7 @@
 ﻿using Structures.Interface;
 using System.Collections.Generic;
 
-namespace Structures.Hepler
+namespace Structures.Helper
 {
     /// <summary>
     /// Comparer used to compare two <see cref="IKdComparable"/> objects

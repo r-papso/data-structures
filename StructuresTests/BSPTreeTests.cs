@@ -1,5 +1,5 @@
 using Structures;
-using Structures.Hepler;
+using Structures.Helper;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -40,7 +40,7 @@ namespace StructuresTests
         public void ConstructionTimeTest(int nodeCount)
         {
             var results = new List<Result>();
-            var data = GenerateRandomData(nodeCount);
+            var data = Generator.GenerateRandomData(nodeCount, _integerValues, _minVal, _maxVal);
 
             var timer = Stopwatch.StartNew();
             var tree = StructureFactory.Instance.GetKdTree(data);
@@ -75,7 +75,7 @@ namespace StructuresTests
         public void IterationTimeTest(int nodeCount)
         {
             var results = new List<Result>();
-            var data = GenerateRandomData(nodeCount);
+            var data = Generator.GenerateRandomData(nodeCount, _integerValues, _minVal, _maxVal);
             var tree = StructureFactory.Instance.GetKdTree(data);
             var iterations = 0;
 
@@ -94,7 +94,7 @@ namespace StructuresTests
         [InlineData(15)]
         public void IterationTest(int nodeCount)
         {
-            var data = GenerateRandomData(nodeCount);
+            var data = Generator.GenerateRandomData(nodeCount, _integerValues, _minVal, _maxVal);
             var csv = new StringBuilder();
             var tree = StructureFactory.Instance.GetKdTree(data);
 
@@ -114,7 +114,7 @@ namespace StructuresTests
         [Fact]
         public void IntervalSearchTest()
         {
-            var data = GenerateDataGrid(50);
+            var data = Generator.GenerateDataGrid(50);
             var csv = new StringBuilder();
             var tree = StructureFactory.Instance.GetKdTree(data);
             var interval = tree.Find(new TwoDimObject(51, 0, 1), new TwoDimObject(52, 48, 1));
@@ -142,7 +142,7 @@ namespace StructuresTests
         public void IntervalSearchTimeTest(int nodeCount)
         {
             var results = new List<Result>();
-            var data = GenerateRandomData(nodeCount);
+            var data = Generator.GenerateRandomData(nodeCount, _integerValues, _minVal, _maxVal);
             var tree = StructureFactory.Instance.GetKdTree(data);
 
             var lowerIndex = (_maxVal - _minVal) / 2 - (_maxVal - _minVal) / 10;
@@ -190,7 +190,7 @@ namespace StructuresTests
         {
             var results = new List<Result>();
             var times = new List<long>(nodeCount);
-            var data = GenerateRandomData(nodeCount);
+            var data = Generator.GenerateRandomData(nodeCount, _integerValues, _minVal, _maxVal);
             var tree = StructureFactory.Instance.GetKdTree(data);
             int i = 0;
 
@@ -217,7 +217,7 @@ namespace StructuresTests
         public void PointSearchTest()
         {
             var seed = 1;
-            var data = GenerateRandomData(10, seed);
+            var data = Generator.GenerateRandomData(10, seed, _integerValues, _minVal, _maxVal);
             var tree = StructureFactory.Instance.GetKdTree(data);
             var rand = new Random(seed);
 
@@ -250,7 +250,7 @@ namespace StructuresTests
         {
             var results = new List<Result>();
             var times = new List<long>();
-            var data = GenerateRandomData(nodeCount);
+            var data = Generator.GenerateRandomData(nodeCount, _integerValues, _minVal, _maxVal);
             var tree = StructureFactory.Instance.GetKdTree<TwoDimObject>();
 
             foreach (var obj in data)
@@ -303,7 +303,7 @@ namespace StructuresTests
         {
             var results = new List<Result>();
             var times = new List<long>();
-            var data = GenerateRandomData(nodeCount);
+            var data = Generator.GenerateRandomData(nodeCount, _integerValues, _minVal, _maxVal);
             var tree = StructureFactory.Instance.GetKdTree(data);
             var expectedCount = nodeCount;
 
@@ -348,7 +348,7 @@ namespace StructuresTests
         {
             var results = new List<Result>();
             var times = new List<long>();
-            var data = GenerateRandomData(nodeCount);
+            var data = Generator.GenerateRandomData(nodeCount, _integerValues, _minVal, _maxVal);
             var tree = StructureFactory.Instance.GetKdTree(data);
             var rand = new Random();
             var i = 0;
@@ -385,7 +385,7 @@ namespace StructuresTests
         [Fact]
         public void TestListArray()
         {
-            IEnumerable<TwoDimObject> data = GenerateRandomData(10);
+            IEnumerable<TwoDimObject> data = Generator.GenerateRandomData(10, _integerValues, _minVal, _maxVal);
             TwoDimObject[] dataArray;
             if (data is TwoDimObject[])
             {
@@ -412,45 +412,6 @@ namespace StructuresTests
         #endregion
 
         #region Private methods
-
-        private TwoDimObject[] GenerateRandomData(int dataCount) => GenerateRandomData(dataCount, 0);
-
-        private TwoDimObject[] GenerateRandomData(int dataCount, int seed)
-        {
-            Random rand;
-            if (seed != 0)
-                rand = new Random(seed);
-            else
-                rand = new Random();
-
-            var data = new TwoDimObject[dataCount];
-
-            for (int i = 0; i < dataCount; i++)
-            {
-                if (_integerValues)
-                    data[i] = new TwoDimObject(i, rand.Next(_minVal, _maxVal), rand.Next(_minVal, _maxVal));
-                else
-                    data[i] = new TwoDimObject(i, (rand.NextDouble() + _minVal) * _maxVal, (rand.NextDouble() + _minVal) * _maxVal);
-            }
-
-            return data;
-        }
-
-        private TwoDimObject[] GenerateDataGrid(int gridSize)
-        {
-            var data = new TwoDimObject[Convert.ToInt32(Math.Pow(gridSize, 2))];
-
-            int k = 0;
-            for (int i = 0; i < gridSize; i++)
-            {
-                for (int j = 0; j < gridSize; j++)
-                {
-                    data[i * gridSize + j] = new TwoDimObject(k++, i, j);
-                }
-            }
-
-            return data;
-        }
 
         private void WriteResultsToCsv(IEnumerable<Result> results, string fileName)
         {

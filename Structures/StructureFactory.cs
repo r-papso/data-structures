@@ -1,4 +1,5 @@
-﻿using Structures.Interface;
+﻿using Structures.Hashing;
+using Structures.Interface;
 using Structures.Tree;
 using System.Collections.Generic;
 
@@ -54,6 +55,21 @@ namespace Structures
         public ITree<T> GetKdTree<T>(IEnumerable<T> data) where T : IKdComparable
         {
             return new KdTree<T>(data);
+        }
+
+        public IFileStructure<T> GetExtendibleHashing<T>(int clusterSize) where T : ISerializable, new()
+        {
+            return new ExtendibleHashing<T>(clusterSize);
+        }
+
+        public IStructure<T> GetHashSet<T>()
+        {
+            return new Hashing.HashSet<T>();
+        }
+
+        public IStructure<T> GetHashSet<T>(int initialCapacity)
+        {
+            return new Hashing.HashSet<T>(initialCapacity);
         }
     }
 }
