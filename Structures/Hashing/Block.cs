@@ -8,18 +8,16 @@ namespace Structures.Hashing
 {
     internal class Block<T> : ISerializable, IEnumerable<T> where T : ISerializable, new()
     {
-        private int _blockFactor;
         private List<T> _dataList;
 
-        public Block(int blockFactor, int blockDepth)
+        public Block(int blockDepth)
         {
-            ValidDataCount = 0;
             BlockDepth = blockDepth;
-            _blockFactor = blockFactor;
+            ValidDataCount = 0;
             _dataList = new List<T>();
         }
 
-        public int ByteSize => 2 * sizeof(int) + new T().ByteSize * _blockFactor;
+        public int ByteSize => 2 * sizeof(int) + new T().ByteSize * ValidDataCount;
 
         public int ValidDataCount { get; private set; }
 
@@ -57,9 +55,9 @@ namespace Structures.Hashing
             result.ReplaceRange(bArray, offset);
             offset += bArray.Length;
 
-            for (int i = 0; i < ValidDataCount; i++)
+            foreach (var item in _dataList)
             {
-                bArray = _dataList[i].ToByteArray();
+                bArray = item.ToByteArray();
                 result.ReplaceRange(bArray, offset);
                 offset += bArray.Length;
             }
@@ -69,7 +67,7 @@ namespace Structures.Hashing
 
         public T Get(int index) => _dataList[index];
 
-        public T GetData(T data, out bool found)
+        public T Get(T data, out bool found)
         {
             for (int i = 0; i < ValidDataCount; i++)
             {
@@ -84,19 +82,15 @@ namespace Structures.Hashing
             return default;
         }
 
-        public void InsertData(T data)
-        {
-            _dataList.Add(data);
-            ValidDataCount++;
-        }
+        public void Add(T data) => _dataList.Add(data);
 
         public IEnumerator<T> GetEnumerator()
         {
             if (ValidDataCount == 0)
                 yield break;
 
-            for (int i = 0; i < ValidDataCount; i++)
-                yield return _dataList[i];
+            foreach (var item in _dataList)
+                yield return item;
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

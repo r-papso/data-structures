@@ -3,7 +3,6 @@ using Structures.Interface;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Structures.Tree
 {
@@ -42,8 +41,6 @@ namespace Structures.Tree
 
         public KdTree(IEnumerable<T> data) => _root = new KdTreeNode<T>(data);
 
-        public int GetDepth() => _root?.Max(x => x.Level) ?? -1;
-
         public ICollection<T> Find(T data) => Find(data, data);
 
         public ICollection<T> Find(T lowerBound, T upperBound)
@@ -61,7 +58,7 @@ namespace Structures.Tree
                 if (actualNode != null)
                 {
                     stack.Push(actualNode);
-                    actualNode = CompareKeys(lowerBound, actualNode.Data, actualNode.Level) <= 0 ? actualNode.Left : null;
+                    actualNode = (KdTreeNode<T>)(CompareKeys(lowerBound, actualNode.Data, actualNode.Level) <= 0 ? actualNode.Left : null);
                 }
                 else
                 {
@@ -71,7 +68,7 @@ namespace Structures.Tree
                     {
                         result.AddLast(actualNode.Data);
                     }
-                    actualNode = CompareKeys(upperBound, actualNode.Data, actualNode.Level) > 0 ? actualNode.Right : null;
+                    actualNode = (KdTreeNode<T>)(CompareKeys(upperBound, actualNode.Data, actualNode.Level) > 0 ? actualNode.Right : null);
                 }
             }
 
@@ -165,13 +162,13 @@ namespace Structures.Tree
                 {
                     if (actualNode.Left == null)
                         break;
-                    actualNode = actualNode.Left;
+                    actualNode = (KdTreeNode<T>)actualNode.Left;
                 }
                 else
                 {
                     if (actualNode.Right == null)
                         break;
-                    actualNode = actualNode.Right;
+                    actualNode = (KdTreeNode<T>)actualNode.Right;
                 }
             }
 
@@ -233,7 +230,7 @@ namespace Structures.Tree
 
             if (node.Left != null)
             {
-                foreach (var child in node.Left)
+                foreach (KdTreeNode<T> child in node.Left)
                 {
                     if (result == null)
                         result = child;
@@ -250,7 +247,7 @@ namespace Structures.Tree
             }
             else if (node.Right != null)
             {
-                foreach (var child in node.Right)
+                foreach (KdTreeNode<T> child in node.Right)
                 {
                     if (result == null)
                         result = child;

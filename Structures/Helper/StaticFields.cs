@@ -11,6 +11,8 @@ namespace Structures.Helper
 
         public static string ExtendibleHashingHeader = Path.Combine(AppData, "Data", "header.bin");
 
+        public static string OverflowFile = Path.Combine(AppData, "Data", "overflow.bin");
+
         public static string LogFile = Path.Combine(AppData, "Log", "log.txt");
     }
 }

@@ -4,7 +4,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace Structures.Hashing
 {
@@ -12,20 +11,21 @@ namespace Structures.Hashing
     {
         private static int _maxDepth = 24;
 
-        private int _blockFactor;
         private int _maxAddress;
         private int _clusterSize;
+        private int[] _freeAddresses;
         private int[] _directory;
-        private FileStream _stream;
+        private BlockStream _stream;
 
         private int Depth => Convert.ToInt32(Math.Log(_directory.Length, 2));
 
-        public int ByteSize => 5 * sizeof(int) + _directory.Length * sizeof(int);
+        private int BlockFactor => (_clusterSize - 2 * sizeof(int)) / new T().ByteSize;
+
+        public int ByteSize => 4 * sizeof(int) + _directory.Length * sizeof(int);
 
         public ExtendibleHashing(int clusterSize)
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(StaticFields.ExtendibleHashingData));
-            _stream = new FileStream(StaticFields.ExtendibleHashingData, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+            _stream = new BlockStream(StaticFields.ExtendibleHashingData);
 
             if (File.Exists(StaticFields.ExtendibleHashingHeader) && new FileInfo(StaticFields.ExtendibleHashingHeader).Length > 0)
                 Restore();
@@ -39,8 +39,8 @@ namespace Structures.Hashing
         {
             var result = new LinkedList<T>();
             var index = GetIndex(data.GetHashCode(), Depth);
-            var block = BlockStream.ReadBlock<T>(_stream, _directory[index], _blockFactor);
-            var resultData = block.GetData(data, out bool found);
+            var block = _stream.ReadBlock<T>(_directory[index]);
+            var resultData = block.Get(data, out bool found);
 
             if (found)
                 result.AddLast(resultData);
@@ -59,11 +59,11 @@ namespace Structures.Hashing
                 Block<T> block = null;
 
                 if (splittedBlock1 == null || splittedBlock2 == null)
-                    block = BlockStream.ReadBlock<T>(_stream, _directory[index], _blockFactor);
+                    block = _stream.ReadBlock<T>(_directory[index]);
                 else
                     block = splittedBlock1.Address == _directory[index] ? splittedBlock1 : splittedBlock2;
 
-                if (block.ValidDataCount == _blockFactor)
+                if (block.ValidDataCount == BlockFactor)
                 {
                     if (block.BlockDepth == Depth)
                     {
@@ -79,8 +79,8 @@ namespace Structures.Hashing
                 }
                 else
                 {
-                    block.InsertData(data);
-                    BlockStream.WriteBlock(_stream, block);
+                    block.Add(data);
+                    _stream.WriteBlock(block);
                     break;
                 }
             }
@@ -96,7 +96,7 @@ namespace Structures.Hashing
             throw new NotImplementedException();
         }
 
-        public IEnumerator<T> GetEnumerator() => new ExtendibleHashingEnumerator(_blockFactor, _stream, _directory);
+        public IEnumerator<T> GetEnumerator() => new ExtendibleHashingEnumerator(_stream, _directory);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -112,10 +112,6 @@ namespace Structures.Hashing
             var offset = 0;
 
             var bArray = BitConverter.GetBytes(ByteSize);
-            result.ReplaceRange(bArray, offset);
-            offset += bArray.Length;
-
-            bArray = BitConverter.GetBytes(_blockFactor);
             result.ReplaceRange(bArray, offset);
             offset += bArray.Length;
 
@@ -143,8 +139,6 @@ namespace Structures.Hashing
 
         public void FromByteArray(byte[] array, int offset = 0)
         {
-            _blockFactor = BitConverter.ToInt32(array, offset);
-            offset += sizeof(int);
             _maxAddress = BitConverter.ToInt32(array, offset);
             offset += sizeof(int);
             _clusterSize = BitConverter.ToInt32(array, offset);
@@ -165,14 +159,13 @@ namespace Structures.Hashing
         {
             _maxAddress = clusterSize;
             _clusterSize = clusterSize;
-            _blockFactor = (clusterSize - 2 * sizeof(int)) / (new T().ByteSize);
             _directory = new int[] { 0, clusterSize };
 
-            var block = new Block<T>(_blockFactor, 1);
+            var block = new Block<T>(1);
             block.Address = _directory[0];
-            BlockStream.WriteBlock(_stream, block);
+            _stream.WriteBlock(block);
             block.Address = _directory[1];
-            BlockStream.WriteBlock(_stream, block);
+            _stream.WriteBlock(block);
         }
 
         private void Restore()
@@ -191,8 +184,7 @@ namespace Structures.Hashing
         {
             using var headerStream = new FileStream(StaticFields.ExtendibleHashingHeader, FileMode.OpenOrCreate);
             headerStream.Write(ToByteArray(), 0, ByteSize);
-            _stream.Flush();
-            _stream.Close();
+            _stream.Release();
         }
 
         private int GetIndex(int hashCode, int bitsUsed)
@@ -227,26 +219,24 @@ namespace Structures.Hashing
 
         private (Block<T> block1, Block<T> block2) SplitBlock(Block<T> block, int blockIdx)
         {
-            var newBlock1 = new Block<T>(_blockFactor, block.BlockDepth + 1);
-            var newBlock2 = new Block<T>(_blockFactor, block.BlockDepth + 1);
-
-            var idxs = block.Select(x => GetIndex(x.GetHashCode(), block.BlockDepth + 1));
+            var newBlock1 = new Block<T>(block.BlockDepth + 1);
+            var newBlock2 = new Block<T>(block.BlockDepth + 1);
 
             foreach (var data in block)
             {
                 var idx = GetIndex(data.GetHashCode(), block.BlockDepth + 1);
 
                 if (idx % 2 == 0)
-                    newBlock1.InsertData(data);
+                    newBlock1.Add(data);
                 else if (idx % 2 == 1)
-                    newBlock2.InsertData(data);
+                    newBlock2.Add(data);
             }
 
             _maxAddress += _clusterSize;
             newBlock1.Address = _directory[blockIdx];
             newBlock2.Address = _maxAddress;
-            BlockStream.WriteBlock(_stream, newBlock1);
-            BlockStream.WriteBlock(_stream, newBlock2);
+            _stream.WriteBlock(newBlock1);
+            _stream.WriteBlock(newBlock2);
 
             (int begin, int end) = GetBlockBounds(blockIdx);
 
@@ -270,17 +260,15 @@ namespace Structures.Hashing
         {
             private int _dirIndex;
             private int _blockIndex;
-            private int _blockFactor;
             private Block<T> _currBlock;
-            private readonly FileStream _stream;
+            private readonly BlockStream _stream;
             private readonly int[] _directory;
 
-            public ExtendibleHashingEnumerator(int blockFactor, FileStream stream, int[] directory)
+            public ExtendibleHashingEnumerator(BlockStream stream, int[] directory)
             {
                 _dirIndex = -1;
                 _stream = stream;
                 _directory = directory;
-                _blockFactor = blockFactor;
             }
 
             public T Current { get; private set; }
@@ -323,7 +311,7 @@ namespace Structures.Hashing
                         if (oldIndex == _dirIndex)
                             return false;
 
-                        _currBlock = BlockStream.ReadBlock<T>(_stream, _directory[_dirIndex], _blockFactor);
+                        _currBlock = _stream.ReadBlock<T>(_directory[_dirIndex]);
                         _blockIndex = 0;
                     }
                 }

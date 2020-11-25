@@ -19,12 +19,6 @@ namespace Structures.Interface
         public IEnumerable<T> LevelOrderTraversal { get; }
 
         /// <summary>
-        /// Gets depth of <see cref="ITree{T}"/>
-        /// </summary>
-        /// <returns>Depth of <see cref="ITree{T}"/></returns>
-        public int GetDepth();
-
-        /// <summary>
         /// Finds all occurences in <see cref="ITree{T}"/> between <paramref name="lowerBound"/> and <paramref name="upperBound"/>
         /// </summary>
         /// <param name="lowerBound">Lower bound</param>
