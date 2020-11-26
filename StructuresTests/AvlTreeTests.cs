@@ -46,6 +46,40 @@ namespace StructuresTests
             }
         }
 
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        [InlineData(100)]
+        [InlineData(1_000)]
+        [InlineData(10_000)]
+        [InlineData(100_000)]
+        public void CountTest(int nodeCount)
+        {
+            var data = Generator.GenerateRandomData(nodeCount).Shuffle();
+            var tree = StructureFactory.Instance.GetAvlTree<TwoDimObject>();
+
+            foreach (var item in data)
+            {
+                tree.Insert(item);
+            }
+
+            Assert.Equal(nodeCount, tree.Count);
+
+            int n = nodeCount;
+            var rand = new Random();
+            int stop = rand.Next(0, n);
+
+            foreach (var item in data)
+            {
+                tree.Delete(item);
+                n--;
+                if (n == stop)
+                    break;
+            }
+
+            Assert.Equal(n, tree.Count);
+        }
+
         [Fact]
         public void InsertDeleteTest_Fact()
         {

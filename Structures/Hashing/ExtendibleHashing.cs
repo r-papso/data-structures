@@ -13,7 +13,7 @@ namespace Structures.Hashing
 
         private int _maxAddress;
         private int _clusterSize;
-        private int[] _freeAddresses;
+        private ISortedTree<int> _freeAddresses;
         private int[] _directory;
         private BlockStream _stream;
 
@@ -39,7 +39,7 @@ namespace Structures.Hashing
         {
             var result = new LinkedList<T>();
             var index = GetIndex(data.GetHashCode(), Depth);
-            var block = _stream.ReadBlock<T>(_directory[index]);
+            var block = _stream.ReadBlock<T>(_directory[index], _clusterSize);
             var resultData = block.Get(data, out bool found);
 
             if (found)
@@ -59,7 +59,7 @@ namespace Structures.Hashing
                 Block<T> block = null;
 
                 if (splittedBlock1 == null || splittedBlock2 == null)
-                    block = _stream.ReadBlock<T>(_directory[index]);
+                    block = _stream.ReadBlock<T>(_directory[index], _clusterSize);
                 else
                     block = splittedBlock1.Address == _directory[index] ? splittedBlock1 : splittedBlock2;
 
@@ -96,7 +96,7 @@ namespace Structures.Hashing
             throw new NotImplementedException();
         }
 
-        public IEnumerator<T> GetEnumerator() => new ExtendibleHashingEnumerator(_stream, _directory);
+        public IEnumerator<T> GetEnumerator() => new ExtendibleHashingEnumerator(_stream, _directory, _clusterSize);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -260,14 +260,16 @@ namespace Structures.Hashing
         {
             private int _dirIndex;
             private int _blockIndex;
+            private int _clusterSize;
             private Block<T> _currBlock;
             private readonly BlockStream _stream;
             private readonly int[] _directory;
 
-            public ExtendibleHashingEnumerator(BlockStream stream, int[] directory)
+            public ExtendibleHashingEnumerator(BlockStream stream, int[] directory, int clusterSize)
             {
                 _dirIndex = -1;
                 _stream = stream;
+                _clusterSize = clusterSize;
                 _directory = directory;
             }
 
@@ -311,7 +313,7 @@ namespace Structures.Hashing
                         if (oldIndex == _dirIndex)
                             return false;
 
-                        _currBlock = _stream.ReadBlock<T>(_directory[_dirIndex]);
+                        _currBlock = _stream.ReadBlock<T>(_directory[_dirIndex], _clusterSize);
                         _blockIndex = 0;
                     }
                 }

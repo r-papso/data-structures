@@ -8,6 +8,8 @@ namespace Structures.Interface
     /// <typeparam name="T">Type of elements stored in tree</typeparam>
     public interface ITree<T> : IStructure<T>
     {
+        public int Count { get; }
+
         /// <summary>
         /// Provides in order traversal over tree
         /// </summary>

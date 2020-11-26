@@ -3,6 +3,7 @@ using Structures.Interface;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Structures.Tree
 {
@@ -35,11 +36,15 @@ namespace Structures.Tree
             }
         }
 
+        public int Count { get; private set; }
+
         public KdTree() { }
 
-        public KdTree(T data) => _root = new KdTreeNode<T>(data, 0);
-
-        public KdTree(IEnumerable<T> data) => _root = new KdTreeNode<T>(data);
+        public KdTree(IEnumerable<T> data)
+        {
+            _root = new KdTreeNode<T>(data);
+            Count = data.Count();
+        }
 
         public ICollection<T> Find(T data) => Find(data, data);
 
@@ -80,6 +85,7 @@ namespace Structures.Tree
             if (_root == null)
             {
                 _root = new KdTreeNode<T>(data, 0);
+                Count++;
                 return;
             }
 
@@ -94,6 +100,8 @@ namespace Structures.Tree
                 nearest.Left = newNode;
             else
                 nearest.Right = newNode;
+
+            Count++;
         }
 
         public void Update(T oldData, T newData)
@@ -133,6 +141,8 @@ namespace Structures.Tree
                 throw new ArgumentException($"Data passed as argument {nameof(data)} not found");
 
             Delete(nodeToDelete);
+
+            Count--;
         }
 
         public IEnumerator<T> GetEnumerator()

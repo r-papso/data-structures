@@ -13,13 +13,12 @@ namespace Structures.Hashing
         public Block(int blockDepth)
         {
             BlockDepth = blockDepth;
-            ValidDataCount = 0;
             _dataList = new List<T>();
         }
 
         public int ByteSize => 2 * sizeof(int) + new T().ByteSize * ValidDataCount;
 
-        public int ValidDataCount { get; private set; }
+        public int ValidDataCount => _dataList.Count;
 
         public int BlockDepth { get; set; }
 
@@ -27,14 +26,14 @@ namespace Structures.Hashing
 
         public void FromByteArray(byte[] array, int offset = 0)
         {
-            ValidDataCount = BitConverter.ToInt32(array, offset);
+            var dataCount = BitConverter.ToInt32(array, offset);
             offset += sizeof(int);
 
             BlockDepth = BitConverter.ToInt32(array, offset);
             offset += sizeof(int);
 
             var itemByteSize = new T().ByteSize;
-            for (int i = 0; i < ValidDataCount; i++)
+            for (int i = 0; i < dataCount; i++)
             {
                 var item = new T();
                 item.FromByteArray(array, offset + i * itemByteSize);

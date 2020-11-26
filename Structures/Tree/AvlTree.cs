@@ -71,6 +71,8 @@ namespace Structures.Tree
             }
         }
 
+        public int Count { get; private set; }
+
         public AvlTree() { }
 
         public ICollection<T> Find(T data)
@@ -125,6 +127,7 @@ namespace Structures.Tree
             if (_root == null)
             {
                 _root = new AvlTreeNode<T>(data);
+                Count++;
                 return;
             }
 
@@ -164,6 +167,8 @@ namespace Structures.Tree
                 last = actual;
                 actual = (AvlTreeNode<T>)last.Parent;
             }
+
+            Count++;
         }
 
         public void Update(T oldData, T newData)
@@ -194,7 +199,10 @@ namespace Structures.Tree
             (var nodeToDelete, var actual) = Delete(node);
 
             if (actual == null)
+            {
+                Count--;
                 return;
+            }
 
             AvlTreeNode<T> last = actual;
             actual = (AvlTreeNode<T>)last.Parent;
@@ -230,6 +238,8 @@ namespace Structures.Tree
             {
                 Console.WriteLine("");
             }
+
+            Count--;
         }
 
         public IEnumerator<T> GetEnumerator()

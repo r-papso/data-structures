@@ -14,13 +14,13 @@ namespace Structures.Helper
             _stream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
         }
 
-        public Block<T> ReadBlock<T>(int address) where T : ISerializable, new()
+        public Block<T> ReadBlock<T>(int address, int clusterSize) where T : ISerializable, new()
         {
             var block = new Block<T>(1);
-            var bytes = new byte[block.ByteSize];
+            var bytes = new byte[clusterSize];
 
             _stream.Seek(address, SeekOrigin.Begin);
-            _stream.Read(bytes, 0, block.ByteSize);
+            _stream.Read(bytes, 0, clusterSize);
             block.FromByteArray(bytes);
             block.Address = address;
 
@@ -39,5 +39,7 @@ namespace Structures.Helper
             _stream.Flush();
             _stream.Close();
         }
+
+        public void Trunc(int address) => _stream.SetLength(address);
     }
 }

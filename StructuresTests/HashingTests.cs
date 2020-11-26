@@ -12,8 +12,8 @@ namespace StructuresTests
     public class HashingTests
     {
         private static int _clusterSize = 4096;
-        private static string _dataFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Structures", "Data", "data.bin");
-        private static string _headerFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Structures", "Data", "header.bin");
+        private static string _dataFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Structures", "Data", "extendible_hashing_data.bin");
+        private static string _headerFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Structures", "Data", "extendible_hashing_header.bin");
 
         private readonly ITestOutputHelper _output;
 
