@@ -6,7 +6,7 @@ using System;
 
 namespace StructuresTests
 {
-    public class TwoDimObject : IKdComparable, ISaveable, ISerializable
+    public class TwoDimObject : IKdComparable, ISaveable, ISerializable, IComparable
     {
         private static int _dimCount = 2;
         private static int _maxDescLength = 20;
@@ -132,6 +132,16 @@ namespace StructuresTests
             }
 
             Description = desc;
+        }
+
+        public int CompareTo(object obj)
+        {
+            var other = obj as TwoDimObject;
+
+            if (other == null)
+                throw new ArgumentException($"Argument was not instance of {nameof(TwoDimObject)}");
+
+            return PrimaryKey.CompareTo(other.PrimaryKey);
         }
 
         public override bool Equals(object obj)

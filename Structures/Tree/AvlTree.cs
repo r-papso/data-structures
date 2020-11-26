@@ -33,9 +33,43 @@ namespace Structures.Tree
             }
         }
 
-        public T Min => throw new NotImplementedException();
+        public T Min
+        {
+            get
+            {
+                if (_root == null)
+                    throw new InvalidOperationException("Tree is empty");
 
-        public T Max => throw new NotImplementedException();
+                TreeNode<T> actualNode = _root;
+
+                while (true)
+                {
+                    if (actualNode.Left != null)
+                        actualNode = actualNode.Left;
+                    else
+                        return actualNode.Data;
+                }
+            }
+        }
+
+        public T Max
+        {
+            get
+            {
+                if (_root == null)
+                    throw new InvalidOperationException("Tree is empty");
+
+                TreeNode<T> actualNode = _root;
+
+                while (true)
+                {
+                    if (actualNode.Right != null)
+                        actualNode = actualNode.Right;
+                    else
+                        return actualNode.Data;
+                }
+            }
+        }
 
         public AvlTree() { }
 
@@ -101,72 +135,34 @@ namespace Structures.Tree
 
             var newNode = new AvlTreeNode<T>(data);
             newNode.Parent = nearest;
-            sbyte factor;
 
             if (nearest.Data.CompareTo(data) < 0)
-            {
-                factor = -1;
-                nearest.Left = newNode;
-                nearest.Balance--;
-            }
-            else
-            {
-                factor = 1;
                 nearest.Right = newNode;
-                nearest.Balance++;
-            }
+            else
+                nearest.Left = newNode;
 
-            var actual = nearest;
-            var parent = (AvlTreeNode<T>)actual.Parent;
+            var actual = newNode;
+            AvlTreeNode<T> last = null;
 
             while (true)
             {
-                if (parent == null)
+                if (actual == null)
                     break;
 
-                parent.Balance += factor;
+                if (last != null)
+                    ChangeParentFactor(last, true);
 
-                if (parent.Balance == 0)
+                if ((actual.Balance == 0 && last != null))
                     break;
 
-                if (parent.Balance < -1)
+                if (actual.Balance < -1 || actual.Balance > 1)
                 {
-                    if (actual.Balance < 0)
-                    {
-                        actual.Balance = 0;
-                        parent.Balance = 0;
-                        RightRotation(actual);
-                        break;
-                    }
-                    else
-                    {
-                        ((AvlTreeNode<T>)actual.Left).Balance = 0;
-                        ((AvlTreeNode<T>)actual.Parent).Balance = 0;
-                        actual.Balance = -1;
-                        LeftRotation(actual.Left);
-                        RightRotation(actual.Left);
-                        break;
-                    }
+                    Balance(actual);
+                    break;
                 }
-                else if (parent.Balance > 1)
-                {
-                    if (actual.Balance > 0)
-                    {
-                        actual.Balance = 0;
-                        parent.Balance = 0;
-                        LeftRotation(actual);
-                        break;
-                    }
-                    else
-                    {
-                        ((AvlTreeNode<T>)actual.Right).Balance = 0;
-                        ((AvlTreeNode<T>)actual.Parent).Balance = 0;
-                        actual.Balance = -1;
-                        RightRotation(actual.Right);
-                        LeftRotation(actual.Right);
-                        break;
-                    }
-                }
+
+                last = actual;
+                actual = (AvlTreeNode<T>)last.Parent;
             }
         }
 
@@ -190,7 +186,50 @@ namespace Structures.Tree
 
         public void Delete(T data)
         {
+            var node = Nearest(data);
 
+            if (node == null || node.Data.CompareTo(data) != 0)
+                throw new ArgumentException("Data not found");
+
+            (var nodeToDelete, var actual) = Delete(node);
+
+            if (actual == null)
+                return;
+
+            AvlTreeNode<T> last = actual;
+            actual = (AvlTreeNode<T>)last.Parent;
+
+            while (true)
+            {
+                if (actual == null)
+                    break;
+
+                if (actual.Balance == 0)
+                {
+                    ChangeParentFactor(last, false);
+                    break;
+                }
+
+                ChangeParentFactor(last, false);
+
+                if ((actual.Balance < -1 && ((AvlTreeNode<T>)actual.Left).Balance == 0) || (actual.Balance > 1 && ((AvlTreeNode<T>)actual.Right).Balance == 0))
+                {
+                    Balance(actual);
+                    break;
+                }
+
+                actual = Balance(actual);
+
+                last = actual;
+                actual = (AvlTreeNode<T>)last.Parent;
+            }
+
+            nodeToDelete.Delete();
+
+            if (_root.Parent != null)
+            {
+                Console.WriteLine("");
+            }
         }
 
         public IEnumerator<T> GetEnumerator()
@@ -218,49 +257,294 @@ namespace Structures.Tree
 
                 if (actualNode.Data.CompareTo(data) < 0)
                 {
-                    if (actualNode.Left == null)
-                        break;
-                    actualNode = (AvlTreeNode<T>)actualNode.Left;
-                }
-                else
-                {
                     if (actualNode.Right == null)
                         break;
                     actualNode = (AvlTreeNode<T>)actualNode.Right;
+                }
+                else
+                {
+                    if (actualNode.Left == null)
+                        break;
+                    actualNode = (AvlTreeNode<T>)actualNode.Left;
                 }
             }
 
             return actualNode;
         }
 
-        private void LeftRotation(TreeNode<T> node)
+        private (AvlTreeNode<T> nodeToDelete, AvlTreeNode<T> actual) Delete(AvlTreeNode<T> node)
+        {
+            (AvlTreeNode<T> nodeToDelete, AvlTreeNode<T> actual) = (null, null);
+
+            if (node.Left != null && node.Right != null)
+            {
+                var substitute = Predecessor(node);
+                node.Data = substitute.Data;
+
+                if (substitute.Right != null)
+                {
+                    SwapNodes(substitute, substitute.Right);
+                    nodeToDelete = substitute;
+                    actual = (AvlTreeNode<T>)substitute.Right;
+                }
+                else if (substitute.Left != null)
+                {
+                    SwapNodes(substitute, substitute.Left);
+                    nodeToDelete = substitute;
+                    actual = (AvlTreeNode<T>)substitute.Left;
+                }
+                else
+                {
+                    (nodeToDelete, actual) = (substitute, substitute);
+                }
+            }
+            else
+            {
+                if (node.IsLeaf)
+                {
+                    if (node == _root)
+                    {
+                        _root = null;
+                        return (null, null);
+                    }
+                    (nodeToDelete, actual) = (node, node);
+                }
+                else
+                {
+                    if (node.Right != null)
+                    {
+                        SwapNodes(node, node.Right);
+                        nodeToDelete = node;
+                        actual = (AvlTreeNode<T>)node.Right;
+                    }
+                    else
+                    {
+                        SwapNodes(node, node.Left);
+                        nodeToDelete = node;
+                        actual = (AvlTreeNode<T>)node.Left;
+                    }
+                }
+            }
+
+            return (nodeToDelete, actual);
+        }
+
+        private void SwapNodes(TreeNode<T> node, TreeNode<T> replaced)
+        {
+            if (node.Parent == null)
+            {
+                _root = (AvlTreeNode<T>)replaced;
+                _root.Parent = null;
+            }
+            else
+            {
+                replaced.Parent = node.Parent;
+
+                if (node.IsLeftChild)
+                    replaced.Parent.Left = replaced;
+                else if (node.IsRightChild)
+                    replaced.Parent.Right = replaced;
+                else
+                    throw new System.Exception();
+            }
+        }
+
+        private AvlTreeNode<T> Balance(AvlTreeNode<T> node)
+        {
+            if (node.Balance < -1)
+            {
+                var prevNode = (AvlTreeNode<T>)node.Left;
+
+                if (prevNode.Balance < 0)
+                {
+                    node.Balance = 0;
+                    prevNode.Balance = 0;
+                    RightRotation(prevNode);
+
+                    return prevNode;
+                }
+                else if (prevNode.Balance == 0)
+                {
+                    node.Balance = -1;
+                    prevNode.Balance = 1;
+                    RightRotation(prevNode);
+
+                    return prevNode;
+                }
+                else
+                {
+                    var grandChild = (AvlTreeNode<T>)prevNode.Right;
+                    var grandChildBalance = 0;
+
+                    if (grandChild != null)
+                    {
+                        grandChildBalance = grandChild.Balance;
+                        grandChild.Balance = 0;
+                    }
+
+                    if (grandChildBalance == 0)
+                    {
+                        prevNode.Balance = 0;
+                        node.Balance = 0;
+                    }
+                    else if (grandChildBalance == -1)
+                    {
+                        prevNode.Balance = 0;
+                        node.Balance = 1;
+                    }
+                    else
+                    {
+                        prevNode.Balance = -1;
+                        node.Balance = 0;
+                    }
+
+                    LeftRotation(grandChild);
+                    RightRotation(grandChild);
+
+                    return grandChild;
+                }
+            }
+            else if (node.Balance > 1)
+            {
+                var prevNode = (AvlTreeNode<T>)node.Right;
+
+                if (prevNode.Balance > 0)
+                {
+                    node.Balance = 0;
+                    prevNode.Balance = 0;
+                    LeftRotation(prevNode);
+
+                    return prevNode;
+                }
+                else if (prevNode.Balance == 0)
+                {
+                    node.Balance = 1;
+                    prevNode.Balance = -1;
+                    LeftRotation(prevNode);
+
+                    return prevNode;
+                }
+                else
+                {
+                    var grandChild = (AvlTreeNode<T>)prevNode.Left;
+                    var grandChildBalance = 0;
+
+                    if (grandChild != null)
+                    {
+                        grandChildBalance = grandChild.Balance;
+                        grandChild.Balance = 0;
+                    }
+
+                    if (grandChildBalance == 0)
+                    {
+                        prevNode.Balance = 0;
+                        node.Balance = 0;
+                    }
+                    else if (grandChildBalance == 1)
+                    {
+                        prevNode.Balance = 0;
+                        node.Balance = -1;
+                    }
+                    else
+                    {
+                        prevNode.Balance = 1;
+                        node.Balance = 0;
+                    }
+
+                    RightRotation(grandChild);
+                    LeftRotation(grandChild);
+
+                    return grandChild;
+                }
+            }
+
+            return node;
+        }
+
+        private void ChangeParentFactor(TreeNode<T> actual, bool inserting)
+        {
+            var parent = (AvlTreeNode<T>)actual.Parent;
+
+            if (actual.IsLeftChild)
+                parent.Balance = (sbyte)(inserting ? parent.Balance - 1 : parent.Balance + 1);
+            else if (actual.IsRightChild)
+                parent.Balance = (sbyte)(inserting ? parent.Balance + 1 : parent.Balance - 1);
+            else
+                throw new System.Exception();
+        }
+
+        private void LeftRotation(AvlTreeNode<T> node)
         {
             if (node == _root)
                 throw new ArgumentException("Cannot perform rotation on root");
 
             var parent = node.Parent;
+            var isLeftChild = parent.IsLeftChild;
             var parentsParent = parent.Parent;
             var leftChild = node.Left;
 
             parent.Right = leftChild;
+            if (leftChild != null)
+                leftChild.Parent = parent;
+
             parent.Parent = node;
-            node.Parent = parentsParent;
             node.Left = parent;
+            node.Parent = parentsParent;
+
+            if (node.Parent != null)
+            {
+                if (isLeftChild)
+                    node.Parent.Left = node;
+                else
+                    node.Parent.Right = node;
+            }
+            else
+                _root = node;
         }
 
-        private void RightRotation(TreeNode<T> node)
+        private void RightRotation(AvlTreeNode<T> node)
         {
             if (node == _root)
                 throw new ArgumentException("Cannot perform rotation on root");
 
             var parent = node.Parent;
+            var isLeftChild = parent.IsLeftChild;
             var parentsParent = parent.Parent;
             var rightChild = node.Right;
 
             parent.Left = rightChild;
+            if (rightChild != null)
+                rightChild.Parent = parent;
+
             parent.Parent = node;
-            node.Parent = parentsParent;
             node.Right = parent;
+            node.Parent = parentsParent;
+
+            if (node.Parent != null)
+            {
+                if (isLeftChild)
+                    node.Parent.Left = node;
+                else
+                    node.Parent.Right = node;
+            }
+            else
+                _root = node;
+        }
+
+        private AvlTreeNode<T> Predecessor(TreeNode<T> node)
+        {
+            AvlTreeNode<T> result = null;
+
+            if (node.Left != null)
+            {
+                foreach (AvlTreeNode<T> child in node.Left)
+                {
+                    if (result == null || result.Data.CompareTo(child.Data) < 0)
+                        result = child;
+                }
+            }
+
+            return result;
         }
     }
 }

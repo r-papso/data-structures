@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Structures.Helper
 {
@@ -68,6 +69,23 @@ namespace Structures.Helper
             }
 
             return -1;
+        }
+
+        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source) => Shuffle(source, new Random());
+
+        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source, Random rand)
+        {
+            var list = source.ToList();
+            var target = new List<T>(list.Count);
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                int j = rand.Next(i, list.Count);
+                target.Add(list[j]);
+                list[j] = list[i];
+            }
+
+            return target;
         }
 
         public static int ToInt(this BitArray bitArray)

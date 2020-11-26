@@ -7,6 +7,10 @@ namespace Structures.Tree
     {
         public bool IsLeaf => Right == null && Left == null;
 
+        public bool IsLeftChild => Parent != null && Parent.Left == this;
+
+        public bool IsRightChild => Parent != null && Parent.Right == this;
+
         public TreeNode<T> Left { get; set; }
 
         public TreeNode<T> Right { get; set; }
@@ -25,7 +29,7 @@ namespace Structures.Tree
             {
                 if (Parent.Left == this)
                     Parent.Left = null;
-                else
+                else if (Parent.Right == this)
                     Parent.Right = null;
             }
 

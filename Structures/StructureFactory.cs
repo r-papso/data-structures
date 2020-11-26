@@ -1,6 +1,7 @@
 ﻿using Structures.Hashing;
 using Structures.Interface;
 using Structures.Tree;
+using System;
 using System.Collections.Generic;
 
 namespace Structures
@@ -70,6 +71,11 @@ namespace Structures
         public IStructure<T> GetHashSet<T>(int initialCapacity)
         {
             return new Hashing.HashSet<T>(initialCapacity);
+        }
+
+        public ISortedTree<T> GetAvlTree<T>() where T : IComparable
+        {
+            return new AvlTree<T>();
         }
     }
 }
