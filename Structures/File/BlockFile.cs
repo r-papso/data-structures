@@ -3,30 +3,40 @@ using Structures.Interface;
 using System;
 using System.IO;
 
-namespace Structures.Hashing
+namespace Structures.File
 {
-    internal class OverflowFile<T> : IDisposable, ISerializable where T : ISerializable, new()
+    internal class BlockFile<T> : IDisposable, ISerializable where T : ISerializable, new()
     {
         private int _clusterSize;
         private int _maxAddress;
-        private ISortedTree<int> _freeAddresses;
+        private ITree<int> _freeAddresses;
         private BlockStream _stream;
-
-        private int BlockFactor => (_clusterSize - 2 * sizeof(int)) / new T().ByteSize;
 
         public int ByteSize => 2 * sizeof(int) + _freeAddresses.Count * sizeof(int);
 
-        public OverflowFile(int clusterSize)
+        public string FilePath => _stream.StreamPath;
+
+        /*public BlockFile(int clusterSize)
         {
             _stream = new BlockStream(StaticFields.OverflowFileData);
 
-            if (File.Exists(StaticFields.OverflowFileHeader) && new FileInfo(StaticFields.OverflowFileHeader).Length > 0)
+            if (System.IO.File.Exists(StaticFields.OverflowFileHeader) && new FileInfo(StaticFields.OverflowFileHeader).Length > 0)
                 Restore();
             else
                 Initialize(clusterSize);
+        }*/
+
+        public BlockFile(string dataFilePath, string headerFilePath)
+        {
+
         }
 
-        ~OverflowFile() => Release();
+        public BlockFile(string dataFilePath, string headerFilePath, int clusterSize)
+        {
+
+        }
+
+        ~BlockFile() => Release();
 
         public Block<T> GetBlock(int address) => _stream.ReadBlock<T>(address, _clusterSize);
 
@@ -47,6 +57,8 @@ namespace Structures.Hashing
 
             return block.Address;
         }
+
+        public void UpdateBlock(Block<T> block) => _stream.WriteBlock(block);
 
         public void RemoveBlock(int address)
         {
@@ -126,18 +138,32 @@ namespace Structures.Hashing
                 _freeAddresses.Delete(address);
             }
 
-            _stream.Trunc(currAddress);
+            _stream.Trim(currAddress);
             _maxAddress = currAddress - _clusterSize;
         }
 
         private void Restore()
         {
+            using var headerStream = new FileStream(StaticFields.OverflowFileHeader, FileMode.Open);
+            var totalLength = new byte[sizeof(int)];
+            headerStream.Read(totalLength, 0, sizeof(int));
 
+            var byteArr = new byte[BitConverter.ToInt32(totalLength, 0)];
+            headerStream.Seek(0, SeekOrigin.Begin);
+            headerStream.Read(byteArr, 0, byteArr.Length);
+            FromByteArray(byteArr, sizeof(int));
         }
 
         private void Initialize(int clusterSize)
         {
+            _maxAddress = clusterSize;
+            _clusterSize = clusterSize;
 
+            var block = new Block<T>();
+            block.Address = 0;
+            _stream.WriteBlock(block);
+            block.Address = _maxAddress;
+            _stream.WriteBlock(block);
         }
 
         private void Release()

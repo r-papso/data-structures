@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Structures.Tree
 {
-    internal class AvlTree<T> : ISortedTree<T> where T : IComparable
+    internal class AvlTree<T> : ITree<T> where T : IComparable
     {
         private AvlTreeNode<T> _root;
 

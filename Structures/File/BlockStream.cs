@@ -1,12 +1,13 @@
-﻿using Structures.Hashing;
-using Structures.Interface;
+﻿using Structures.Interface;
 using System.IO;
 
-namespace Structures.Helper
+namespace Structures.File
 {
     internal class BlockStream
     {
         private FileStream _stream;
+
+        public string StreamPath => _stream.Name;
 
         public BlockStream(string path)
         {
@@ -16,7 +17,7 @@ namespace Structures.Helper
 
         public Block<T> ReadBlock<T>(int address, int clusterSize) where T : ISerializable, new()
         {
-            var block = new Block<T>(1);
+            var block = new Block<T>();
             var bytes = new byte[clusterSize];
 
             _stream.Seek(address, SeekOrigin.Begin);
@@ -40,6 +41,6 @@ namespace Structures.Helper
             _stream.Close();
         }
 
-        public void Trunc(int address) => _stream.SetLength(address);
+        public void Trim(int address) => _stream.SetLength(address);
     }
 }

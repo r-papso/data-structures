@@ -10,6 +10,10 @@ namespace Structures.Interface
     {
         public int Count { get; }
 
+        public T Min { get; }
+
+        public T Max { get; }
+
         /// <summary>
         /// Provides in order traversal over tree
         /// </summary>

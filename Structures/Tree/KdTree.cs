@@ -38,6 +38,10 @@ namespace Structures.Tree
 
         public int Count { get; private set; }
 
+        public T Min => throw new NotImplementedException("K-d tree does not support getting min and max value.");
+
+        public T Max => throw new NotImplementedException("K-d tree does not support getting min and max value.");
+
         public KdTree() { }
 
         public KdTree(IEnumerable<T> data)

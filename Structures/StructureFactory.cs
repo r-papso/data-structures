@@ -58,9 +58,14 @@ namespace Structures
             return new KdTree<T>(data);
         }
 
-        public IFileStructure<T> GetExtendibleHashing<T>(int clusterSize) where T : ISerializable, new()
+        public IFileStructure<T> GetExtendibleHashing<T>(string directory) where T : ISerializable, new()
         {
-            return new ExtendibleHashing<T>(clusterSize);
+            return new ExtendibleHashing<T>(directory);
+        }
+
+        public IFileStructure<T> GetExtendibleHashing<T>(string directory, int clusterSize) where T : ISerializable, new()
+        {
+            return new ExtendibleHashing<T>(directory, clusterSize);
         }
 
         public IStructure<T> GetHashSet<T>()
@@ -73,7 +78,7 @@ namespace Structures
             return new Hashing.HashSet<T>(initialCapacity);
         }
 
-        public ISortedTree<T> GetAvlTree<T>() where T : IComparable
+        public ITree<T> GetAvlTree<T>() where T : IComparable
         {
             return new AvlTree<T>();
         }

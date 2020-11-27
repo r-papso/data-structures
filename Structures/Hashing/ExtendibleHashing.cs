@@ -1,4 +1,5 @@
-﻿using Structures.Helper;
+﻿using Structures.File;
+using Structures.Helper;
 using Structures.Interface;
 using System;
 using System.Collections;
@@ -9,13 +10,18 @@ namespace Structures.Hashing
 {
     internal class ExtendibleHashing<T> : IFileStructure<T>, ISerializable where T : ISerializable, new()
     {
-        private static int _maxDepth = 24;
+        private static readonly int _maxDepth = 24;
 
-        private int _maxAddress;
+        private static readonly string _headerFileName = "extendible_hashing_header.bin";
+        private static readonly string _dataFileName = "primary_file_data.bin";
+        private static readonly string _dataHeaderName = "primary_file_header.bin";
+        private static readonly string _overflowFileName = "overflow_file_data.bin";
+        private static readonly string _overflowHeaderName = "overflow_file_header.bin";
+
         private int _clusterSize;
-        private ISortedTree<int> _freeAddresses;
         private int[] _directory;
-        private BlockStream _stream;
+        private BlockFile<T> _dataFile;
+        private BlockFile<T> _overflowFile;
 
         private int Depth => Convert.ToInt32(Math.Log(_directory.Length, 2));
 
@@ -23,14 +29,21 @@ namespace Structures.Hashing
 
         public int ByteSize => 4 * sizeof(int) + _directory.Length * sizeof(int);
 
-        public ExtendibleHashing(int clusterSize)
+        public ExtendibleHashing(string folder)
         {
-            _stream = new BlockStream(StaticFields.ExtendibleHashingData);
+            Restore(folder);
 
-            if (File.Exists(StaticFields.ExtendibleHashingHeader) && new FileInfo(StaticFields.ExtendibleHashingHeader).Length > 0)
-                Restore();
-            else
-                Initialize(clusterSize);
+            _dataFile = new BlockFile<T>(Path.Combine(folder, _dataFileName), Path.Combine(folder, _dataHeaderName));
+            _overflowFile = new BlockFile<T>(Path.Combine(folder, _overflowFileName), Path.Combine(folder, _overflowHeaderName));
+        }
+
+        public ExtendibleHashing(string folder, int clusterSize)
+        {
+            _clusterSize = clusterSize;
+            _directory = new int[] { 0, clusterSize };
+
+            _dataFile = new BlockFile<T>(Path.Combine(folder, _dataFileName), Path.Combine(folder, _dataHeaderName), clusterSize);
+            _overflowFile = new BlockFile<T>(Path.Combine(folder, _overflowFileName), Path.Combine(folder, _overflowHeaderName), clusterSize * 2);
         }
 
         ~ExtendibleHashing() => Release();
@@ -39,7 +52,7 @@ namespace Structures.Hashing
         {
             var result = new LinkedList<T>();
             var index = GetIndex(data.GetHashCode(), Depth);
-            var block = _stream.ReadBlock<T>(_directory[index], _clusterSize);
+            var block = _dataFile.GetBlock(_directory[index]);
             var resultData = block.Get(data, out bool found);
 
             if (found)
@@ -59,7 +72,7 @@ namespace Structures.Hashing
                 Block<T> block = null;
 
                 if (splittedBlock1 == null || splittedBlock2 == null)
-                    block = _stream.ReadBlock<T>(_directory[index], _clusterSize);
+                    block = _dataFile.GetBlock(_directory[index]);
                 else
                     block = splittedBlock1.Address == _directory[index] ? splittedBlock1 : splittedBlock2;
 
@@ -80,7 +93,7 @@ namespace Structures.Hashing
                 else
                 {
                     block.Add(data);
-                    _stream.WriteBlock(block);
+                    _dataFile.AddBlock(block);
                     break;
                 }
             }
@@ -96,7 +109,7 @@ namespace Structures.Hashing
             throw new NotImplementedException();
         }
 
-        public IEnumerator<T> GetEnumerator() => new ExtendibleHashingEnumerator(_stream, _directory, _clusterSize);
+        public IEnumerator<T> GetEnumerator() => new ExtendibleHashingEnumerator(_dataFile, _directory);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -112,10 +125,6 @@ namespace Structures.Hashing
             var offset = 0;
 
             var bArray = BitConverter.GetBytes(ByteSize);
-            result.ReplaceRange(bArray, offset);
-            offset += bArray.Length;
-
-            bArray = BitConverter.GetBytes(_maxAddress);
             result.ReplaceRange(bArray, offset);
             offset += bArray.Length;
 
@@ -139,8 +148,6 @@ namespace Structures.Hashing
 
         public void FromByteArray(byte[] array, int offset = 0)
         {
-            _maxAddress = BitConverter.ToInt32(array, offset);
-            offset += sizeof(int);
             _clusterSize = BitConverter.ToInt32(array, offset);
             offset += sizeof(int);
 
@@ -155,22 +162,9 @@ namespace Structures.Hashing
             }
         }
 
-        private void Initialize(int clusterSize)
+        private void Restore(string folder)
         {
-            _maxAddress = clusterSize;
-            _clusterSize = clusterSize;
-            _directory = new int[] { 0, clusterSize };
-
-            var block = new Block<T>(1);
-            block.Address = _directory[0];
-            _stream.WriteBlock(block);
-            block.Address = _directory[1];
-            _stream.WriteBlock(block);
-        }
-
-        private void Restore()
-        {
-            using var headerStream = new FileStream(StaticFields.ExtendibleHashingHeader, FileMode.Open);
+            using var headerStream = new FileStream(Path.Combine(folder, _headerFileName), FileMode.Open);
             var totalLength = new byte[sizeof(int)];
             headerStream.Read(totalLength, 0, sizeof(int));
 
@@ -182,9 +176,11 @@ namespace Structures.Hashing
 
         private void Release()
         {
-            using var headerStream = new FileStream(StaticFields.ExtendibleHashingHeader, FileMode.OpenOrCreate);
+            var dir = Path.Combine(Path.GetDirectoryName(_dataFile.FilePath), _headerFileName);
+            using var headerStream = new FileStream(dir, FileMode.OpenOrCreate);
             headerStream.Write(ToByteArray(), 0, ByteSize);
-            _stream.Release();
+            _dataFile.Dispose();
+            _overflowFile.Dispose();
         }
 
         private int GetIndex(int hashCode, int bitsUsed)
@@ -232,16 +228,14 @@ namespace Structures.Hashing
                     newBlock2.Add(data);
             }
 
-            _maxAddress += _clusterSize;
             newBlock1.Address = _directory[blockIdx];
-            newBlock2.Address = _maxAddress;
-            _stream.WriteBlock(newBlock1);
-            _stream.WriteBlock(newBlock2);
+            _dataFile.UpdateBlock(newBlock1);
+            var newAddress = _dataFile.AddBlock(newBlock2);
 
             (int begin, int end) = GetBlockBounds(blockIdx);
 
             for (int i = (end - begin) / 2 + begin + 1; i <= end; i++)
-                _directory[i] = _maxAddress;
+                _directory[i] = newAddress;
 
             return (newBlock1, newBlock2);
         }
@@ -260,16 +254,14 @@ namespace Structures.Hashing
         {
             private int _dirIndex;
             private int _blockIndex;
-            private int _clusterSize;
             private Block<T> _currBlock;
-            private readonly BlockStream _stream;
+            private readonly BlockFile<T> _file;
             private readonly int[] _directory;
 
-            public ExtendibleHashingEnumerator(BlockStream stream, int[] directory, int clusterSize)
+            public ExtendibleHashingEnumerator(BlockFile<T> file, int[] directory)
             {
                 _dirIndex = -1;
-                _stream = stream;
-                _clusterSize = clusterSize;
+                _file = file;
                 _directory = directory;
             }
 
@@ -313,7 +305,7 @@ namespace Structures.Hashing
                         if (oldIndex == _dirIndex)
                             return false;
 
-                        _currBlock = _stream.ReadBlock<T>(_directory[_dirIndex], _clusterSize);
+                        _currBlock = _file.GetBlock(_directory[_dirIndex]);
                         _blockIndex = 0;
                     }
                 }

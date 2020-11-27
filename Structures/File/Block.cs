@@ -4,11 +4,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Structures.Hashing
+namespace Structures.File
 {
     internal class Block<T> : ISerializable, IEnumerable<T> where T : ISerializable, new()
     {
         private List<T> _dataList;
+
+        public Block() : this(1)
+        { }
 
         public Block(int blockDepth)
         {
