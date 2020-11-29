@@ -3,6 +3,7 @@ using Structures.Interface;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Structures.File
 {
@@ -10,29 +11,15 @@ namespace Structures.File
     {
         private List<T> _dataList;
 
-        public Block() : this(1)
-        { }
+        public Block() => _dataList = new List<T>();
 
-        public Block(int blockDepth)
-        {
-            BlockDepth = blockDepth;
-            _dataList = new List<T>();
-        }
-
-        public int ByteSize => 2 * sizeof(int) + new T().ByteSize * ValidDataCount;
+        public int ByteSize => sizeof(int) + new T().ByteSize * ValidDataCount;
 
         public int ValidDataCount => _dataList.Count;
-
-        public int BlockDepth { get; set; }
-
-        public int Address { get; set; }
 
         public void FromByteArray(byte[] array, int offset = 0)
         {
             var dataCount = BitConverter.ToInt32(array, offset);
-            offset += sizeof(int);
-
-            BlockDepth = BitConverter.ToInt32(array, offset);
             offset += sizeof(int);
 
             var itemByteSize = new T().ByteSize;
@@ -53,10 +40,6 @@ namespace Structures.File
             result.ReplaceRange(bArray, offset);
             offset += bArray.Length;
 
-            bArray = BitConverter.GetBytes(BlockDepth);
-            result.ReplaceRange(bArray, offset);
-            offset += bArray.Length;
-
             foreach (var item in _dataList)
             {
                 bArray = item.ToByteArray();
@@ -69,22 +52,13 @@ namespace Structures.File
 
         public T Get(int index) => _dataList[index];
 
-        public T Get(T data, out bool found)
-        {
-            for (int i = 0; i < ValidDataCount; i++)
-            {
-                if (_dataList[i].Equals(data))
-                {
-                    found = true;
-                    return _dataList[i];
-                }
-            }
-
-            found = false;
-            return default;
-        }
-
         public void Add(T data) => _dataList.Add(data);
+
+        public void Remove(T data)
+        {
+            var item = _dataList.Single(x => x.Equals(data));
+            _dataList.Remove(item);
+        }
 
         public IEnumerator<T> GetEnumerator()
         {

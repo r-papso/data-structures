@@ -3,6 +3,7 @@ using Structures.Helper;
 using Structures.Interface;
 using SurveyApp.Interface;
 using System;
+using System.Collections;
 
 namespace StructuresTests
 {
@@ -154,6 +155,21 @@ namespace StructuresTests
             return PrimaryKey == other.PrimaryKey;
         }
 
-        public override int GetHashCode() => PrimaryKey;
+        public override int GetHashCode()
+        {
+            var bitArray = new BitArray(new int[] { PrimaryKey });
+            var hash = new BitArray(sizeof(int) * 8, false);
+            var bitsUsed = 4;
+            var i = bitArray.Length - 1;
+            var j = bitsUsed - 1;
+
+            while (j >= 0)
+            {
+                hash.Set(j--, bitArray.Get(i--));
+            }
+
+            return hash.ToInt();
+            //return PrimaryKey;
+        }
     }
 }

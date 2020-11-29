@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace StructuresTests
 {
@@ -9,20 +10,35 @@ namespace StructuresTests
 
         public static TwoDimObject[] GenerateRandomData(int dataCount, int seed, bool intValues = true, int min = 0, int max = 1000)
         {
-            Random rand;
+            Random randxy;
+            Random randId;
             if (seed != 0)
-                rand = new Random(seed);
+            {
+                randxy = new Random(seed);
+                randId = new Random(seed);
+            }
             else
-                rand = new Random();
+            {
+                randxy = new Random();
+                randId = new Random();
+            }
 
             var data = new TwoDimObject[dataCount];
+            var usedIds = new HashSet<int>();
 
             for (int i = 0; i < dataCount; i++)
             {
+                var id = randId.Next();
+
+                while (usedIds.Contains(id))
+                    id = randId.Next();
+
+                usedIds.Add(id);
+
                 if (intValues)
-                    data[i] = new TwoDimObject(i, rand.Next(min, max), rand.Next(min, max), $"Object {i}");
+                    data[i] = new TwoDimObject(id, randxy.Next(min, max), randxy.Next(min, max), $"Object {id}");
                 else
-                    data[i] = new TwoDimObject(i, (rand.NextDouble() + min) * max, (rand.NextDouble() + min) * max, $"Object {i}");
+                    data[i] = new TwoDimObject(id, (randxy.NextDouble() + min) * max, (randxy.NextDouble() + min) * max, $"Object {id}");
             }
 
             return data;

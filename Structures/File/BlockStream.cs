@@ -15,7 +15,7 @@ namespace Structures.File
             _stream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
         }
 
-        public Block<T> ReadBlock<T>(int address, int clusterSize) where T : ISerializable, new()
+        public Block<T> ReadBlock<T>(long address, int clusterSize) where T : ISerializable, new()
         {
             var block = new Block<T>();
             var bytes = new byte[clusterSize];
@@ -23,14 +23,13 @@ namespace Structures.File
             _stream.Seek(address, SeekOrigin.Begin);
             _stream.Read(bytes, 0, clusterSize);
             block.FromByteArray(bytes);
-            block.Address = address;
 
             return block;
         }
 
-        public void WriteBlock<T>(Block<T> block) where T : ISerializable, new()
+        public void WriteBlock<T>(Block<T> block, long address) where T : ISerializable, new()
         {
-            _stream.Seek(block.Address, SeekOrigin.Begin);
+            _stream.Seek(address, SeekOrigin.Begin);
             var byteArr = block.ToByteArray();
             _stream.Write(byteArr, 0, byteArr.Length);
         }
@@ -41,6 +40,6 @@ namespace Structures.File
             _stream.Close();
         }
 
-        public void Trim(int address) => _stream.SetLength(address);
+        public void Trim(long address) => _stream.SetLength(address);
     }
 }

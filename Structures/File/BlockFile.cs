@@ -8,62 +8,58 @@ namespace Structures.File
     internal class BlockFile<T> : IDisposable, ISerializable where T : ISerializable, new()
     {
         private int _clusterSize;
-        private int _maxAddress;
-        private ITree<int> _freeAddresses;
+        private long _maxAddress;
+        private string _headerFilePath;
+        private ITree<long> _freeAddresses;
         private BlockStream _stream;
 
-        public int ByteSize => 2 * sizeof(int) + _freeAddresses.Count * sizeof(int);
+        public int ByteSize => 3 * sizeof(int) + sizeof(long) + _freeAddresses.Count * sizeof(long);
 
         public string FilePath => _stream.StreamPath;
 
-        /*public BlockFile(int clusterSize)
-        {
-            _stream = new BlockStream(StaticFields.OverflowFileData);
-
-            if (System.IO.File.Exists(StaticFields.OverflowFileHeader) && new FileInfo(StaticFields.OverflowFileHeader).Length > 0)
-                Restore();
-            else
-                Initialize(clusterSize);
-        }*/
-
         public BlockFile(string dataFilePath, string headerFilePath)
         {
-
+            _headerFilePath = headerFilePath;
+            _stream = new BlockStream(dataFilePath);
+            Restore(headerFilePath);
         }
 
         public BlockFile(string dataFilePath, string headerFilePath, int clusterSize)
         {
-
+            _maxAddress = 0;
+            _clusterSize = clusterSize;
+            _headerFilePath = headerFilePath;
+            _freeAddresses = StructureFactory.Instance.GetAvlTree<long>();
+            _stream = new BlockStream(dataFilePath);
         }
 
         ~BlockFile() => Release();
 
-        public Block<T> GetBlock(int address) => _stream.ReadBlock<T>(address, _clusterSize);
+        public Block<T> GetBlock(long address) => _stream.ReadBlock<T>(address, _clusterSize);
 
-        public int AddBlock(Block<T> block)
+        public long AddBlock(Block<T> block)
         {
             if (_freeAddresses.Count == 0)
             {
                 _maxAddress += _clusterSize;
-                block.Address = _maxAddress;
-                _stream.WriteBlock(block);
+                _stream.WriteBlock(block, _maxAddress);
+                return _maxAddress;
             }
             else
             {
-                block.Address = _freeAddresses.Min;
-                _freeAddresses.Delete(block.Address);
-                _stream.WriteBlock(block);
+                var minAddress = _freeAddresses.Min;
+                _freeAddresses.Delete(minAddress);
+                _stream.WriteBlock(block, minAddress);
+                return minAddress;
             }
-
-            return block.Address;
         }
 
-        public void UpdateBlock(Block<T> block) => _stream.WriteBlock(block);
+        public void UpdateBlock(Block<T> block, long address) => _stream.WriteBlock(block, address);
 
-        public void RemoveBlock(int address)
+        public void RemoveBlock(long address)
         {
             if (address == _maxAddress)
-                CascadeRemove();
+                TrimFile();
             else
                 _freeAddresses.Insert(address);
         }
@@ -107,23 +103,23 @@ namespace Structures.File
 
         public void FromByteArray(byte[] array, int offset = 0)
         {
-            _maxAddress = BitConverter.ToInt32(array, offset);
-            offset += sizeof(int);
+            _maxAddress = BitConverter.ToInt64(array, offset);
+            offset += sizeof(long);
             _clusterSize = BitConverter.ToInt32(array, offset);
             offset += sizeof(int);
 
             var length = BitConverter.ToInt32(array, offset);
             offset += sizeof(int);
-            _freeAddresses = StructureFactory.Instance.GetAvlTree<int>();
+            _freeAddresses = StructureFactory.Instance.GetAvlTree<long>();
 
             for (int i = 0; i < length; i++)
             {
                 _freeAddresses.Insert(BitConverter.ToInt32(array, offset));
-                offset += sizeof(int);
+                offset += sizeof(long);
             }
         }
 
-        private void CascadeRemove()
+        private void TrimFile()
         {
             var currAddress = _maxAddress;
 
@@ -142,9 +138,9 @@ namespace Structures.File
             _maxAddress = currAddress - _clusterSize;
         }
 
-        private void Restore()
+        private void Restore(string headerFile)
         {
-            using var headerStream = new FileStream(StaticFields.OverflowFileHeader, FileMode.Open);
+            using var headerStream = new FileStream(headerFile, FileMode.Open);
             var totalLength = new byte[sizeof(int)];
             headerStream.Read(totalLength, 0, sizeof(int));
 
@@ -154,21 +150,10 @@ namespace Structures.File
             FromByteArray(byteArr, sizeof(int));
         }
 
-        private void Initialize(int clusterSize)
-        {
-            _maxAddress = clusterSize;
-            _clusterSize = clusterSize;
-
-            var block = new Block<T>();
-            block.Address = 0;
-            _stream.WriteBlock(block);
-            block.Address = _maxAddress;
-            _stream.WriteBlock(block);
-        }
-
         private void Release()
         {
-            using var headerStream = new FileStream(StaticFields.OverflowFileHeader, FileMode.OpenOrCreate);
+            var path = Path.Combine(Path.GetDirectoryName(FilePath), _headerFilePath);
+            using var headerStream = new FileStream(path, FileMode.OpenOrCreate);
             headerStream.Write(ToByteArray(), 0, ByteSize);
             _stream.Release();
         }

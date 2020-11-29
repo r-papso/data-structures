@@ -17,7 +17,7 @@ namespace StructuresTests
         [InlineData(100_000)]
         public void InsertDeleteTest(int nodeCount)
         {
-            var data = Generator.GenerateRandomData(nodeCount).Shuffle();
+            var data = Generator.GenerateRandomData(nodeCount);
             var tree = StructureFactory.Instance.GetAvlTree<TwoDimObject>();
 
             foreach (var item in data)

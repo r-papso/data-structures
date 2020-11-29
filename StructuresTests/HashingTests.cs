@@ -11,9 +11,14 @@ namespace StructuresTests
 {
     public class HashingTests
     {
-        private static int _clusterSize = 4096;
-        private static string _dataFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Structures", "Data", "extendible_hashing_data.bin");
-        private static string _headerFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Structures", "Data", "extendible_hashing_header.bin");
+        private static int _clusterSize = 128;
+        private static string _extendibleHashingPath = "C:\\FRI\\ING\\1_rocnik\\AUS2\\ExtendibleHashing";
+
+        private static string _header = Path.Combine(_extendibleHashingPath, "directory.csv");
+        private static string _data = Path.Combine(_extendibleHashingPath, "primary_file_data.bin");
+        private static string _dataHeader = Path.Combine(_extendibleHashingPath, "primary_file_header.bin");
+        private static string _overflow = Path.Combine(_extendibleHashingPath, "overflow_file_data.bin");
+        private static string _overflowHeader = Path.Combine(_extendibleHashingPath, "overflow_file_header.bin");
 
         private readonly ITestOutputHelper _output;
 
@@ -28,9 +33,9 @@ namespace StructuresTests
         [InlineData(100_000)]
         public void InsertionTest(int dataCount)
         {
-            var data = Generator.GenerateRandomData(dataCount);
+            var data = Generator.GenerateRandomData(dataCount, 1);
 
-            using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_clusterSize))
+            using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
             {
                 foreach (var item in data)
                 {
@@ -44,7 +49,35 @@ namespace StructuresTests
                 }
             }
 
-            RemoveFiles();
+            //RemoveFiles();
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        [InlineData(100)]
+        [InlineData(1_000)]
+        [InlineData(10_000)]
+        [InlineData(100_000)]
+        public void IterationTest(int dataCount)
+        {
+            var data = Generator.GenerateRandomData(dataCount, 1);
+
+            using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
+            {
+                foreach (var item in data)
+                {
+                    hashing.Insert(item);
+                }
+
+                int count = 0;
+                foreach (var item in hashing)
+                    count++;
+
+                Assert.Equal(dataCount, count);
+            }
+
+            //RemoveFiles();
         }
 
         [Fact]
@@ -83,8 +116,11 @@ namespace StructuresTests
 
         private void RemoveFiles()
         {
-            File.Delete(_dataFile);
-            File.Delete(_headerFile);
+            File.Delete(_header);
+            File.Delete(_data);
+            File.Delete(_dataHeader);
+            File.Delete(_overflow);
+            File.Delete(_overflowHeader);
         }
     }
 }
