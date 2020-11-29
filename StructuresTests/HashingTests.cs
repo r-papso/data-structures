@@ -31,9 +31,38 @@ namespace StructuresTests
         [InlineData(1_000)]
         [InlineData(10_000)]
         [InlineData(100_000)]
+        public void DeletionTest(int dataCount)
+        {
+            var data = Generator.GenerateRandomData(dataCount);
+
+            using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
+            {
+                foreach (var item in data)
+                {
+                    hashing.Insert(item);
+                }
+
+                foreach (var item in data)
+                {
+                    hashing.Delete(item);
+                    var found = hashing.Find(item);
+                    Assert.Equal(0, found.Count);
+                }
+            }
+
+            //RemoveFiles();
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        [InlineData(100)]
+        [InlineData(1_000)]
+        [InlineData(10_000)]
+        [InlineData(100_000)]
         public void InsertionTest(int dataCount)
         {
-            var data = Generator.GenerateRandomData(dataCount, 1);
+            var data = Generator.GenerateRandomData(dataCount);
 
             using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
             {
@@ -49,7 +78,7 @@ namespace StructuresTests
                 }
             }
 
-            //RemoveFiles();
+            RemoveFiles();
         }
 
         [Theory]

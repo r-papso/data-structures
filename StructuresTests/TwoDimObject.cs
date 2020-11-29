@@ -159,7 +159,7 @@ namespace StructuresTests
         {
             var bitArray = new BitArray(new int[] { PrimaryKey });
             var hash = new BitArray(sizeof(int) * 8, false);
-            var bitsUsed = 4;
+            var bitsUsed = 3;
             var i = bitArray.Length - 1;
             var j = bitsUsed - 1;
 

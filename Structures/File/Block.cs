@@ -50,14 +50,26 @@ namespace Structures.File
             return result;
         }
 
+        public bool Contains(T data) => _dataList.Any(x => x.Equals(data));
+
         public T Get(int index) => _dataList[index];
+
+        public T Get(T data) => _dataList.Single(x => x.Equals(data));
 
         public void Add(T data) => _dataList.Add(data);
 
-        public void Remove(T data)
+        public T Remove(T data)
         {
             var item = _dataList.Single(x => x.Equals(data));
             _dataList.Remove(item);
+            return item;
+        }
+
+        public T RemoveAt(int index)
+        {
+            var removed = _dataList[index];
+            _dataList.RemoveAt(index);
+            return removed;
         }
 
         public IEnumerator<T> GetEnumerator()

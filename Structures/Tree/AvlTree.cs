@@ -233,12 +233,6 @@ namespace Structures.Tree
             }
 
             nodeToDelete.Delete();
-
-            if (_root.Parent != null)
-            {
-                Console.WriteLine("");
-            }
-
             Count--;
         }
 

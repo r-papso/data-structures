@@ -125,6 +125,9 @@ namespace Structures.File
 
             while (true)
             {
+                if (_freeAddresses.Count == 0)
+                    break;
+
                 var address = _freeAddresses.Max;
 
                 if (currAddress - address != _clusterSize)

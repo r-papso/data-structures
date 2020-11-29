@@ -1,6 +1,7 @@
-﻿using Structures.Interface;
+﻿using Structures.File;
+using Structures.Interface;
 
-namespace Structures.File
+namespace Structures.Helper
 {
     internal class BlockSplitResult<T> where T : ISerializable, new()
     {
