@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Structures.File
 {
-    internal class Block<T> : ISerializable, IEnumerable<T> where T : ISerializable, new()
+    internal class Block<T> : IBlockState<T>, ISerializable where T : ISerializable, new()
     {
         private List<T> _dataList;
 

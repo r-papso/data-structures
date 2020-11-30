@@ -1,6 +1,7 @@
 ﻿using Structures.Helper;
 using Structures.Interface;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Structures.File
@@ -16,6 +17,22 @@ namespace Structures.File
         public int ByteSize => 3 * sizeof(int) + sizeof(long) + _freeAddresses.Count * sizeof(long);
 
         public string FilePath => _stream.StreamPath;
+
+        public IEnumerable<IBlockState<T>> FileState
+        {
+            get
+            {
+                if (_maxAddress == -1)
+                    yield break;
+
+                long address = 0;
+                while (address <= _maxAddress)
+                {
+                    yield return _stream.ReadBlock<T>(address, _clusterSize);
+                    address += _clusterSize;
+                }
+            }
+        }
 
         public BlockFile(string dataFilePath, string headerFilePath)
         {

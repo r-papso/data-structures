@@ -25,6 +25,24 @@ namespace Structures.Hashing
 
         private int OverflowBlockFactor => (_clusterSize * 2 - sizeof(int) - sizeof(long)) / new T().ByteSize;
 
+        public IEnumerable<IBlockState<T>> PrimaryFileState
+        {
+            get
+            {
+                foreach (var block in _dataFile.FileState)
+                    yield return block;
+            }
+        }
+
+        public IEnumerable<IBlockState<T>> OverflowFileState
+        {
+            get
+            {
+                foreach (var block in _overflowFile.FileState)
+                    yield return block;
+            }
+        }
+
         public ExtendibleHashing(string folder)
         {
             _dataFile = new BlockFile<T>(Path.Combine(folder, StaticFields.DataFileName), Path.Combine(folder, StaticFields.DataHeaderName));

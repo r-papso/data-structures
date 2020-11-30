@@ -46,10 +46,6 @@ namespace StructuresTests
 
                 foreach (var item in data)
                 {
-                    if (i == 2000)
-                    {
-                        Console.WriteLine("");
-                    }
                     hashing.Delete(item);
                     var found = hashing.Find(item);
                     Assert.Equal(0, found.Count);
@@ -137,10 +133,6 @@ namespace StructuresTests
                     if (inserted.Count == 0)
                     {
                         var item = toInsert[randIndex.Next(0, toInsert.Count)];
-                        if (item.PrimaryKey == 1291534873)
-                        {
-                            Console.WriteLine("");
-                        }
                         hashing.Insert(item);
                         toInsert.Remove(item);
 
@@ -150,10 +142,6 @@ namespace StructuresTests
                     else if (toInsert.Count == 0)
                     {
                         var item = inserted[randIndex.Next(0, inserted.Count)];
-                        if (item.PrimaryKey == 1291534873)
-                        {
-                            Console.WriteLine("");
-                        }
                         hashing.Delete(item);
                         inserted.Remove(item);
 
@@ -165,10 +153,6 @@ namespace StructuresTests
                         if (randOperation.NextDouble() < 0.5)
                         {
                             var item = toInsert[randIndex.Next(0, toInsert.Count)];
-                            if (item.PrimaryKey == 1291534873)
-                            {
-                                Console.WriteLine("");
-                            }
                             hashing.Insert(item);
                             toInsert.Remove(item);
 
@@ -178,10 +162,6 @@ namespace StructuresTests
                         else
                         {
                             var item = inserted[randIndex.Next(0, inserted.Count)];
-                            if (item.PrimaryKey == 1291534873)
-                            {
-                                Console.WriteLine("");
-                            }
                             hashing.Delete(item);
                             inserted.Remove(item);
 

@@ -36,10 +36,6 @@ namespace StructuresTests
 
             foreach (var item in data)
             {
-                if (item.PrimaryKey == 19)
-                {
-                    Console.WriteLine("");
-                }
                 tree.Delete(item);
                 var found = tree.Find(item);
                 Assert.True(found.Count == 0, "Data not deleted properly");
@@ -85,10 +81,6 @@ namespace StructuresTests
         {
             for (int i = 3494; i < 3495; i++)
             {
-                if (i == 9)
-                {
-                    Console.WriteLine("");
-                }
                 var rand = new Random(i);
                 var data = Generator.GenerateRandomData(12).Shuffle(rand);
                 var tree = StructureFactory.Instance.GetAvlTree<TwoDimObject>();
