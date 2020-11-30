@@ -33,10 +33,6 @@ namespace StructuresTests
         [InlineData(1_000)]
         [InlineData(10_000)]
         [InlineData(100_000)]
-        [InlineData(200_000)]
-        [InlineData(400_000)]
-        [InlineData(800_000)]
-        [InlineData(1_600_000)]
         public void ConstructionTimeTest(int nodeCount)
         {
             var results = new List<Result>();
@@ -68,10 +64,6 @@ namespace StructuresTests
         [InlineData(1_000)]
         [InlineData(10_000)]
         [InlineData(100_000)]
-        [InlineData(200_000)]
-        [InlineData(400_000)]
-        [InlineData(800_000)]
-        [InlineData(1_600_000)]
         public void IterationTimeTest(int nodeCount)
         {
             var results = new List<Result>();
@@ -135,10 +127,6 @@ namespace StructuresTests
         [InlineData(1_000)]
         [InlineData(10_000)]
         [InlineData(100_000)]
-        [InlineData(200_000)]
-        [InlineData(400_000)]
-        [InlineData(800_000)]
-        [InlineData(1_600_000)]
         public void IntervalSearchTimeTest(int nodeCount)
         {
             var results = new List<Result>();
@@ -182,10 +170,6 @@ namespace StructuresTests
         [InlineData(1_000)]
         [InlineData(10_000)]
         [InlineData(100_000)]
-        [InlineData(200_000)]
-        [InlineData(400_000)]
-        [InlineData(800_000)]
-        [InlineData(1_600_000)]
         public void PointSearchTimeTest(int nodeCount)
         {
             var results = new List<Result>();
@@ -242,10 +226,6 @@ namespace StructuresTests
         [InlineData(1_000)]
         [InlineData(10_000)]
         [InlineData(100_000)]
-        [InlineData(200_000)]
-        [InlineData(400_000)]
-        [InlineData(800_000)]
-        [InlineData(1_600_000)]
         public void InsertionTest(int nodeCount)
         {
             var results = new List<Result>();
@@ -295,10 +275,6 @@ namespace StructuresTests
         [InlineData(1_000)]
         [InlineData(10_000)]
         [InlineData(100_000)]
-        [InlineData(200_000)]
-        [InlineData(400_000)]
-        [InlineData(800_000)]
-        [InlineData(1_600_000)]
         public void DeletionTest(int nodeCount)
         {
             var results = new List<Result>();
@@ -340,10 +316,6 @@ namespace StructuresTests
         [InlineData(1_000)]
         [InlineData(10_000)]
         [InlineData(100_000)]
-        [InlineData(200_000)]
-        [InlineData(400_000)]
-        [InlineData(800_000)]
-        [InlineData(1_600_000)]
         public void UpdatingTest(int nodeCount)
         {
             var results = new List<Result>();
