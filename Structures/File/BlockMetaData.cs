@@ -1,4 +1,6 @@
-﻿namespace Structures.File
+﻿using System.Collections.Generic;
+
+namespace Structures.File
 {
     internal class BlockMetaData
     {
@@ -9,5 +11,7 @@
         public int ValidDataCount { get; set; }
 
         public int Depth { get; set; }
+
+        public IList<int> ValidDataCounts { get; } = new List<int>();
     }
 }

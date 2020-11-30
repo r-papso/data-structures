@@ -11,16 +11,27 @@ namespace Structures.File
     {
         private List<T> _dataList;
 
-        public Block() => _dataList = new List<T>();
+        public Block()
+        {
+            NextBlockAddress = -1;
+            _dataList = new List<T>();
+        }
 
-        public int ByteSize => sizeof(int) + new T().ByteSize * ValidDataCount;
+        public int ByteSize => sizeof(int) + sizeof(long) + new T().ByteSize * ValidDataCount;
 
         public int ValidDataCount => _dataList.Count;
+
+        public long Address { get; set; }
+
+        public long NextBlockAddress { get; set; }
 
         public void FromByteArray(byte[] array, int offset = 0)
         {
             var dataCount = BitConverter.ToInt32(array, offset);
             offset += sizeof(int);
+
+            NextBlockAddress = BitConverter.ToInt64(array, offset);
+            offset += sizeof(long);
 
             var itemByteSize = new T().ByteSize;
             for (int i = 0; i < dataCount; i++)
@@ -37,6 +48,10 @@ namespace Structures.File
             int offset = 0;
 
             var bArray = BitConverter.GetBytes(ValidDataCount);
+            result.ReplaceRange(bArray, offset);
+            offset += bArray.Length;
+
+            bArray = BitConverter.GetBytes(NextBlockAddress);
             result.ReplaceRange(bArray, offset);
             offset += bArray.Length;
 

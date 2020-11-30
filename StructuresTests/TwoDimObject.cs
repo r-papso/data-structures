@@ -164,9 +164,7 @@ namespace StructuresTests
             var j = bitsUsed - 1;
 
             while (j >= 0)
-            {
                 hash.Set(j--, bitArray.Get(i--));
-            }
 
             return hash.ToInt();
             //return PrimaryKey;

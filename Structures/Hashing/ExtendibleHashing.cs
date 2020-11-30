@@ -15,15 +15,15 @@ namespace Structures.Hashing
         private static readonly int _maxDepth = 24;
 
         private int _clusterSize;
-        private LinkedList<BlockMetaData>[] _directory;
+        private BlockMetaData[] _directory;
         private BlockFile<T> _dataFile;
         private BlockFile<T> _overflowFile;
 
         private int Depth => Convert.ToInt32(Math.Log(_directory.Length, 2));
 
-        private int BlockFactor => (_clusterSize - sizeof(int)) / new T().ByteSize;
+        private int BlockFactor => (_clusterSize - sizeof(int) - sizeof(long)) / new T().ByteSize;
 
-        private int OverflowBlockFactor => (_clusterSize * 2 - sizeof(int)) / new T().ByteSize;
+        private int OverflowBlockFactor => (_clusterSize * 2 - sizeof(int) - sizeof(long)) / new T().ByteSize;
 
         public ExtendibleHashing(string folder)
         {
@@ -47,21 +47,20 @@ namespace Structures.Hashing
         {
             var result = new LinkedList<T>();
             var index = GetIndex(data.GetHashCode(), Depth);
+            Block<T> block = _dataFile.GetBlock(_directory[index].Address);
 
-            foreach (var blockData in _directory[index])
+            while (true)
             {
-                Block<T> block = null;
-
-                if (blockData == _directory[index].First.Value)
-                    block = _dataFile.GetBlock(blockData.Address);
-                else
-                    block = _overflowFile.GetBlock(blockData.Address);
-
                 if (block.Contains(data))
                 {
                     result.AddLast(block.Get(data));
                     return result;
                 }
+
+                if (block.NextBlockAddress == -1)
+                    break;
+
+                block = _overflowFile.GetBlock(block.NextBlockAddress);
             }
 
             return result;
@@ -74,7 +73,7 @@ namespace Structures.Hashing
             while (true)
             {
                 var index = GetIndex(data.GetHashCode(), Depth);
-                var blockData = _directory[index].First.Value;
+                var blockData = _directory[index];
                 Block<T> block = null;
 
                 if (splitResult == null)
@@ -82,13 +81,16 @@ namespace Structures.Hashing
                 else
                     block = splitResult.Block1Data == blockData ? splitResult.Block1 : splitResult.Block2;
 
+                if (block.Contains(data))
+                    throw new ArgumentException("Cannot insert duplicate values");
+
                 if (blockData.ValidDataCount == BlockFactor)
                 {
                     if (blockData.Depth == Depth)
                     {
                         if (Depth == _maxDepth)
                         {
-                            AddToOverflowFile(data, index);
+                            AddToOverflowFile(data, block);
                             break;
                         }
 
@@ -133,34 +135,36 @@ namespace Structures.Hashing
 
         public void Update(T oldData, T newData)
         {
-            if (oldData.Equals(newData))
+            if (oldData.GetHashCode() == newData.GetHashCode())
             {
                 var index = GetIndex(oldData.GetHashCode(), Depth);
+                Block<T> block = _dataFile.GetBlock(_directory[index].Address);
 
-                foreach (var blockData in _directory[index])
+                if (block.Contains(oldData))
                 {
-                    Block<T> block = null;
-
-                    if (blockData == _directory[index].First.Value)
-                        block = _dataFile.GetBlock(blockData.Address);
-                    else
-                        block = _overflowFile.GetBlock(blockData.Address);
-
-                    if (block.Contains(oldData))
+                    block.Remove(oldData);
+                    block.Add(newData);
+                    _dataFile.UpdateBlock(block, block.Address);
+                }
+                else
+                {
+                    while (true)
                     {
-                        block.Remove(oldData);
-                        block.Add(newData);
+                        if (block.NextBlockAddress == -1)
+                            throw new ArgumentException("Data not found");
 
-                        if (blockData == _directory[index].First.Value)
-                            _dataFile.UpdateBlock(block, blockData.Address);
-                        else
-                            _overflowFile.UpdateBlock(block, blockData.Address);
+                        block = _overflowFile.GetBlock(block.NextBlockAddress);
 
-                        return;
+                        if (block.Contains(oldData))
+                        {
+                            block.Remove(oldData);
+                            block.Add(newData);
+                            _overflowFile.UpdateBlock(block, block.Address);
+
+                            break;
+                        }
                     }
                 }
-
-                throw new ArgumentException("Data not found");
             }
             else
             {
@@ -173,10 +177,10 @@ namespace Structures.Hashing
         {
             var index = GetIndex(data.GetHashCode(), Depth);
 
-            if (_directory[index].Count == 1)
+            if (_directory[index].ValidDataCounts.Count == 0)
             {
                 Block<T> block = null;
-                var blockData = _directory[index].First.Value;
+                var blockData = _directory[index];
 
                 while (true)
                 {
@@ -192,18 +196,20 @@ namespace Structures.Hashing
                     }
 
                     var neighbourIdx = GetNeighbourIndex(blockData, index);
-                    var neighbour = _directory[neighbourIdx].First.Value;
+                    var neighbour = _directory[neighbourIdx];
 
                     if (Depth == 1)
                         break;
 
-                    if (_directory[index] == _directory[neighbourIdx] || _directory[neighbourIdx].Count > 1)
+                    if (_directory[index] == _directory[neighbourIdx] || _directory[neighbourIdx].ValidDataCounts.Count > 0)
                         break;
 
                     if (blockData.Depth != neighbour.Depth || blockData.ValidDataCount + neighbour.ValidDataCount > BlockFactor)
                         break;
 
-                    MergeBlock(block, index, neighbourIdx);
+                    var blockResult = MergeBlock(block, index, neighbourIdx);
+                    block = blockResult.Block;
+                    blockData = blockResult.BlockData;
                     index = GetIndex(data.GetHashCode(), Depth);
                 }
 
@@ -235,12 +241,12 @@ namespace Structures.Hashing
             {
                 if (i == _directory.Length - 1 || _directory[i + 1] != _directory[begin])
                 {
-                    string line = $"{begin};{i}";
-                    foreach (var item in _directory[begin])
-                    {
-                        var sign = item.IsValid ? 1 : 0;
-                        line += $";{sign};{item.Address};{item.ValidDataCount};{item.Depth}";
-                    }
+                    var sign = _directory[begin].IsValid ? 1 : 0;
+                    string line = $"{begin};{i};{sign};{_directory[begin].Address};{_directory[begin].ValidDataCount};{_directory[begin].Depth}";
+
+                    foreach (var item in _directory[begin].ValidDataCounts)
+                        line += $";{item}";
+
                     csv.AppendLine(line);
                     begin = i + 1;
                 }
@@ -253,56 +259,49 @@ namespace Structures.Hashing
         {
             var head = csv.ReadLines().First().Split(';');
             _clusterSize = Convert.ToInt32(head[0]);
-            _directory = new LinkedList<BlockMetaData>[Convert.ToInt32(head[1])];
+            _directory = new BlockMetaData[Convert.ToInt32(head[1])];
 
             foreach (var line in csv.ReadLines().Skip(1))
             {
                 var props = line.Split(';');
                 int begin = Convert.ToInt32(props[0]);
                 int end = Convert.ToInt32(props[1]);
-                var list = new LinkedList<BlockMetaData>();
-
-                for (int i = 2; i < props.Length; i += 4)
+                var metaData = new BlockMetaData()
                 {
-                    list.AddLast(new BlockMetaData()
-                    {
-                        IsValid = props[i] == "1",
-                        Address = Convert.ToInt64(props[i + 1]),
-                        ValidDataCount = Convert.ToInt32(props[i + 2]),
-                        Depth = Convert.ToInt32(props[i + 3])
-                    });
-                }
+                    IsValid = props[2] == "1",
+                    Address = Convert.ToInt64(props[3]),
+                    ValidDataCount = Convert.ToInt32(props[4]),
+                    Depth = Convert.ToInt32(props[5])
+                };
+
+                for (int i = 6; i < props.Length; i++)
+                    metaData.ValidDataCounts.Add(Convert.ToInt32(props[i]));
 
                 for (int i = begin; i <= end; i++)
-                {
-                    _directory[i] = list;
-                }
+                    _directory[i] = metaData;
             }
         }
 
         private void Initialize(int clusterSize)
         {
             _clusterSize = clusterSize;
-            _directory = new LinkedList<BlockMetaData>[]
+            _directory = new BlockMetaData[]
             {
-                new LinkedList<BlockMetaData>(),
-                new LinkedList<BlockMetaData>()
+                new BlockMetaData()
+                {
+                   IsValid = true,
+                    Address = 0,
+                    ValidDataCount = 0,
+                    Depth = 1
+                },
+                new BlockMetaData()
+                {
+                    IsValid = true,
+                    Address = clusterSize,
+                    ValidDataCount = 0,
+                    Depth = 1
+                }
             };
-
-            _directory[0].AddLast(new BlockMetaData()
-            {
-                IsValid = true,
-                Address = 0,
-                ValidDataCount = 0,
-                Depth = 1
-            });
-            _directory[1].AddLast(new BlockMetaData()
-            {
-                IsValid = true,
-                Address = clusterSize,
-                ValidDataCount = 0,
-                Depth = 1
-            });
 
             _dataFile.AddBlock(new Block<T>());
             _dataFile.AddBlock(new Block<T>());
@@ -351,16 +350,18 @@ namespace Structures.Hashing
 
         private (int begin, int end) GetBlockBounds(int blockIdx)
         {
-            int begin = blockIdx;
-            int end = blockIdx;
+            var blockData = _directory[blockIdx];
+            var beginArray = new BitArray(new int[] { blockIdx });
+            var endArray = new BitArray(new int[] { blockIdx });
+            var dividingBit = Depth - blockData.Depth;
 
-            while (begin > 0 && _directory[begin] == _directory[begin - 1])
-                begin--;
+            for (int i = dividingBit - 1; i >= 0; i--)
+            {
+                beginArray.Set(i, false);
+                endArray.Set(i, true);
+            }
 
-            while (end < _directory.Length - 1 && _directory[end] == _directory[end + 1])
-                end++;
-
-            return (begin, end);
+            return (beginArray.ToInt(), endArray.ToInt());
         }
 
         private BlockSplitResult<T> SplitBlock(BlockMetaData blockData, Block<T> block, int blockIdx)
@@ -417,30 +418,41 @@ namespace Structures.Hashing
                 IsValid = newBlock2Data.Count > 0,
                 ValidDataCount = newBlock2Data.Count
             };
-            var newLinkedList = new LinkedList<BlockMetaData>();
-            newLinkedList.AddLast(newBlockMetaData);
             result.Block2Data = newBlockMetaData;
 
             for (int i = (end - begin) / 2 + begin + 1; i <= end; i++)
-            {
-                _directory[i] = newLinkedList;
-            }
+                _directory[i] = newBlockMetaData;
 
             return result;
         }
 
-        private void MergeBlock(Block<T> block, int blockIdx, int neighbourIdx)
+        private BlockMergeResult<T> MergeBlock(Block<T> block, int blockIdx, int neighbourIdx)
         {
-            var blockData = _directory[blockIdx].First.Value;
-            var neighbourData = _directory[neighbourIdx].First.Value;
+            var result = new BlockMergeResult<T>();
+            var blockData = _directory[blockIdx];
+            var neighbourData = _directory[neighbourIdx];
 
             if (neighbourData.IsValid)
             {
                 var neighbourBlock = _dataFile.GetBlock(neighbourData.Address);
-                foreach (var item in neighbourBlock)
+
+                if (neighbourBlock.Address < block.Address)
                 {
-                    block.Add(item);
+                    var tempData = blockData;
+                    var tempIdx = blockIdx;
+                    var tempBlock = block;
+
+                    blockData = neighbourData;
+                    neighbourData = tempData;
+                    blockIdx = neighbourIdx;
+                    neighbourIdx = tempIdx;
+                    block = neighbourBlock;
+                    neighbourBlock = tempBlock;
                 }
+
+                foreach (var item in neighbourBlock)
+                    block.Add(item);
+
                 _dataFile.RemoveBlock(neighbourData.Address);
             }
 
@@ -452,138 +464,188 @@ namespace Structures.Hashing
                 _directory[i] = _directory[blockIdx];
 
             CompressDirectory();
+
+            result.Block = block;
+            result.BlockData = blockData;
+
+            return result;
         }
 
-        private void AddToOverflowFile(T data, int blockIdx)
+        private void AddToOverflowFile(T data, Block<T> block)
         {
-            foreach (var item in _directory[blockIdx].Skip(1))
-            {
-                if (item.ValidDataCount < OverflowBlockFactor)
-                {
-                    var block = _overflowFile.GetBlock(item.Address);
-                    block.Add(data);
-                    _overflowFile.UpdateBlock(block, item.Address);
-                    item.ValidDataCount = block.ValidDataCount;
+            var overflowBlock = block;
+            Block<T> blockToAdd = null;
+            int i = 0;
+            int position = 0;
 
-                    return;
+            if (block.NextBlockAddress != -1)
+            {
+                overflowBlock = _overflowFile.GetBlock(overflowBlock.NextBlockAddress);
+
+                while (true)
+                {
+                    if (overflowBlock.Contains(data))
+                        throw new ArgumentException("Cannot insert duplicate values");
+
+                    if (blockToAdd == null && overflowBlock.ValidDataCount < OverflowBlockFactor)
+                    {
+                        position = i;
+                        blockToAdd = overflowBlock;
+                    }
+
+                    if (overflowBlock.NextBlockAddress == -1)
+                        break;
+
+                    i++;
+                    overflowBlock = _overflowFile.GetBlock(overflowBlock.NextBlockAddress);
                 }
             }
 
-            var newBlock = new Block<T>();
-            var newBlockData = new BlockMetaData();
-            newBlock.Add(data);
+            if (blockToAdd == null)
+            {
+                var index = GetIndex(data.GetHashCode(), Depth);
+                _directory[index].ValidDataCounts.Add(1);
 
-            var newAddress = _overflowFile.AddBlock(newBlock);
-            newBlockData.Address = newAddress;
-            newBlockData.ValidDataCount = newBlock.ValidDataCount;
-            _directory[blockIdx].AddLast(newBlockData);
+                var newBlock = new Block<T>();
+                newBlock.Add(data);
+                overflowBlock.NextBlockAddress = _overflowFile.AddBlock(newBlock);
+
+                if (overflowBlock != block)
+                    _overflowFile.UpdateBlock(overflowBlock, overflowBlock.Address);
+                else
+                    _dataFile.UpdateBlock(overflowBlock, overflowBlock.Address);
+            }
+            else
+            {
+                var index = GetIndex(data.GetHashCode(), Depth);
+                _directory[index].ValidDataCounts[position]++;
+
+                blockToAdd.Add(data);
+                _overflowFile.UpdateBlock(blockToAdd, blockToAdd.Address);
+            }
         }
 
         private void RemoveFromOverflowFile(T data)
         {
             int index = GetIndex(data.GetHashCode(), Depth);
 
-            if (_directory[index].Sum(x => x.ValidDataCount) - 1 <= BlockFactor + OverflowBlockFactor * (_directory[index].Count - 2))
+            if (_directory[index].ValidDataCount + _directory[index].ValidDataCounts.Sum(x => x) - 1 <= BlockFactor + OverflowBlockFactor * (_directory[index].ValidDataCounts.Count - 1))
             {
-                var firstBlock = _dataFile.GetBlock(_directory[index].First.Value.Address);
-                var overflowBlocks = new LinkedList<Block<T>>();
+                var blocks = new LinkedList<Block<T>>();
+                var actualBlock = _dataFile.GetBlock(_directory[index].Address);
+                blocks.AddLast(actualBlock);
 
-                foreach (var blockData in _directory[index].Skip(1))
-                    overflowBlocks.AddLast(_overflowFile.GetBlock(blockData.Address));
-
-                if (firstBlock.Contains(data))
+                while (actualBlock.NextBlockAddress != -1)
                 {
-                    firstBlock.Remove(data);
-                }
-                else
-                {
-                    foreach (var block in overflowBlocks)
-                    {
-                        if (block.Contains(data))
-                        {
-                            block.Remove(data);
-                            break;
-                        }
-                    }
+                    var nextBlock = _overflowFile.GetBlock(actualBlock.NextBlockAddress);
+                    blocks.AddLast(nextBlock);
+                    actualBlock = nextBlock;
                 }
 
-                while (firstBlock.ValidDataCount < BlockFactor)
-                    firstBlock.Add(overflowBlocks.First.Value.RemoveAt(0));
+                bool found = false;
 
-                _directory[index].First.Value.ValidDataCount = firstBlock.ValidDataCount;
-
-                var actualBlock = overflowBlocks.First;
-                var actualBlockData = _directory[index].First.Next;
-
-                while (true)
+                foreach (var block in blocks)
                 {
-                    if (actualBlock == overflowBlocks.Last)
-                    {
-                        actualBlockData.Value.ValidDataCount = actualBlock.Value.ValidDataCount;
-                        break;
-                    }
-
-                    while (actualBlock.Value.ValidDataCount < OverflowBlockFactor)
-                        actualBlock.Value.Add(actualBlock.Next.Value.RemoveAt(0));
-
-                    actualBlockData.Value.ValidDataCount = actualBlock.Value.ValidDataCount;
-                    actualBlock = actualBlock.Next;
-                    actualBlockData = actualBlockData.Next;
-                }
-
-                _dataFile.UpdateBlock(firstBlock, _directory[index].First.Value.Address);
-
-                actualBlock = overflowBlocks.First;
-                actualBlockData = _directory[index].First.Next;
-
-                while (true)
-                {
-                    if (actualBlock == null)
-                        break;
-
-                    _overflowFile.UpdateBlock(actualBlock.Value, actualBlockData.Value.Address);
-
-                    actualBlock = actualBlock.Next;
-                    actualBlockData = actualBlockData.Next;
-                }
-
-                _overflowFile.RemoveBlock(_directory[index].Last.Value.Address);
-                _directory[index].RemoveLast();
-            }
-            else
-            {
-                foreach (var blockData in _directory[index])
-                {
-                    Block<T> block = null;
-
-                    if (blockData == _directory[index].First.Value)
-                        block = _dataFile.GetBlock(blockData.Address);
-                    else
-                        block = _overflowFile.GetBlock(blockData.Address);
-
                     if (block.Contains(data))
                     {
                         block.Remove(data);
-                        blockData.ValidDataCount = block.ValidDataCount;
-
-                        if (blockData == _directory[index].First.Value)
-                            _dataFile.UpdateBlock(block, blockData.Address);
-                        else
-                            _overflowFile.UpdateBlock(block, blockData.Address);
-
+                        found = true;
                         break;
                     }
                 }
+
+                if (!found)
+                    throw new ArgumentException("Data not found");
+
+                var actualBlockNode = blocks.First;
+                var nextBlockNode = actualBlockNode.Next;
+
+                while (nextBlockNode != null)
+                {
+                    var capacity = actualBlockNode == blocks.First ? BlockFactor : OverflowBlockFactor;
+
+                    if (actualBlockNode.Value.ValidDataCount < capacity)
+                    {
+                        actualBlockNode.Value.Add(nextBlockNode.Value.RemoveAt(nextBlockNode.Value.ValidDataCount - 1));
+                    }
+                    else
+                    {
+                        actualBlockNode = actualBlockNode.Next;
+                        nextBlockNode = actualBlockNode.Next;
+                    }
+                }
+
+                _directory[index].ValidDataCount = blocks.First.Value.ValidDataCount;
+                var idx = 0;
+
+                foreach (var block in blocks.Skip(1))
+                {
+                    _directory[index].ValidDataCounts[idx++] = block.ValidDataCount;
+                }
+
+                actualBlockNode = blocks.First;
+
+                while (actualBlockNode.Next != null)
+                {
+                    if (actualBlockNode.Next.Next == null)
+                        actualBlockNode.Value.NextBlockAddress = -1;
+
+                    var blockFile = actualBlockNode == blocks.First ? _dataFile : _overflowFile;
+                    blockFile.UpdateBlock(actualBlockNode.Value, actualBlockNode.Value.Address);
+
+                    actualBlockNode = actualBlockNode.Next;
+                }
+
+                _overflowFile.RemoveBlock(blocks.Last.Value.Address);
+                _directory[index].ValidDataCounts.RemoveAt(_directory[index].ValidDataCounts.Count - 1);
+            }
+            else
+            {
+
+                int i = -1;
+                bool found = false;
+                Block<T> block = _dataFile.GetBlock(_directory[index].Address);
+
+                while (true)
+                {
+                    if (block.Contains(data))
+                    {
+                        block.Remove(data);
+                        found = true;
+
+                        if (i == -1)
+                        {
+                            _dataFile.UpdateBlock(block, block.Address);
+                            _directory[index].ValidDataCount--;
+                        }
+                        else
+                        {
+                            _overflowFile.UpdateBlock(block, block.Address);
+                            _directory[index].ValidDataCounts[i]--;
+                        }
+
+                        break;
+                    }
+
+                    if (block.NextBlockAddress == -1)
+                        break;
+
+                    i++;
+                    block = _overflowFile.GetBlock(block.NextBlockAddress);
+                }
+
+                if (!found)
+                    throw new ArgumentException("Data not found");
             }
         }
 
         private void ExtendDirectory()
         {
-            var newDir = new LinkedList<BlockMetaData>[_directory.Length * 2];
+            var newDir = new BlockMetaData[_directory.Length * 2];
+
             for (int i = 0; i < newDir.Length; i++)
-            {
                 newDir[i] = _directory[i / 2];
-            }
+
             _directory = newDir;
         }
 
@@ -591,11 +653,11 @@ namespace Structures.Hashing
         {
             if (CanCompressDirectory())
             {
-                var newDir = new LinkedList<BlockMetaData>[_directory.Length / 2];
+                var newDir = new BlockMetaData[_directory.Length / 2];
+
                 for (int i = 0; i < _directory.Length; i += 2)
-                {
                     newDir[i / 2] = _directory[i];
-                }
+
                 _directory = newDir;
             }
         }
@@ -605,10 +667,18 @@ namespace Structures.Hashing
             if (Depth == 1)
                 return false;
 
-            for (int i = 0; i < _directory.Length; i++)
+            var idx = 0;
+
+            while (true)
             {
-                if (_directory[i].First.Value.Depth == Depth)
+                if (_directory[idx].Depth == Depth)
                     return false;
+
+                (_, int end) = GetBlockBounds(idx);
+                idx = end + 1;
+
+                if (idx > _directory.Length - 1)
+                    break;
             }
 
             return true;
@@ -619,12 +689,11 @@ namespace Structures.Hashing
             private int _dirIndex;
             private int _blockIndex;
             private Block<T> _currBlock;
-            private LinkedListNode<BlockMetaData> _currBlockData;
             private readonly BlockFile<T> _dataFile;
             private readonly BlockFile<T> _overflowFile;
-            private readonly LinkedList<BlockMetaData>[] _directory;
+            private readonly BlockMetaData[] _directory;
 
-            public ExtendibleHashingEnumerator(BlockFile<T> dataFile, BlockFile<T> overflowFile, LinkedList<BlockMetaData>[] directory)
+            public ExtendibleHashingEnumerator(BlockFile<T> dataFile, BlockFile<T> overflowFile, BlockMetaData[] directory)
             {
                 _dirIndex = -1;
                 _dataFile = dataFile;
@@ -647,15 +716,14 @@ namespace Structures.Hashing
                         Current = _currBlock.Get(_blockIndex++);
                         return true;
                     }
-                    else if (_currBlockData != null && _currBlockData.Next != null)
+                    else if (_currBlock != null && _currBlock.NextBlockAddress != -1)
                     {
-                        _currBlockData = _currBlockData.Next;
-                        _currBlock = _overflowFile.GetBlock(_currBlockData.Value.Address);
+                        _currBlock = _overflowFile.GetBlock(_currBlock.NextBlockAddress);
                         _blockIndex = 0;
                     }
                     else
                     {
-                        var oldIndex = _dirIndex;
+                        var oldData = _dirIndex == -1 ? null : _directory[_dirIndex];
 
                         if (_dirIndex < 0)
                         {
@@ -670,16 +738,15 @@ namespace Structures.Hashing
                                 else
                                     break;
 
-                                if (_directory[_dirIndex - 1] != _directory[_dirIndex] && _directory[_dirIndex].First.Value.IsValid)
+                                if (_directory[_dirIndex - 1] != _directory[_dirIndex] && _directory[_dirIndex].IsValid)
                                     break;
                             }
                         }
 
-                        if (oldIndex == _dirIndex)
+                        if (oldData == _directory[_dirIndex])
                             return false;
 
-                        _currBlockData = _directory[_dirIndex].First;
-                        _currBlock = _dataFile.GetBlock(_currBlockData.Value.Address);
+                        _currBlock = _dataFile.GetBlock(_directory[_dirIndex].Address);
                         _blockIndex = 0;
                     }
                 }

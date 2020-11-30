@@ -26,7 +26,7 @@ namespace Structures.File
 
         public BlockFile(string dataFilePath, string headerFilePath, int clusterSize)
         {
-            _maxAddress = 0;
+            _maxAddress = -1;
             _clusterSize = clusterSize;
             _headerFilePath = headerFilePath;
             _freeAddresses = StructureFactory.Instance.GetAvlTree<long>();
@@ -39,7 +39,13 @@ namespace Structures.File
 
         public long AddBlock(Block<T> block)
         {
-            if (_freeAddresses.Count == 0)
+            if (_maxAddress == -1)
+            {
+                _maxAddress = 0;
+                _stream.WriteBlock(block, _maxAddress);
+                return _maxAddress;
+            }
+            else if (_freeAddresses.Count == 0)
             {
                 _maxAddress += _clusterSize;
                 _stream.WriteBlock(block, _maxAddress);
@@ -59,9 +65,15 @@ namespace Structures.File
         public void RemoveBlock(long address)
         {
             if (address == _maxAddress)
+            {
                 TrimFile();
+                if (_maxAddress == 0)
+                    _maxAddress = -1;
+            }
             else
+            {
                 _freeAddresses.Insert(address);
+            }
         }
 
         public void Dispose()

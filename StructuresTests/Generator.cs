@@ -5,10 +5,10 @@ namespace StructuresTests
 {
     public static class Generator
     {
-        public static TwoDimObject[] GenerateRandomData(int dataCount, bool intValues = true, int min = 0, int max = 1000)
+        public static List<TwoDimObject> GenerateRandomData(int dataCount, bool intValues = true, int min = 0, int max = 1000)
             => GenerateRandomData(dataCount, 0, intValues, min, max);
 
-        public static TwoDimObject[] GenerateRandomData(int dataCount, int seed, bool intValues = true, int min = 0, int max = 1000)
+        public static List<TwoDimObject> GenerateRandomData(int dataCount, int seed, bool intValues = true, int min = 0, int max = 1000)
         {
             Random randxy;
             Random randId;
@@ -23,7 +23,7 @@ namespace StructuresTests
                 randId = new Random();
             }
 
-            var data = new TwoDimObject[dataCount];
+            var data = new List<TwoDimObject>(dataCount);
             var usedIds = new HashSet<int>();
 
             for (int i = 0; i < dataCount; i++)
@@ -36,9 +36,9 @@ namespace StructuresTests
                 usedIds.Add(id);
 
                 if (intValues)
-                    data[i] = new TwoDimObject(id, randxy.Next(min, max), randxy.Next(min, max), $"Object {id}");
+                    data.Add(new TwoDimObject(id, randxy.Next(min, max), randxy.Next(min, max), $"Object {id}"));
                 else
-                    data[i] = new TwoDimObject(id, (randxy.NextDouble() + min) * max, (randxy.NextDouble() + min) * max, $"Object {id}");
+                    data.Add(new TwoDimObject(id, (randxy.NextDouble() + min) * max, (randxy.NextDouble() + min) * max, $"Object {id}"));
             }
 
             return data;

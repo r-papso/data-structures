@@ -11,7 +11,7 @@ namespace StructuresTests
 {
     public class HashingTests
     {
-        private static int _clusterSize = 128;
+        private static int _clusterSize = 256;
         private static string _extendibleHashingPath = "C:\\FRI\\ING\\1_rocnik\\AUS2\\ExtendibleHashing";
 
         private static string _header = Path.Combine(_extendibleHashingPath, "directory.csv");
@@ -33,7 +33,7 @@ namespace StructuresTests
         [InlineData(100_000)]
         public void DeletionTest(int dataCount)
         {
-            var data = Generator.GenerateRandomData(dataCount);
+            var data = Generator.GenerateRandomData(dataCount, 1);
 
             using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
             {
@@ -42,11 +42,18 @@ namespace StructuresTests
                     hashing.Insert(item);
                 }
 
+                int i = 0;
+
                 foreach (var item in data)
                 {
+                    if (i == 2000)
+                    {
+                        Console.WriteLine("");
+                    }
                     hashing.Delete(item);
                     var found = hashing.Find(item);
                     Assert.Equal(0, found.Count);
+                    i++;
                 }
             }
 
@@ -62,7 +69,7 @@ namespace StructuresTests
         [InlineData(100_000)]
         public void InsertionTest(int dataCount)
         {
-            var data = Generator.GenerateRandomData(dataCount);
+            var data = Generator.GenerateRandomData(dataCount, 1);
 
             using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
             {
@@ -106,7 +113,112 @@ namespace StructuresTests
                 Assert.Equal(dataCount, count);
             }
 
+            RemoveFiles();
+        }
+
+        [Fact]
+        public void RandomInsertDeleteTest()
+        {
+            var data = Generator.GenerateRandomData(1000, 1);
+            var inserted = data.Take(data.Count / 2).ToList();
+            var toInsert = data.Skip(data.Count / 2).ToList();
+            var randOperation = new Random(1);
+            var randIndex = new Random(1);
+
+            using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
+            {
+                foreach (var item in inserted)
+                {
+                    hashing.Insert(item);
+                }
+
+                while (true)
+                {
+                    if (inserted.Count == 0)
+                    {
+                        var item = toInsert[randIndex.Next(0, toInsert.Count)];
+                        if (item.PrimaryKey == 1291534873)
+                        {
+                            Console.WriteLine("");
+                        }
+                        hashing.Insert(item);
+                        toInsert.Remove(item);
+
+                        var found = hashing.Find(item);
+                        Assert.True(found.Count == 1 && found.First().Equals(item));
+                    }
+                    else if (toInsert.Count == 0)
+                    {
+                        var item = inserted[randIndex.Next(0, inserted.Count)];
+                        if (item.PrimaryKey == 1291534873)
+                        {
+                            Console.WriteLine("");
+                        }
+                        hashing.Delete(item);
+                        inserted.Remove(item);
+
+                        var found = hashing.Find(item);
+                        Assert.True(found.Count == 0);
+                    }
+                    else
+                    {
+                        if (randOperation.NextDouble() < 0.5)
+                        {
+                            var item = toInsert[randIndex.Next(0, toInsert.Count)];
+                            if (item.PrimaryKey == 1291534873)
+                            {
+                                Console.WriteLine("");
+                            }
+                            hashing.Insert(item);
+                            toInsert.Remove(item);
+
+                            var found = hashing.Find(item);
+                            Assert.True(found.Count == 1 && found.First().Equals(item));
+                        }
+                        else
+                        {
+                            var item = inserted[randIndex.Next(0, inserted.Count)];
+                            if (item.PrimaryKey == 1291534873)
+                            {
+                                Console.WriteLine("");
+                            }
+                            hashing.Delete(item);
+                            inserted.Remove(item);
+
+                            var found = hashing.Find(item);
+                            Assert.True(found.Count == 0);
+                        }
+                    }
+
+                    if (inserted.Count == 0 && toInsert.Count == 0)
+                        break;
+                }
+            }
+
             //RemoveFiles();
+        }
+
+        [Fact]
+        public void CloseOpenTest()
+        {
+            var data = Generator.GenerateRandomData(10000, 1);
+
+            using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
+            {
+                foreach (var item in data)
+                {
+                    hashing.Insert(item);
+                }
+            }
+
+            using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath))
+            {
+                foreach (var item in data)
+                {
+                    var found = hashing.Find(item);
+                    Assert.True(found.Count == 1 && found.First().Equals(item));
+                }
+            }
         }
 
         [Fact]

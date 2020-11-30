@@ -23,6 +23,7 @@ namespace Structures.File
             _stream.Seek(address, SeekOrigin.Begin);
             _stream.Read(bytes, 0, clusterSize);
             block.FromByteArray(bytes);
+            block.Address = address;
 
             return block;
         }
