@@ -1,8 +1,8 @@
 ﻿using SurveyApp.Helper;
 using SurveyApp.Model;
 using SurveyApp.Service;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using System;
+using System.Windows;
 using System.Windows.Input;
 
 namespace SurveyApp.ViewModel
@@ -10,7 +10,7 @@ namespace SurveyApp.ViewModel
     /// <summary>
     /// View model used by <see cref="View.LocationWindow"/>
     /// </summary>
-    public class LocationViewModel : INotifyPropertyChanged
+    public class LocationViewModel : ViewModelBase
     {
         private Location _updatingLocation;
         private Location _newLocation;
@@ -35,20 +35,16 @@ namespace SurveyApp.ViewModel
         public ICommand SubmitCommand { get; private set; }
 
         /// <summary>
-        /// Event invoked when <see cref="NewLocation"/> property changes
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        /// <summary>
         /// Default constructor
         /// </summary>
-        public LocationViewModel() { }
+        public LocationViewModel() : base()
+        { }
 
         /// <summary>
         /// Constructor used by <see cref="Microsoft.Extensions.DependencyInjection"/>
         /// </summary>
         /// <param name="locationManager">Instance of <see cref="LocationManager"/></param>
-        public LocationViewModel(LocationManager locationManager)
+        public LocationViewModel(LocationManager locationManager) : base()
         {
             _locationManager = locationManager;
 
@@ -74,28 +70,30 @@ namespace SurveyApp.ViewModel
             NewLocation = new Location();
         }
 
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
         private void Submit(object parameter)
         {
-            if (_updatingLocation != null)
+            try
             {
-                _locationManager.UpdateLocation(_updatingLocation, NewLocation);
-                Updating(NewLocation);
+                if (_updatingLocation != null)
+                {
+                    _locationManager.UpdateLocation(_updatingLocation, NewLocation);
+                    Updating(NewLocation);
+                }
+                else
+                {
+                    _locationManager.InsertLocation(NewLocation);
+                    New();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _locationManager.InsertLocation(NewLocation);
-                New();
+                MessageBox.Show(ex.Message, "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
             }
         }
 
         private void InitRelayCommands()
         {
-            SubmitCommand = new MeasurableRelayCommand(Submit);
+            SubmitCommand = new RelayCommand(StartMeasurement, Submit, StopMeasurement);
         }
     }
 }

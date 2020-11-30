@@ -8,7 +8,7 @@
         /// <summary>
         /// Default constructor
         /// </summary>
-        public DimensionRangeException() { }
+        public DimensionRangeException() : base() { }
 
         /// <summary>
         /// Constructor for throwing exception with custom message

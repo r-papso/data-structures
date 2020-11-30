@@ -1,52 +1,18 @@
-﻿using Structures.Hepler;
+﻿using Structures.Helper;
 using Structures.Interface;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Structures.Tree
 {
-    internal class KdTreeNode<T> : IEnumerable<KdTreeNode<T>> where T : IKdComparable
+    internal class KdTreeNode<T> : TreeNode<T> where T : IKdComparable
     {
-        public KdTreeNode(T data, int level) => (Data, Level) = (data, level);
-
-        public KdTreeNode(IEnumerable<T> data) => TreeFromData(data);
-
-        public bool IsLeaf => Right == null && Left == null;
-
         public int Level { get; set; }
 
-        public KdTreeNode<T> Left { get; set; }
+        public KdTreeNode(T data, int level) : base(data) => Level = level;
 
-        public KdTreeNode<T> Right { get; set; }
-
-        public KdTreeNode<T> Parent { get; set; }
-
-        public T Data { get; set; }
-
-        public void Delete()
-        {
-            if (Parent != null)
-            {
-                if (Parent.Left == this)
-                    Parent.Left = null;
-                else
-                    Parent.Right = null;
-            }
-
-            Parent = null;
-            Left = null;
-            Right = null;
-        }
-
-        public IEnumerator<KdTreeNode<T>> GetEnumerator() => new InOrderEnumerator(this);
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        public IEnumerable<KdTreeNode<T>> GetInOrderEnumerable() => new InOrderEnumerable(this);
-
-        public IEnumerable<KdTreeNode<T>> GetLevelOrderEnumerable() => new LevelOrderEnumerable(this);
+        public KdTreeNode(IEnumerable<T> data) : base() => TreeFromData(data);
 
         private void TreeFromData(IEnumerable<T> data)
         {
@@ -110,124 +76,6 @@ namespace Structures.Tree
                     stack.Push(new ConstructionNode(currNode.Level + 1, median + 1, currNode.Max, newNode, false));
                 if (median > currNode.Min)
                     stack.Push(new ConstructionNode(currNode.Level + 1, currNode.Min, median - 1, newNode, true));
-            }
-        }
-
-        private class InOrderEnumerable : IEnumerable<KdTreeNode<T>>
-        {
-            private readonly KdTreeNode<T> _root;
-
-            public InOrderEnumerable(KdTreeNode<T> root) => _root = root;
-
-            public IEnumerator<KdTreeNode<T>> GetEnumerator() => new InOrderEnumerator(_root);
-
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-        }
-
-        private class InOrderEnumerator : IEnumerator<KdTreeNode<T>>
-        {
-            private KdTreeNode<T> _root;
-            private Stack<KdTreeNode<T>> _stack;
-
-            public InOrderEnumerator(KdTreeNode<T> root)
-            {
-                _root = root;
-                _stack = new Stack<KdTreeNode<T>>();
-            }
-
-            public KdTreeNode<T> Current { get; private set; }
-
-            object IEnumerator.Current => Current;
-
-            //Not neccessary
-            public void Dispose() { }
-
-            public bool MoveNext()
-            {
-                if (Current == null)
-                    Current = _root;
-                else
-                    Current = Current.Right;
-
-                while (true)
-                {
-                    if (Current != null)
-                    {
-                        _stack.Push(Current);
-                        Current = Current.Left;
-                    }
-                    else
-                    {
-                        if (_stack.Count > 0)
-                        {
-                            Current = _stack.Pop();
-                            return true;
-                        }
-                        else
-                            return false;
-                    }
-                }
-            }
-
-            public void Reset()
-            {
-                _stack.Clear();
-                Current = null;
-            }
-        }
-
-        private class LevelOrderEnumerable : IEnumerable<KdTreeNode<T>>
-        {
-            private readonly KdTreeNode<T> _root;
-
-            public LevelOrderEnumerable(KdTreeNode<T> root) => _root = root;
-
-            public IEnumerator<KdTreeNode<T>> GetEnumerator() => new LevelOrderEnumerator(_root);
-
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-        }
-
-        private class LevelOrderEnumerator : IEnumerator<KdTreeNode<T>>
-        {
-            private readonly KdTreeNode<T> _root;
-            private readonly Queue<KdTreeNode<T>> _queue;
-
-            public LevelOrderEnumerator(KdTreeNode<T> root)
-            {
-                _root = root;
-                _queue = new Queue<KdTreeNode<T>>();
-                _queue.Enqueue(_root);
-            }
-
-            public KdTreeNode<T> Current { get; private set; }
-
-            object IEnumerator.Current => Current;
-
-            //Not neccessary
-            public void Dispose()
-            { }
-
-            public bool MoveNext()
-            {
-                if (_queue.Count > 0)
-                {
-                    Current = _queue.Dequeue();
-
-                    if (Current.Left != null)
-                        _queue.Enqueue(Current.Left);
-
-                    if (Current.Right != null)
-                        _queue.Enqueue(Current.Right);
-
-                    return true;
-                }
-                return false;
-            }
-
-            public void Reset()
-            {
-                _queue.Clear();
-                _queue.Enqueue(_root);
             }
         }
 

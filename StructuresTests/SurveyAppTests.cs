@@ -1,8 +1,6 @@
 ﻿using Structures;
-using Structures.Hepler;
+using Structures.Helper;
 using SurveyApp.Helper;
-using System;
-using System.Collections.Generic;
 using System.IO;
 using Xunit;
 
@@ -28,8 +26,8 @@ namespace StructuresTests
         {
             if (!_skip)
             {
-                var data = GenerateRandomData(nodeCount);
-                var tree = StructureFactory.Instance.GetBSPTree(data);
+                var data = Generator.GenerateRandomData(nodeCount, _integerValues, _minVal, _maxVal);
+                var tree = StructureFactory.Instance.GetKdTree(data);
                 var filePath = Path.Combine(BSPTreeTests.RESULTS_FOLDER, $"SavingTest_{nodeCount}.csv");
                 var adapter1 = new CollectionAdapter<TwoDimObject>(tree);
                 var adapter2 = new CollectionAdapter<TwoDimObject>();
@@ -42,28 +40,5 @@ namespace StructuresTests
         }
 
         #endregion
-
-        private List<TwoDimObject> GenerateRandomData(int dataCount) => GenerateRandomData(dataCount, 0);
-
-        private List<TwoDimObject> GenerateRandomData(int dataCount, int seed)
-        {
-            Random rand;
-            if (seed != 0)
-                rand = new Random(seed);
-            else
-                rand = new Random();
-
-            var data = new List<TwoDimObject>(dataCount);
-
-            for (int i = 0; i < dataCount; i++)
-            {
-                if (_integerValues)
-                    data.Add(new TwoDimObject(i, rand.Next(_minVal, _maxVal), rand.Next(_minVal, _maxVal)));
-                else
-                    data.Add(new TwoDimObject(i, (rand.NextDouble() + _minVal) * _maxVal, (rand.NextDouble() + _minVal) * _maxVal));
-            }
-
-            return data;
-        }
     }
 }

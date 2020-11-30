@@ -17,11 +17,17 @@ namespace SurveyApp.Model
     public class Location : IKdComparable, ISaveable
     {
         private static int _dimensionCount = 2;
+        private static int _idSequence = 0;
+
+        /// <summary>
+        /// Unique ID of location
+        /// </summary>
+        public int ID { get; set; }
 
         /// <summary>
         /// ID of location
         /// </summary>
-        public int ID { get; set; }
+        public int Number { get; set; }
 
         /// <summary>
         /// Location's type
@@ -46,7 +52,7 @@ namespace SurveyApp.Model
         /// <summary>
         /// Locations with same <see cref="Latitude"/> and <see cref="Longitude"/>
         /// </summary>
-        public ISet<Location> SituatedLocations { get; set; } = new HashSet<Location>();
+        public ICollection<Location> SituatedLocations { get; set; } = new LinkedList<Location>();
 
         /// <summary>
         /// Number of location's dimensions
@@ -56,7 +62,7 @@ namespace SurveyApp.Model
         /// <summary>
         /// Default constructor
         /// </summary>
-        public Location() { }
+        public Location() => ID = ++_idSequence;
 
         /// <summary>
         /// Constructor specifying all properties
@@ -66,9 +72,10 @@ namespace SurveyApp.Model
         /// <param name="description"></param>
         /// <param name="latitude"></param>
         /// <param name="longitude"></param>
-        public Location(int id, LocationType locationType, string description, double latitude, double longitude)
+        public Location(int number, LocationType locationType, string description, double latitude, double longitude)
         {
-            ID = id;
+            ID = ++_idSequence;
+            Number = number;
             LocationType = locationType;
             Description = description;
             Latitude = latitude;
@@ -83,12 +90,14 @@ namespace SurveyApp.Model
         {
             if (other != null)
             {
-                ID = other.ID;
+                Number = other.Number;
                 LocationType = other.LocationType;
                 Description = other.Description;
                 Latitude = other.Latitude;
                 Longitude = other.Longitude;
+                SituatedLocations = other.SituatedLocations;
             }
+            ID = ++_idSequence;
         }
 
         public IComparable GetKey(int dimension)
@@ -111,12 +120,12 @@ namespace SurveyApp.Model
             if (otherLoc == null)
                 return false;
 
-            return ID == otherLoc.ID && LocationType == otherLoc.LocationType && Latitude == otherLoc.Latitude && Longitude == otherLoc.Longitude;
+            return ID == otherLoc.ID && Number == otherLoc.Number && LocationType == otherLoc.LocationType && Latitude == otherLoc.Latitude && Longitude == otherLoc.Longitude;
         }
 
         public string ToCsv(string delimiter = ",")
         {
-            return $"{ID}{delimiter}{LocationType:D}{delimiter}{Description}{delimiter}{Latitude}{delimiter}{Longitude}";
+            return $"{ID}{delimiter}{Number}{delimiter}{LocationType:D}{delimiter}{Description}{delimiter}{Latitude}{delimiter}{Longitude}";
         }
 
         public void FromCsv(string csv, string delimiter = ",")
@@ -124,10 +133,11 @@ namespace SurveyApp.Model
             var props = csv.Split(new string[] { delimiter }, StringSplitOptions.None);
 
             ID = Int32.Parse(props[0]);
-            LocationType = (LocationType)Byte.Parse(props[1]);
-            Description = props[2];
-            Latitude = Double.Parse(props[3]);
-            Longitude = Double.Parse(props[4]);
+            Number = Int32.Parse(props[1]);
+            LocationType = (LocationType)Byte.Parse(props[2]);
+            Description = props[3];
+            Latitude = Double.Parse(props[4]);
+            Longitude = Double.Parse(props[5]);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Structures.Hepler;
+﻿using Structures.Helper;
 using Structures.Interface;
 using System;
 using System.Collections;
@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Structures.Tree
 {
-    internal class KdTree<T> : IBSPTree<T> where T : IKdComparable
+    internal class KdTree<T> : ITree<T> where T : IKdComparable
     {
         private KdTreeNode<T> _root;
         private KdComparer<T> _comparer = new KdComparer<T>();
@@ -36,14 +36,19 @@ namespace Structures.Tree
             }
         }
 
+        public int Count { get; private set; }
+
+        public T Min => throw new NotImplementedException("K-d tree does not support getting min and max value.");
+
+        public T Max => throw new NotImplementedException("K-d tree does not support getting min and max value.");
+
         public KdTree() { }
 
-        public KdTree(T data) => _root = new KdTreeNode<T>(data, 0);
-
-        public KdTree(IEnumerable<T> data) => _root = new KdTreeNode<T>(data);
-
-        //Only for testing purposes
-        public int GetDepth() => _root?.Max(x => x.Level + 1) ?? 0;
+        public KdTree(IEnumerable<T> data)
+        {
+            _root = new KdTreeNode<T>(data);
+            Count = data.Count();
+        }
 
         public ICollection<T> Find(T data) => Find(data, data);
 
@@ -62,7 +67,7 @@ namespace Structures.Tree
                 if (actualNode != null)
                 {
                     stack.Push(actualNode);
-                    actualNode = CompareKeys(lowerBound, actualNode.Data, actualNode.Level) <= 0 ? actualNode.Left : null;
+                    actualNode = (KdTreeNode<T>)(CompareKeys(lowerBound, actualNode.Data, actualNode.Level) <= 0 ? actualNode.Left : null);
                 }
                 else
                 {
@@ -72,7 +77,7 @@ namespace Structures.Tree
                     {
                         result.AddLast(actualNode.Data);
                     }
-                    actualNode = CompareKeys(upperBound, actualNode.Data, actualNode.Level) > 0 ? actualNode.Right : null;
+                    actualNode = (KdTreeNode<T>)(CompareKeys(upperBound, actualNode.Data, actualNode.Level) > 0 ? actualNode.Right : null);
                 }
             }
 
@@ -84,6 +89,7 @@ namespace Structures.Tree
             if (_root == null)
             {
                 _root = new KdTreeNode<T>(data, 0);
+                Count++;
                 return;
             }
 
@@ -98,6 +104,8 @@ namespace Structures.Tree
                 nearest.Left = newNode;
             else
                 nearest.Right = newNode;
+
+            Count++;
         }
 
         public void Update(T oldData, T newData)
@@ -137,6 +145,8 @@ namespace Structures.Tree
                 throw new ArgumentException($"Data passed as argument {nameof(data)} not found");
 
             Delete(nodeToDelete);
+
+            Count--;
         }
 
         public IEnumerator<T> GetEnumerator()
@@ -166,13 +176,13 @@ namespace Structures.Tree
                 {
                     if (actualNode.Left == null)
                         break;
-                    actualNode = actualNode.Left;
+                    actualNode = (KdTreeNode<T>)actualNode.Left;
                 }
                 else
                 {
                     if (actualNode.Right == null)
                         break;
-                    actualNode = actualNode.Right;
+                    actualNode = (KdTreeNode<T>)actualNode.Right;
                 }
             }
 
@@ -234,7 +244,7 @@ namespace Structures.Tree
 
             if (node.Left != null)
             {
-                foreach (var child in node.Left)
+                foreach (KdTreeNode<T> child in node.Left)
                 {
                     if (result == null)
                         result = child;
@@ -251,7 +261,7 @@ namespace Structures.Tree
             }
             else if (node.Right != null)
             {
-                foreach (var child in node.Right)
+                foreach (KdTreeNode<T> child in node.Right)
                 {
                     if (result == null)
                         result = child;
@@ -275,7 +285,7 @@ namespace Structures.Tree
         private int CompareKeys(T left, T right, int level)
         {
             var dimension = level % left.DimensionCount;
-            return left.GetKey(dimension).CompareTo(right.GetKey(dimension));
+            return _comparer.Compare(left, right, dimension);
         }
     }
 }
