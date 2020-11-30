@@ -11,6 +11,8 @@ namespace StructuresTests
 {
     public class HashingTests
     {
+        private static bool _skipTests = true;
+
         private static int _clusterSize = 256;
         private static string _extendibleHashingPath = "C:\\FRI\\ING\\1_rocnik\\AUS2\\ExtendibleHashing";
 
@@ -33,27 +35,30 @@ namespace StructuresTests
         [InlineData(100_000)]
         public void DeletionTest(int dataCount)
         {
-            var data = Generator.GenerateRandomData(dataCount, 1);
-
-            using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
+            if (!_skipTests)
             {
-                foreach (var item in data)
+                var data = Generator.GenerateRandomData(dataCount, 1);
+
+                using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
                 {
-                    hashing.Insert(item);
+                    foreach (var item in data)
+                    {
+                        hashing.Insert(item);
+                    }
+
+                    int i = 0;
+
+                    foreach (var item in data)
+                    {
+                        hashing.Delete(item);
+                        var found = hashing.Find(item);
+                        Assert.Equal(0, found.Count);
+                        i++;
+                    }
                 }
 
-                int i = 0;
-
-                foreach (var item in data)
-                {
-                    hashing.Delete(item);
-                    var found = hashing.Find(item);
-                    Assert.Equal(0, found.Count);
-                    i++;
-                }
+                //RemoveFiles();
             }
-
-            //RemoveFiles();
         }
 
         [Theory]
@@ -65,23 +70,26 @@ namespace StructuresTests
         [InlineData(100_000)]
         public void InsertionTest(int dataCount)
         {
-            var data = Generator.GenerateRandomData(dataCount, 1);
-
-            using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
+            if (!_skipTests)
             {
-                foreach (var item in data)
+                var data = Generator.GenerateRandomData(dataCount, 1);
+
+                using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
                 {
-                    hashing.Insert(item);
+                    foreach (var item in data)
+                    {
+                        hashing.Insert(item);
+                    }
+
+                    foreach (var item in data)
+                    {
+                        var found = hashing.Find(item);
+                        Assert.True(found.Count == 1 && found.First().Equals(item));
+                    }
                 }
 
-                foreach (var item in data)
-                {
-                    var found = hashing.Find(item);
-                    Assert.True(found.Count == 1 && found.First().Equals(item));
-                }
+                RemoveFiles();
             }
-
-            RemoveFiles();
         }
 
         [Theory]
@@ -93,64 +101,49 @@ namespace StructuresTests
         [InlineData(100_000)]
         public void IterationTest(int dataCount)
         {
-            var data = Generator.GenerateRandomData(dataCount, 1);
-
-            using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
+            if (!_skipTests)
             {
-                foreach (var item in data)
+                var data = Generator.GenerateRandomData(dataCount, 1);
+
+                using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
                 {
-                    hashing.Insert(item);
+                    foreach (var item in data)
+                    {
+                        hashing.Insert(item);
+                    }
+
+                    int count = 0;
+                    foreach (var item in hashing)
+                        count++;
+
+                    Assert.Equal(dataCount, count);
                 }
 
-                int count = 0;
-                foreach (var item in hashing)
-                    count++;
-
-                Assert.Equal(dataCount, count);
+                RemoveFiles();
             }
-
-            RemoveFiles();
         }
 
         [Fact]
         public void RandomInsertDeleteTest()
         {
-            var data = Generator.GenerateRandomData(1000, 1);
-            var inserted = data.Take(data.Count / 2).ToList();
-            var toInsert = data.Skip(data.Count / 2).ToList();
-            var randOperation = new Random(1);
-            var randIndex = new Random(1);
-
-            using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
+            if (!_skipTests)
             {
-                foreach (var item in inserted)
-                {
-                    hashing.Insert(item);
-                }
+                var data = Generator.GenerateRandomData(1000, 1);
+                var inserted = data.Take(data.Count / 2).ToList();
+                var toInsert = data.Skip(data.Count / 2).ToList();
+                var randOperation = new Random(1);
+                var randIndex = new Random(1);
 
-                while (true)
+                using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
                 {
-                    if (inserted.Count == 0)
+                    foreach (var item in inserted)
                     {
-                        var item = toInsert[randIndex.Next(0, toInsert.Count)];
                         hashing.Insert(item);
-                        toInsert.Remove(item);
-
-                        var found = hashing.Find(item);
-                        Assert.True(found.Count == 1 && found.First().Equals(item));
                     }
-                    else if (toInsert.Count == 0)
-                    {
-                        var item = inserted[randIndex.Next(0, inserted.Count)];
-                        hashing.Delete(item);
-                        inserted.Remove(item);
 
-                        var found = hashing.Find(item);
-                        Assert.True(found.Count == 0);
-                    }
-                    else
+                    while (true)
                     {
-                        if (randOperation.NextDouble() < 0.5)
+                        if (inserted.Count == 0)
                         {
                             var item = toInsert[randIndex.Next(0, toInsert.Count)];
                             hashing.Insert(item);
@@ -159,7 +152,7 @@ namespace StructuresTests
                             var found = hashing.Find(item);
                             Assert.True(found.Count == 1 && found.First().Equals(item));
                         }
-                        else
+                        else if (toInsert.Count == 0)
                         {
                             var item = inserted[randIndex.Next(0, inserted.Count)];
                             hashing.Delete(item);
@@ -168,35 +161,59 @@ namespace StructuresTests
                             var found = hashing.Find(item);
                             Assert.True(found.Count == 0);
                         }
+                        else
+                        {
+                            if (randOperation.NextDouble() < 0.5)
+                            {
+                                var item = toInsert[randIndex.Next(0, toInsert.Count)];
+                                hashing.Insert(item);
+                                toInsert.Remove(item);
+
+                                var found = hashing.Find(item);
+                                Assert.True(found.Count == 1 && found.First().Equals(item));
+                            }
+                            else
+                            {
+                                var item = inserted[randIndex.Next(0, inserted.Count)];
+                                hashing.Delete(item);
+                                inserted.Remove(item);
+
+                                var found = hashing.Find(item);
+                                Assert.True(found.Count == 0);
+                            }
+                        }
+
+                        if (inserted.Count == 0 && toInsert.Count == 0)
+                            break;
                     }
-
-                    if (inserted.Count == 0 && toInsert.Count == 0)
-                        break;
                 }
-            }
 
-            //RemoveFiles();
+                //RemoveFiles();
+            }
         }
 
         [Fact]
         public void CloseOpenTest()
         {
-            var data = Generator.GenerateRandomData(10000, 1);
-
-            using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
+            if (!_skipTests)
             {
-                foreach (var item in data)
+                var data = Generator.GenerateRandomData(10000, 1);
+
+                using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
                 {
-                    hashing.Insert(item);
+                    foreach (var item in data)
+                    {
+                        hashing.Insert(item);
+                    }
                 }
-            }
 
-            using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath))
-            {
-                foreach (var item in data)
+                using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath))
                 {
-                    var found = hashing.Find(item);
-                    Assert.True(found.Count == 1 && found.First().Equals(item));
+                    foreach (var item in data)
+                    {
+                        var found = hashing.Find(item);
+                        Assert.True(found.Count == 1 && found.First().Equals(item));
+                    }
                 }
             }
         }
@@ -204,25 +221,28 @@ namespace StructuresTests
         [Fact]
         public void RightShiftTest()
         {
-            var rand = new Random(2);
-            int randInt = rand.Next(int.MinValue, int.MaxValue);
-            _output.WriteLine($"RandInt: {randInt}");
-
-            var bitsUsed = 8;
-            var bitArray = new BitArray(new int[] { randInt });
-            var reversed = new BitArray(sizeof(int) * 8, false);
-            _output.WriteLine($"BitArray: {BitArrayToString(bitArray)}");
-            _output.WriteLine($"Reversed before: {BitArrayToString(reversed)}");
-
-            int i = bitArray.Length - 1;
-            int j = bitsUsed - 1;
-            while (j >= 0)
+            if (!_skipTests)
             {
-                reversed.Set(j--, bitArray.Get(i--));
-            }
+                var rand = new Random(2);
+                int randInt = rand.Next(int.MinValue, int.MaxValue);
+                _output.WriteLine($"RandInt: {randInt}");
 
-            _output.WriteLine($"Reversed after: {BitArrayToString(reversed)}");
-            _output.WriteLine($"Reversed int: {reversed.ToInt()}");
+                var bitsUsed = 8;
+                var bitArray = new BitArray(new int[] { randInt });
+                var reversed = new BitArray(sizeof(int) * 8, false);
+                _output.WriteLine($"BitArray: {BitArrayToString(bitArray)}");
+                _output.WriteLine($"Reversed before: {BitArrayToString(reversed)}");
+
+                int i = bitArray.Length - 1;
+                int j = bitsUsed - 1;
+                while (j >= 0)
+                {
+                    reversed.Set(j--, bitArray.Get(i--));
+                }
+
+                _output.WriteLine($"Reversed after: {BitArrayToString(reversed)}");
+                _output.WriteLine($"Reversed int: {reversed.ToInt()}");
+            }
         }
 
         private string BitArrayToString(BitArray bitArray)
