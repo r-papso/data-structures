@@ -22,7 +22,7 @@ namespace Structures.File
         {
             get
             {
-                if (_maxAddress == -1)
+                if (_maxAddress < -1)
                     yield break;
 
                 long address = 0;
@@ -56,7 +56,7 @@ namespace Structures.File
 
         public long AddBlock(Block<T> block)
         {
-            if (_maxAddress == -1)
+            if (_maxAddress < 0)
             {
                 _maxAddress = 0;
                 _stream.WriteBlock(block, _maxAddress);
@@ -82,15 +82,9 @@ namespace Structures.File
         public void RemoveBlock(long address)
         {
             if (address == _maxAddress)
-            {
                 TrimFile();
-                if (_maxAddress == 0)
-                    _maxAddress = -1;
-            }
             else
-            {
                 _freeAddresses.Insert(address);
-            }
         }
 
         public void Dispose()
