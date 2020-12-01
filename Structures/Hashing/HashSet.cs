@@ -7,8 +7,8 @@ namespace Structures.Hashing
 {
     internal class HashSet<T> : IStructure<T>
     {
-        private static double _expandFactor = 0.75;
-        private static int _defaultCapacity = 1024;
+        private static readonly double _expandFactor = 0.75;
+        private static readonly int _defaultCapacity = 128;
 
         private int _count;
         private LinkedList<T>[] _hashTable;

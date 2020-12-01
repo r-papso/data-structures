@@ -71,8 +71,21 @@ namespace Structures.Helper
             return -1;
         }
 
+        /// <summary>
+        /// Shuffles the <paramref name="source"/>
+        /// </summary>
+        /// <typeparam name="T">Type of elements in <paramref name="source"/></typeparam>
+        /// <param name="source"><see cref="IEnumerable{T}"/> to be shuffled</param>
+        /// <returns></returns>
         public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source) => Shuffle(source, new Random());
 
+        /// <summary>
+        /// Shuffles the <paramref name="source"/> with specific random number generator
+        /// </summary>
+        /// <typeparam name="T">Type of elements in <paramref name="source"/></typeparam>
+        /// <param name="source"><see cref="IEnumerable{T}"/> to be shuffled</param>
+        /// <param name="rand">Random number generator used within shuffling</param>
+        /// <returns></returns>
         public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source, Random rand)
         {
             var list = source.ToList();
@@ -88,6 +101,11 @@ namespace Structures.Helper
             return target;
         }
 
+        /// <summary>
+        /// Converts <paramref name="bitArray"/> to integer
+        /// </summary>
+        /// <param name="bitArray"><see cref="BitArray"/> to be converted</param>
+        /// <returns>Integer representation of <paramref name="bitArray"/></returns>
         public static int ToInt(this BitArray bitArray)
         {
             if (bitArray.Length > 32)
@@ -98,6 +116,13 @@ namespace Structures.Helper
             return array[0];
         }
 
+        /// <summary>
+        /// Replaces specific <paramref name="subset"/> in <paramref name="source"/> array
+        /// </summary>
+        /// <typeparam name="T">Type of elements in array</typeparam>
+        /// <param name="source">Source array, its length must be greater than or equal to subsets' array length</param>
+        /// <param name="subset">Replacing subset</param>
+        /// <param name="offset">Start index at <paramref name="source"/> array where replacing will begin</param>
         public static void ReplaceRange<T>(this T[] source, T[] subset, int offset)
         {
             if (source.Length < subset.Length)
@@ -110,6 +135,11 @@ namespace Structures.Helper
                 source[i + offset] = subset[i];
         }
 
+        /// <summary>
+        /// Converts string to byte array
+        /// </summary>
+        /// <param name="str">String to be converted</param>
+        /// <returns>Byte array representation of string</returns>
         public static byte[] GetBytes(this string str)
         {
             var result = new byte[sizeof(char) * str.Length];
@@ -120,6 +150,26 @@ namespace Structures.Helper
                 var bytes = BitConverter.GetBytes(str[i]);
                 result.ReplaceRange(bytes, offset);
                 offset += bytes.Length;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Converts byte array to string
+        /// </summary>
+        /// <param name="arr">Byte array to be converted</param>
+        /// <param name="offset">Start index in array where conversion will begin</param>
+        /// <param name="length">Total bytes to be converted</param>
+        /// <returns></returns>
+        public static string ToString(this byte[] arr, int offset, int length)
+        {
+            var result = string.Empty;
+
+            for (int i = 0; i < length; i++)
+            {
+                result += BitConverter.ToChar(arr, offset);
+                offset += sizeof(char);
             }
 
             return result;

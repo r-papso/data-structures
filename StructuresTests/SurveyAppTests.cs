@@ -1,10 +1,4 @@
-﻿using Structures;
-using Structures.Helper;
-using SurveyApp.Helper;
-using System.IO;
-using Xunit;
-
-namespace StructuresTests
+﻿namespace StructuresTests
 {
     public class SurveyAppTests
     {
@@ -15,7 +9,7 @@ namespace StructuresTests
 
         #region Saving/Loading
 
-        [Theory]
+        /*[Theory]
         [InlineData(1)]
         [InlineData(10)]
         [InlineData(100)]
@@ -29,15 +23,15 @@ namespace StructuresTests
                 var data = Generator.GenerateRandomData(nodeCount, _integerValues, _minVal, _maxVal);
                 var tree = StructureFactory.Instance.GetKdTree(data);
                 var filePath = Path.Combine(BSPTreeTests.RESULTS_FOLDER, $"SavingTest_{nodeCount}.csv");
-                var adapter1 = new CollectionAdapter<TwoDimObject>(tree);
-                var adapter2 = new CollectionAdapter<TwoDimObject>();
+                var adapter1 = new TreeAdapter<TwoDimObject>(tree);
+                var adapter2 = new TreeAdapter<TwoDimObject>();
 
                 adapter1.Save(filePath);
                 adapter2.Load(filePath);
 
                 Assert.True(adapter1.Tree.ComparePairWise(adapter2.Tree, (x, y) => x.Identical(y)));
             }
-        }
+        }*/
 
         #endregion
     }

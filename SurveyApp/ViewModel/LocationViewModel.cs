@@ -12,27 +12,22 @@ namespace SurveyApp.ViewModel
     /// </summary>
     public class LocationViewModel : ViewModelBase
     {
-        private Location _updatingLocation;
-        private Location _newLocation;
         private readonly LocationManager _locationManager;
 
         /// <summary>
         /// Represents new location to be created
         /// </summary>
-        public Location NewLocation
-        {
-            get => _newLocation;
-            private set
-            {
-                _newLocation = value;
-                OnPropertyChanged();
-            }
-        }
+        public Location Location { get; private set; } = new Location();
 
         /// <summary>
         /// Provides binding <see cref="Submit(object)"/> method execution
         /// </summary>
-        public ICommand SubmitCommand { get; private set; }
+        public ICommand AddCommand { get; private set; }
+
+        /// <summary>
+        /// Provides binding <see cref="Submit(object)"/> method execution
+        /// </summary>
+        public ICommand UpdateCommand { get; private set; }
 
         /// <summary>
         /// Default constructor
@@ -51,39 +46,23 @@ namespace SurveyApp.ViewModel
             InitRelayCommands();
         }
 
-        /// <summary>
-        /// Prepares its internal state for updating <paramref name="locationToUpdate"/>
-        /// </summary>
-        /// <param name="locationToUpdate">Location to be updated</param>
-        public void Updating(Location locationToUpdate)
-        {
-            _updatingLocation = locationToUpdate;
-            NewLocation = new Location(_updatingLocation);
-        }
-
-        /// <summary>
-        /// Prepares its interal state for creating new location
-        /// </summary>
-        public void New()
-        {
-            _updatingLocation = null;
-            NewLocation = new Location();
-        }
-
-        private void Submit(object parameter)
+        private void Add(object parameter)
         {
             try
             {
-                if (_updatingLocation != null)
-                {
-                    _locationManager.UpdateLocation(_updatingLocation, NewLocation);
-                    Updating(NewLocation);
-                }
-                else
-                {
-                    _locationManager.InsertLocation(NewLocation);
-                    New();
-                }
+                _locationManager.InsertLocation(Location);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            }
+        }
+
+        private void Update(object parameter)
+        {
+            try
+            {
+                _locationManager.UpdateLocation(Location, Location);
             }
             catch (Exception ex)
             {
@@ -93,7 +72,8 @@ namespace SurveyApp.ViewModel
 
         private void InitRelayCommands()
         {
-            SubmitCommand = new RelayCommand(StartMeasurement, Submit, StopMeasurement);
+            AddCommand = new RelayCommand(StartMeasurement, Add, StopMeasurement);
+            UpdateCommand = new RelayCommand(StartMeasurement, Update, StopMeasurement);
         }
     }
 }

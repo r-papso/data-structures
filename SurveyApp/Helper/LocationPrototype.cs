@@ -1,11 +1,9 @@
-﻿using SurveyApp.Model;
-
-namespace SurveyApp.Helper
+﻿namespace SurveyApp.Helper
 {
     /// <summary>
     /// Used to generate locations according specific criteria
     /// </summary>
-    public static class LocationPrototype
+    /*public static class LocationPrototype
     {
         private static Location _lowerBound = new Location();
         private static Location _upperBound = new Location();
@@ -25,5 +23,5 @@ namespace SurveyApp.Helper
 
             return (_lowerBound, _upperBound);
         }
-    }
+    }*/
 }

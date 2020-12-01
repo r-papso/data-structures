@@ -27,6 +27,7 @@ namespace SurveyApp
             services.AddSingleton<LocationManager>();
             services.AddSingleton<GenerateViewModel>();
             services.AddSingleton<LocationViewModel>();
+            services.AddSingleton<DatabaseViewModel>();
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<MainWindow>();
         }

@@ -7,15 +7,15 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 
-namespace SurveyApp.Helper
+namespace SurveyApp.Adapter
 {
     /// <summary>
     /// Adapter used to add <see cref="INotifyCollectionChanged"/> and <see cref="ISaveable"/> behavior to <see cref="ITree{T}"/>
     /// </summary>
     /// <typeparam name="T">Type of elements in <see cref="ITree{T}"/></typeparam>
-    public class CollectionAdapter<T> : INotifyCollectionChanged, IEnumerable<T> where T : IKdComparable, ISaveable, new()
+    public class TreeAdapter<T> : INotifyCollectionChanged, IEnumerable<T> where T : IKdComparable, ISaveable, new()
     {
-        private static string _csvDelimiter = ";";
+        private static readonly string _csvDelimiter = ";";
 
         private T _lastUpper;
         private T _lastLower;
@@ -38,13 +38,13 @@ namespace SurveyApp.Helper
         /// <summary>
         /// Default constructor
         /// </summary>
-        public CollectionAdapter() => Tree = StructureFactory.Instance.GetKdTree<T>();
+        public TreeAdapter() => Tree = StructureFactory.Instance.GetKdTree<T>();
 
         /// <summary>
-        /// Constructs <see cref="CollectionAdapter{T}"/> with specified <see cref="ITree{T}"/>
+        /// Constructs <see cref="TreeAdapter{T}"/> with specified <see cref="ITree{T}"/>
         /// </summary>
         /// <param name="tree"><see cref="ITree{T}"/></param>
-        public CollectionAdapter(ITree<T> tree) => Tree = tree;
+        public TreeAdapter(ITree<T> tree) => Tree = tree;
 
         /// <summary>
         /// Gets all occurences of <paramref name="data"/> returned by <see cref="ITree{T}.Find(T)"/>

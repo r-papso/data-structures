@@ -1,13 +1,11 @@
 ﻿using Structures.Exception;
 using Structures.Helper;
 using Structures.Interface;
-using SurveyApp.Interface;
 using System;
-using System.Collections;
 
 namespace StructuresTests
 {
-    public class TwoDimObject : IKdComparable, ISaveable, ISerializable, IComparable
+    public class TwoDimObject : IKdComparable, ISerializable, IComparable
     {
         private static int _dimCount = 2;
         private static int _maxDescLength = 20;
@@ -157,7 +155,7 @@ namespace StructuresTests
 
         public override int GetHashCode()
         {
-            var bitArray = new BitArray(new int[] { PrimaryKey });
+            /*var bitArray = new BitArray(new int[] { PrimaryKey });
             var hash = new BitArray(sizeof(int) * 8, false);
             var bitsUsed = 3;
             var i = bitArray.Length - 1;
@@ -166,8 +164,8 @@ namespace StructuresTests
             while (j >= 0)
                 hash.Set(j--, bitArray.Get(i--));
 
-            return hash.ToInt();
-            //return PrimaryKey;
+            return hash.ToInt();*/
+            return PrimaryKey;
         }
     }
 }

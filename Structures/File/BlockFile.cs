@@ -37,7 +37,7 @@ namespace Structures.File
         public BlockFile(string dataFilePath, string headerFilePath)
         {
             _headerFilePath = headerFilePath;
-            _stream = new BlockStream(dataFilePath);
+            _stream = new BlockStream(dataFilePath, FileMode.Open);
             Restore(headerFilePath);
         }
 
@@ -47,7 +47,7 @@ namespace Structures.File
             _clusterSize = clusterSize;
             _headerFilePath = headerFilePath;
             _freeAddresses = StructureFactory.Instance.GetAvlTree<long>();
-            _stream = new BlockStream(dataFilePath);
+            _stream = new BlockStream(dataFilePath, FileMode.Create);
         }
 
         ~BlockFile() => Release();

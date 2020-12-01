@@ -9,10 +9,9 @@ namespace Structures.File
 
         public string StreamPath => _stream.Name;
 
-        public BlockStream(string path)
+        public BlockStream(string path, FileMode fileMode)
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(path));
-            _stream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+            _stream = new FileStream(path, fileMode, FileAccess.ReadWrite, FileShare.None);
         }
 
         public Block<T> ReadBlock<T>(long address, int clusterSize) where T : ISerializable, new()

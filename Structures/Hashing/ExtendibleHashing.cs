@@ -45,6 +45,9 @@ namespace Structures.Hashing
 
         public ExtendibleHashing(string folder)
         {
+            if (!CheckPaths(folder))
+                throw new ArgumentException("Folder does not contain necessary files");
+
             _dataFile = new BlockFile<T>(Path.Combine(folder, StaticFields.DataFileName), Path.Combine(folder, StaticFields.DataHeaderName));
             _overflowFile = new BlockFile<T>(Path.Combine(folder, StaticFields.OverflowFileName), Path.Combine(folder, StaticFields.OverflowHeaderName));
 
@@ -333,11 +336,21 @@ namespace Structures.Hashing
 
         private void Release()
         {
-            var path = Path.Combine(Path.GetDirectoryName(_dataFile.FilePath), StaticFields.DirectoryFileName);
-            System.IO.File.WriteAllText(path, ToCsv());
+            if (_dataFile != null && _overflowFile != null)
+            {
+                var path = Path.Combine(Path.GetDirectoryName(_dataFile.FilePath), StaticFields.DirectoryFileName);
+                System.IO.File.WriteAllText(path, ToCsv());
 
-            _dataFile.Dispose();
-            _overflowFile.Dispose();
+                _dataFile.Dispose();
+                _overflowFile.Dispose();
+            }
+        }
+
+        private bool CheckPaths(string folder)
+        {
+            return System.IO.File.Exists(Path.Combine(folder, StaticFields.DataFileName)) && System.IO.File.Exists(Path.Combine(folder, StaticFields.DataHeaderName)) &&
+                   System.IO.File.Exists(Path.Combine(folder, StaticFields.OverflowFileName)) && System.IO.File.Exists(Path.Combine(folder, StaticFields.OverflowHeaderName)) &&
+                   System.IO.File.Exists(Path.Combine(folder, StaticFields.DirectoryFileName));
         }
 
         private int GetIndex(int hashCode, int bitsUsed)
@@ -687,16 +700,13 @@ namespace Structures.Hashing
 
             var idx = 0;
 
-            while (true)
+            while (idx < _directory.Length)
             {
                 if (_directory[idx].Depth == Depth)
                     return false;
 
                 (_, int end) = GetBlockBounds(idx);
                 idx = end + 1;
-
-                if (idx > _directory.Length - 1)
-                    break;
             }
 
             return true;

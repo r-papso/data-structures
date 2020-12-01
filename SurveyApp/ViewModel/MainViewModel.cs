@@ -1,8 +1,11 @@
-﻿using SurveyApp.Helper;
+﻿using SurveyApp.Adapter;
+using SurveyApp.Helper;
 using SurveyApp.Model;
 using SurveyApp.Service;
 using SurveyApp.View;
-using System.Windows.Forms;
+using System;
+using System.ComponentModel;
+using System.Windows;
 using System.Windows.Input;
 
 namespace SurveyApp.ViewModel
@@ -16,31 +19,22 @@ namespace SurveyApp.ViewModel
         private readonly WindowService _windowService;
         private readonly GenerateViewModel _generateViewModel;
         private readonly LocationViewModel _locationViewModel;
+        private readonly DatabaseViewModel _databaseViewModel;
 
         /// <summary>
         /// Criteria of locations to be searched
         /// </summary>
-        public SearchCriteria SearchCriteria { get; } = new SearchCriteria();
-
-        /// <summary>
-        /// Selected location
-        /// </summary>
-        public Location SelectedLocation { get; set; }
+        public int SelectedId { get; set; }
 
         /// <summary>
         /// Collection of registered properties
         /// </summary>
-        public CollectionAdapter<Location> Properties { get; }
-
-        /// <summary>
-        /// Collection of registered sites
-        /// </summary>
-        public CollectionAdapter<Location> Sites { get; }
+        public FileStructureAdapter<Location> Locations { get; }
 
         /// <summary>
         /// <see cref="Helper.Timer"/> instance
         /// </summary>
-        public Helper.Timer Timer => Helper.Timer.Instance;
+        public Timer Timer => Timer.Instance;
 
         /// <summary>
         /// Provides binding for <see cref="Search(object)"/> method execution
@@ -48,19 +42,9 @@ namespace SurveyApp.ViewModel
         public ICommand SearchCommand { get; private set; }
 
         /// <summary>
-        /// Provides binding for <see cref="Reset(object)"/> method execution
+        /// Provides binding for <see cref="Manage(object)"/> method execution
         /// </summary>
-        public ICommand ResetCommand { get; private set; }
-
-        /// <summary>
-        /// Provides binding for <see cref="New(object)"/> method execution
-        /// </summary>
-        public ICommand NewCommand { get; private set; }
-
-        /// <summary>
-        /// Provides binding for <see cref="Update(object)"/> method execution
-        /// </summary>
-        public ICommand UpdateCommand { get; private set; }
+        public ICommand ManageCommand { get; private set; }
 
         /// <summary>
         /// Provides binding for <see cref="Delete(object)"/> method execution
@@ -73,14 +57,14 @@ namespace SurveyApp.ViewModel
         public ICommand GenerateCommand { get; private set; }
 
         /// <summary>
-        /// Provides binding for <see cref="Load(object)"/> method execution
+        /// Provides binding for <see cref="NewDatabase(object)"/> method execution
         /// </summary>
-        public ICommand LoadCommand { get; private set; }
+        public ICommand NewDatabaseCommand { get; private set; }
 
         /// <summary>
-        /// Provides binding for <see cref="Save(object)"/> method execution
+        /// Provides binding for <see cref="LoadDatabase(object)"/> method execution
         /// </summary>
-        public ICommand SaveCommand { get; private set; }
+        public ICommand LoadDatabaseCommand { get; private set; }
 
         /// <summary>
         /// Default constructor
@@ -95,81 +79,78 @@ namespace SurveyApp.ViewModel
         /// <param name="windowService"><see cref="WindowService"/> instance</param>
         /// <param name="generateViewModel"><see cref="GenerateViewModel"/> instance</param>
         /// <param name="locationViewModel"><see cref="LocationManager"/> instance</param>
-        public MainViewModel(LocationManager locationManager, WindowService windowService, GenerateViewModel generateViewModel, LocationViewModel locationViewModel) : base()
+        public MainViewModel(LocationManager locationManager, WindowService windowService, GenerateViewModel generateViewModel,
+                             LocationViewModel locationViewModel, DatabaseViewModel databaseViewModel) : base()
         {
             _locationManager = locationManager;
             _windowService = windowService;
             _generateViewModel = generateViewModel;
             _locationViewModel = locationViewModel;
+            _databaseViewModel = databaseViewModel;
 
-            Properties = _locationManager.Properties;
-            Sites = _locationManager.Sites;
+            Locations = _locationManager.Locations;
 
             InitRelayCommands();
         }
 
-        private void Search(object parameter) => _locationManager.FindLocations(SearchCriteria);
+        public void OnClosing(object sender, CancelEventArgs e) => _locationManager.Release();
 
-        private void Reset(object parameter)
+        private bool CanSearch(object parameter) => Locations.PrimaryFile != null;
+
+        private void Search(object parameter)
         {
-            SearchCriteria.MinLatitude = 0;
-            SearchCriteria.MaxLatitude = 0;
-            SearchCriteria.MinLongitude = 0;
-            SearchCriteria.MaxLongitude = 0;
-
-            _locationManager.Reset();
+            try
+            {
+                _locationManager.FindLocations(SelectedId);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            }
         }
 
-        private void New(object parameter)
+        private bool CanManage(object parameter) => Locations.PrimaryFile != null;
+
+        private void Manage(object parameter) => _windowService.ShowDialog<LocationWindow>(_locationViewModel);
+
+        private bool CanDelete(object parameter) => Locations.PrimaryFile != null;
+
+        private void Delete(object parameter)
         {
-            _locationViewModel.New();
-            _windowService.ShowDialog<LocationWindow>(_locationViewModel);
+            try
+            {
+                _locationManager.DeleteLocation(SelectedId);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            }
         }
 
-        private bool CanUpdate(object parameter) => SelectedLocation != null;
-
-        private void Update(object parameter)
-        {
-            _locationViewModel.Updating(SelectedLocation);
-            _windowService.ShowDialog<LocationWindow>(_locationViewModel);
-        }
-
-        private bool CanDelete(object parameter) => SelectedLocation != null;
-
-        private void Delete(object parameter) => _locationManager.DeleteLocation(SelectedLocation);
+        private bool CanGenerate(object parameter) => Locations.PrimaryFile != null;
 
         private void Generate(object parameter) => _windowService.ShowDialog<GenerateWindow>(_generateViewModel);
 
-        private void Load(object parameter)
+        private void NewDatabase(object parameter)
         {
-            var folderDialog = new FolderBrowserDialog();
-
-            if (folderDialog.ShowDialog() == DialogResult.OK)
-            {
-                _locationManager.LoadLocations(folderDialog.SelectedPath);
-            }
+            _databaseViewModel.CreateNew = true;
+            _windowService.ShowDialog<DatabaseWindow>(_databaseViewModel);
         }
 
-        private void Save(object parameter)
+        private void LoadDatabase(object paramter)
         {
-            var folderDialog = new FolderBrowserDialog();
-
-            if (folderDialog.ShowDialog() == DialogResult.OK)
-            {
-                _locationManager.SaveLocations(folderDialog.SelectedPath);
-            }
+            _databaseViewModel.CreateNew = false;
+            _windowService.ShowDialog<DatabaseWindow>(_databaseViewModel);
         }
 
         private void InitRelayCommands()
         {
-            SearchCommand = new RelayCommand(StartMeasurement, Search, StopMeasurement);
-            ResetCommand = new RelayCommand(StartMeasurement, Reset, StopMeasurement);
-            NewCommand = new RelayCommand(New);
-            UpdateCommand = new RelayCommand(CanUpdate, Update);
+            SearchCommand = new RelayCommand(CanSearch, StartMeasurement, Search, StopMeasurement);
+            ManageCommand = new RelayCommand(CanManage, Manage);
             DeleteCommand = new RelayCommand(CanDelete, StartMeasurement, Delete, StopMeasurement);
-            GenerateCommand = new RelayCommand(Generate);
-            LoadCommand = new RelayCommand(StartMeasurement, Load, StopMeasurement);
-            SaveCommand = new RelayCommand(StartMeasurement, Save, StopMeasurement);
+            GenerateCommand = new RelayCommand(CanGenerate, Generate);
+            NewDatabaseCommand = new RelayCommand(NewDatabase);
+            LoadDatabaseCommand = new RelayCommand(LoadDatabase);
         }
     }
 }
