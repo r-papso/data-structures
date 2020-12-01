@@ -5,6 +5,9 @@
     /// </summary>
     public class GenerationCriteria
     {
+        /// <summary>
+        /// Determines if generated locations should have random IDs
+        /// </summary>
         public bool RandomIds { get; set; }
 
         /// <summary>

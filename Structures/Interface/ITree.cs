@@ -8,10 +8,19 @@ namespace Structures.Interface
     /// <typeparam name="T">Type of elements stored in tree</typeparam>
     public interface ITree<T> : IStructure<T>
     {
+        /// <summary>
+        /// Count of elements in tree
+        /// </summary>
         public int Count { get; }
 
+        /// <summary>
+        /// Minimum value of tree
+        /// </summary>
         public T Min { get; }
 
+        /// <summary>
+        /// Maximum value of tree
+        /// </summary>
         public T Max { get; }
 
         /// <summary>

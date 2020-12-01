@@ -22,12 +22,12 @@ namespace SurveyApp.ViewModel
         private readonly DatabaseViewModel _databaseViewModel;
 
         /// <summary>
-        /// Criteria of locations to be searched
+        /// ID of location to be searched / deleted
         /// </summary>
         public int SelectedId { get; set; }
 
         /// <summary>
-        /// Collection of registered properties
+        /// Collection of registered locations
         /// </summary>
         public FileStructureAdapter<Location> Locations { get; }
 
@@ -79,6 +79,7 @@ namespace SurveyApp.ViewModel
         /// <param name="windowService"><see cref="WindowService"/> instance</param>
         /// <param name="generateViewModel"><see cref="GenerateViewModel"/> instance</param>
         /// <param name="locationViewModel"><see cref="LocationManager"/> instance</param>
+        /// <param name="databaseViewModel"><see cref="DatabaseViewModel"/> instance</param>
         public MainViewModel(LocationManager locationManager, WindowService windowService, GenerateViewModel generateViewModel,
                              LocationViewModel locationViewModel, DatabaseViewModel databaseViewModel) : base()
         {
@@ -93,6 +94,11 @@ namespace SurveyApp.ViewModel
             InitRelayCommands();
         }
 
+        /// <summary>
+        /// Called on application closing
+        /// </summary>
+        /// <param name="sender">Object that raised the event</param>
+        /// <param name="e">Information about the event</param>
         public void OnClosing(object sender, CancelEventArgs e) => _locationManager.Release();
 
         private bool CanSearch(object parameter) => Locations.PrimaryFile != null;

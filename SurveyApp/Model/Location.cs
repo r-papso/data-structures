@@ -24,22 +24,22 @@ namespace SurveyApp.Model
         public int Number { get; set; }
 
         /// <summary>
-        /// Location's latitude
+        /// Location's first longitude coordinate
         /// </summary>
         public float X1 { get; set; }
 
         /// <summary>
-        /// Location's longitude
+        /// Location's first latitude coordinate
         /// </summary>
         public float Y1 { get; set; }
 
         /// <summary>
-        /// Location's latitude
+        /// Location's second longitude coordinate
         /// </summary>
         public float X2 { get; set; }
 
         /// <summary>
-        /// Location's longitude
+        /// Location's second latitude coordinate
         /// </summary>
         public float Y2 { get; set; }
 
@@ -69,10 +69,12 @@ namespace SurveyApp.Model
         /// Constructor specifying all properties
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="locationType"></param>
+        /// <param name="number"></param>
+        /// <param name="x1"></param>
+        /// <param name="y1"></param>
+        /// <param name="x2"></param>
+        /// <param name="y2"></param>
         /// <param name="description"></param>
-        /// <param name="latitude"></param>
-        /// <param name="longitude"></param>
         public Location(int id, int number, float x1, float y1, float x2, float y2, string description)
         {
             ID = id;

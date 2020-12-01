@@ -15,17 +15,17 @@ namespace SurveyApp.ViewModel
         private readonly LocationManager _locationManager;
 
         /// <summary>
-        /// Represents new location to be created
+        /// Represents location to be created / updated
         /// </summary>
         public Location Location { get; private set; } = new Location();
 
         /// <summary>
-        /// Provides binding <see cref="Submit(object)"/> method execution
+        /// Provides binding <see cref="Add(object)"/> method execution
         /// </summary>
         public ICommand AddCommand { get; private set; }
 
         /// <summary>
-        /// Provides binding <see cref="Submit(object)"/> method execution
+        /// Provides binding <see cref="Update(object)"/> method execution
         /// </summary>
         public ICommand UpdateCommand { get; private set; }
 

@@ -56,10 +56,22 @@ namespace SurveyApp.Service
         /// <param name="criteria">Criteria used for generate locations</param>
         public void GenerateLocations(GenerationCriteria criteria) => Locations.Generate(Generate(criteria));
 
+        /// <summary>
+        /// Initializes new database at specified directory
+        /// </summary>
+        /// <param name="directory">Directory where the database will be created</param>
+        /// <param name="clusterSize">File system's cluster size in bytes</param>
         public void NewDatabase(string directory, int clusterSize) => Locations.New(directory, clusterSize);
 
+        /// <summary>
+        /// Loads existing database from specified directory
+        /// </summary>
+        /// <param name="directory">Directory from where database will be loaded</param>
         public void LoadDatabase(string directory) => Locations.Load(directory);
 
+        /// <summary>
+        /// Releases all resources held by database
+        /// </summary>
         public void Release() => Locations.Release();
 
         private IEnumerable<Location> Generate(GenerationCriteria criteria)
