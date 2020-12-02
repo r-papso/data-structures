@@ -1,132 +1,16 @@
-﻿using Structures.Interface;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 
 namespace Structures.Tree
 {
-    internal class AvlTree<T> : ITree<T> where T : IComparable
+    internal class AvlTree<T> : BinarySearchTree<T> where T : IComparable
     {
-        private AvlTreeNode<T> _root;
-
-        public IEnumerable<T> InOrderTraversal
-        {
-            get
-            {
-                if (_root == null)
-                    yield break;
-
-                foreach (var node in _root.GetInOrderEnumerable())
-                    yield return node.Data;
-            }
-        }
-
-        public IEnumerable<T> LevelOrderTraversal
-        {
-            get
-            {
-                if (_root == null)
-                    yield break;
-
-                foreach (var node in _root.GetLevelOrderEnumerable())
-                    yield return node.Data;
-            }
-        }
-
-        public T Min
-        {
-            get
-            {
-                if (_root == null)
-                    throw new InvalidOperationException("Tree is empty");
-
-                TreeNode<T> actualNode = _root;
-
-                while (true)
-                {
-                    if (actualNode.Left != null)
-                        actualNode = actualNode.Left;
-                    else
-                        return actualNode.Data;
-                }
-            }
-        }
-
-        public T Max
-        {
-            get
-            {
-                if (_root == null)
-                    throw new InvalidOperationException("Tree is empty");
-
-                TreeNode<T> actualNode = _root;
-
-                while (true)
-                {
-                    if (actualNode.Right != null)
-                        actualNode = actualNode.Right;
-                    else
-                        return actualNode.Data;
-                }
-            }
-        }
-
-        public int Count { get; private set; }
-
         public AvlTree() { }
 
-        public ICollection<T> Find(T data)
+        public override void Insert(T data)
         {
-            var result = new LinkedList<T>();
-
-            if (_root == null)
-                return result;
-
-            var found = Nearest(data);
-
-            if (found != null && found.Data.CompareTo(data) == 0)
-                result.AddLast(found.Data);
-
-            return result;
-        }
-
-        public ICollection<T> Find(T lowerBound, T upperBound)
-        {
-            var result = new LinkedList<T>();
-
-            if (_root == null || lowerBound.CompareTo(upperBound) > 0)
-                return result;
-
-            var stack = new Stack<AvlTreeNode<T>>();
-            var actualNode = _root;
-
-            while (stack.Count > 0 || actualNode != null)
+            if (Root == null)
             {
-                if (actualNode != null)
-                {
-                    stack.Push(actualNode);
-                    actualNode = (AvlTreeNode<T>)(lowerBound.CompareTo(actualNode.Data) < 0 ? actualNode.Left : null);
-                }
-                else
-                {
-                    actualNode = stack.Pop();
-
-                    if (lowerBound.CompareTo(actualNode.Data) <= 0 && actualNode.Data.CompareTo(upperBound) <= 0)
-                    {
-                        result.AddLast(actualNode.Data);
-                    }
-                    actualNode = (AvlTreeNode<T>)(upperBound.CompareTo(actualNode.Data) > 0 ? actualNode.Right : null);
-                }
-            }
-
-            return result;
-        }
-
-        public void Insert(T data)
-        {
-            if (_root == null)
-            {
-                _root = new AvlTreeNode<T>(data);
+                Root = new AvlTreeNode<T>(data);
                 Count++;
                 return;
             }
@@ -171,7 +55,7 @@ namespace Structures.Tree
             Count++;
         }
 
-        public void Update(T oldData, T newData)
+        public override void Update(T oldData, T newData)
         {
             if (oldData.CompareTo(newData) == 0)
             {
@@ -189,9 +73,9 @@ namespace Structures.Tree
             }
         }
 
-        public void Delete(T data)
+        public override void Delete(T data)
         {
-            var node = Nearest(data);
+            var node = (AvlTreeNode<T>)Nearest(data);
 
             if (node == null || node.Data.CompareTo(data) != 0)
                 throw new ArgumentException("Data not found");
@@ -236,23 +120,32 @@ namespace Structures.Tree
             Count--;
         }
 
-        public IEnumerator<T> GetEnumerator()
+        protected override bool LowerGreaterThanUpper(T lower, T upper)
         {
-            if (_root == null)
-                yield break;
-
-            foreach (var item in _root)
-                yield return item.Data;
+            return lower.CompareTo(upper) > 0;
         }
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        private AvlTreeNode<T> Nearest(T data)
+        protected override bool CanGoLeft(BinaryTreeNode<T> actualNode, T data)
         {
-            if (_root == null)
+            return data.CompareTo(actualNode.Data) < 0;
+        }
+
+        protected override bool CanGoRight(BinaryTreeNode<T> actualNode, T data)
+        {
+            return data.CompareTo(actualNode.Data) > 0;
+        }
+
+        protected override bool Between(BinaryTreeNode<T> actualNode, T lower, T upper)
+        {
+            return lower.CompareTo(actualNode.Data) <= 0 && upper.CompareTo(actualNode.Data) >= 0;
+        }
+
+        private BinaryTreeNode<T> Nearest(T data)
+        {
+            if (Root == null)
                 return null;
 
-            AvlTreeNode<T> actualNode = _root;
+            var actualNode = Root;
 
             while (true)
             {
@@ -263,13 +156,13 @@ namespace Structures.Tree
                 {
                     if (actualNode.Right == null)
                         break;
-                    actualNode = (AvlTreeNode<T>)actualNode.Right;
+                    actualNode = actualNode.Right;
                 }
                 else
                 {
                     if (actualNode.Left == null)
                         break;
-                    actualNode = (AvlTreeNode<T>)actualNode.Left;
+                    actualNode = actualNode.Left;
                 }
             }
 
@@ -306,9 +199,9 @@ namespace Structures.Tree
             {
                 if (node.IsLeaf)
                 {
-                    if (node == _root)
+                    if (node == Root)
                     {
-                        _root = null;
+                        Root = null;
                         return (null, null);
                     }
                     (nodeToDelete, actual) = (node, node);
@@ -333,12 +226,12 @@ namespace Structures.Tree
             return (nodeToDelete, actual);
         }
 
-        private void SwapNodes(TreeNode<T> node, TreeNode<T> replaced)
+        private void SwapNodes(BinaryTreeNode<T> node, BinaryTreeNode<T> replaced)
         {
             if (node.Parent == null)
             {
-                _root = (AvlTreeNode<T>)replaced;
-                _root.Parent = null;
+                Root = replaced;
+                Root.Parent = null;
             }
             else
             {
@@ -465,7 +358,7 @@ namespace Structures.Tree
             return node;
         }
 
-        private void ChangeParentFactor(TreeNode<T> actual, bool inserting)
+        private void ChangeParentFactor(BinaryTreeNode<T> actual, bool inserting)
         {
             var parent = (AvlTreeNode<T>)actual.Parent;
 
@@ -479,7 +372,7 @@ namespace Structures.Tree
 
         private void LeftRotation(AvlTreeNode<T> node)
         {
-            if (node == _root)
+            if (node == Root)
                 throw new ArgumentException("Cannot perform rotation on root");
 
             var parent = node.Parent;
@@ -503,12 +396,12 @@ namespace Structures.Tree
                     node.Parent.Right = node;
             }
             else
-                _root = node;
+                Root = node;
         }
 
         private void RightRotation(AvlTreeNode<T> node)
         {
-            if (node == _root)
+            if (node == Root)
                 throw new ArgumentException("Cannot perform rotation on root");
 
             var parent = node.Parent;
@@ -532,10 +425,10 @@ namespace Structures.Tree
                     node.Parent.Right = node;
             }
             else
-                _root = node;
+                Root = node;
         }
 
-        private AvlTreeNode<T> Predecessor(TreeNode<T> node)
+        private AvlTreeNode<T> Predecessor(BinaryTreeNode<T> node)
         {
             AvlTreeNode<T> result = null;
 

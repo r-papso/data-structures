@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Structures.Hashing
 {
-    internal class ExtendibleHashing<T> : IFileStructure<T> where T : ISerializable, new()
+    internal class ExtendibleHashing<T> : IHashFile<T> where T : ISerializable, new()
     {
         private static readonly int _maxDepth = 24;
 

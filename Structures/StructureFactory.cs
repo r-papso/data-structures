@@ -42,7 +42,7 @@ namespace Structures
         /// </summary>
         /// <typeparam name="T">Type of elements in K-d tree</typeparam>
         /// <returns>Empty K-d tree</returns>
-        public ITree<T> GetKdTree<T>() where T : IKdComparable
+        public IBSTree<T> GetKdTree<T>() where T : IKdComparable
         {
             return new KdTree<T>();
         }
@@ -53,7 +53,7 @@ namespace Structures
         /// <typeparam name="T">Type of elements in K-d tree</typeparam>
         /// <param name="data">Data used in K-d tree construction</param>
         /// <returns>Balanced K-d tree constructed from <paramref name="data"/></returns>
-        public ITree<T> GetKdTree<T>(IEnumerable<T> data) where T : IKdComparable
+        public IBSTree<T> GetKdTree<T>(IEnumerable<T> data) where T : IKdComparable
         {
             return new KdTree<T>(data);
         }
@@ -64,7 +64,7 @@ namespace Structures
         /// <typeparam name="T">Type of elements stored at extendible hashing</typeparam>
         /// <param name="directory">Path to directory where the structure is stored</param>
         /// <returns>Extendible hashing loaded from <paramref name="directory"/></returns>
-        public IFileStructure<T> GetExtendibleHashing<T>(string directory) where T : ISerializable, new()
+        public IHashFile<T> GetExtendibleHashing<T>(string directory) where T : ISerializable, new()
         {
             return new ExtendibleHashing<T>(directory);
         }
@@ -76,7 +76,7 @@ namespace Structures
         /// <param name="directory">Path to directory where the structure will be stored</param>
         /// <param name="clusterSize">File system's cluster size in bytes</param>
         /// <returns>New extendible hashing that will be stored at <paramref name="directory"/></returns>
-        public IFileStructure<T> GetExtendibleHashing<T>(string directory, int clusterSize) where T : ISerializable, new()
+        public IHashFile<T> GetExtendibleHashing<T>(string directory, int clusterSize) where T : ISerializable, new()
         {
             return new ExtendibleHashing<T>(directory, clusterSize);
         }
@@ -86,7 +86,7 @@ namespace Structures
         /// </summary>
         /// <typeparam name="T">Type of elements stored at hash set</typeparam>
         /// <returns>Hash set structure</returns>
-        public IStructure<T> GetHashSet<T>()
+        public ITable<T> GetHashSet<T>()
         {
             return new Hashing.HashSet<T>();
         }
@@ -97,7 +97,7 @@ namespace Structures
         /// <typeparam name="T">Type of elements stored at hash set</typeparam>
         /// <param name="initialCapacity"></param>
         /// <returns>Hash set structure</returns>
-        public IStructure<T> GetHashSet<T>(int initialCapacity)
+        public ITable<T> GetHashSet<T>(int initialCapacity)
         {
             return new Hashing.HashSet<T>(initialCapacity);
         }
@@ -107,7 +107,7 @@ namespace Structures
         /// </summary>
         /// <typeparam name="T">Type of elements stored at AVL tree</typeparam>
         /// <returns>AVL tree structure</returns>
-        public ITree<T> GetAvlTree<T>() where T : IComparable
+        public IBSTree<T> GetAvlTree<T>() where T : IComparable
         {
             return new AvlTree<T>();
         }

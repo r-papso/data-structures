@@ -7,12 +7,12 @@ using System.Runtime.CompilerServices;
 namespace SurveyApp.Adapter
 {
     /// <summary>
-    /// Adapter encapsulating <see cref="IFileStructure{T}"/> used in data binding and visualisation of this structure
+    /// Adapter encapsulating <see cref="IHashFile{T}"/> used in data binding and visualisation of this structure
     /// </summary>
-    /// <typeparam name="T">Type of elements stored at <see cref="IFileStructure{T}"/></typeparam>
-    public class FileStructureAdapter<T> : INotifyPropertyChanged where T : ISerializable, new()
+    /// <typeparam name="T">Type of elements stored at <see cref="IHashFile{T}"/></typeparam>
+    public class HashFileAdapter<T> : INotifyPropertyChanged where T : ISerializable, new()
     {
-        private IFileStructure<T> _struct;
+        private IHashFile<T> _struct;
         private IEnumerable<T> _found;
 
         /// <summary>
@@ -46,17 +46,17 @@ namespace SurveyApp.Adapter
         /// <summary>
         /// Default constructor
         /// </summary>
-        public FileStructureAdapter()
+        public HashFileAdapter()
         { }
 
         /// <summary>
-        /// Finds element in <see cref="IFileStructure{T}"/> equals to <paramref name="data"/>
+        /// Finds element in <see cref="IHashFile{T}"/> equals to <paramref name="data"/>
         /// </summary>
         /// <param name="data">Element to be found</param>
         public void Find(T data) => Found = _struct.Find(data);
 
         /// <summary>
-        /// Inserts <paramref name="data"/> into <see cref="IFileStructure{T}"/>
+        /// Inserts <paramref name="data"/> into <see cref="IHashFile{T}"/>
         /// </summary>
         /// <param name="data">Element to be inserted</param>
         public void Insert(T data)
@@ -77,7 +77,7 @@ namespace SurveyApp.Adapter
         }
 
         /// <summary>
-        /// Removes <paramref name="data"/> from <see cref="IFileStructure{T}"/>
+        /// Removes <paramref name="data"/> from <see cref="IHashFile{T}"/>
         /// </summary>
         /// <param name="data">Element to be removed</param>
         public void Delete(T data)
@@ -87,9 +87,9 @@ namespace SurveyApp.Adapter
         }
 
         /// <summary>
-        /// Fills <see cref="IFileStructure{T}"/> with elements of <paramref name="collection"/>
+        /// Fills <see cref="IHashFile{T}"/> with elements of <paramref name="collection"/>
         /// </summary>
-        /// <param name="collection">Elements to be inserted into <see cref="IFileStructure{T}"/></param>
+        /// <param name="collection">Elements to be inserted into <see cref="IHashFile{T}"/></param>
         public void Generate(IEnumerable<T> collection)
         {
             foreach (var item in collection)
@@ -101,9 +101,9 @@ namespace SurveyApp.Adapter
         }
 
         /// <summary>
-        /// Loads <see cref="IFileStructure{T}"/> from specified directory
+        /// Loads <see cref="IHashFile{T}"/> from specified directory
         /// </summary>
-        /// <param name="directory">Directory where files of <see cref="IFileStructure{T}"/> are stored</param>
+        /// <param name="directory">Directory where files of <see cref="IHashFile{T}"/> are stored</param>
         public void Load(string directory)
         {
             _struct = _struct = StructureFactory.Instance.GetExtendibleHashing<T>(directory);
@@ -111,9 +111,9 @@ namespace SurveyApp.Adapter
         }
 
         /// <summary>
-        /// Creates new instance of <see cref="IFileStructure{T}"/> in specific directory
+        /// Creates new instance of <see cref="IHashFile{T}"/> in specific directory
         /// </summary>
-        /// <param name="directory">Directory where <see cref="IFileStructure{T}"/> will be created</param>
+        /// <param name="directory">Directory where <see cref="IHashFile{T}"/> will be created</param>
         /// <param name="clusterSize">File system's cluster size in bytes</param>
         public void New(string directory, int clusterSize)
         {
@@ -122,7 +122,7 @@ namespace SurveyApp.Adapter
         }
 
         /// <summary>
-        /// Releases all resources held by <see cref="IFileStructure{T}"/>
+        /// Releases all resources held by <see cref="IHashFile{T}"/>
         /// </summary>
         public void Release() => _struct?.Dispose();
 

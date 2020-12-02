@@ -10,7 +10,7 @@ using Xunit;
 
 namespace StructuresTests
 {
-    public class BSPTreeTests
+    public class KdTreeTests
     {
         #region Static fields
 

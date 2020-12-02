@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Structures.Tree
 {
-    internal abstract class TreeNode<T> : IEnumerable<TreeNode<T>>
+    internal abstract class BinaryTreeNode<T> : IEnumerable<BinaryTreeNode<T>>
     {
         public bool IsLeaf => Right == null && Left == null;
 
@@ -11,17 +11,17 @@ namespace Structures.Tree
 
         public bool IsRightChild => Parent != null && Parent.Right == this;
 
-        public TreeNode<T> Left { get; set; }
+        public BinaryTreeNode<T> Left { get; set; }
 
-        public TreeNode<T> Right { get; set; }
+        public BinaryTreeNode<T> Right { get; set; }
 
-        public TreeNode<T> Parent { get; set; }
+        public BinaryTreeNode<T> Parent { get; set; }
 
         public T Data { get; set; }
 
-        public TreeNode() { }
+        public BinaryTreeNode() { }
 
-        public TreeNode(T data) => Data = data;
+        public BinaryTreeNode(T data) => Data = data;
 
         public void Delete()
         {
@@ -38,39 +38,39 @@ namespace Structures.Tree
             Right = null;
         }
 
-        public virtual IEnumerator<TreeNode<T>> GetEnumerator() => new InOrderEnumerator(this);
+        public IEnumerator<BinaryTreeNode<T>> GetEnumerator() => new InOrderEnumerator(this);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public virtual IEnumerable<TreeNode<T>> GetInOrderEnumerable() => new InOrderEnumerable(this);
+        public IEnumerable<BinaryTreeNode<T>> GetInOrderEnumerable() => new InOrderEnumerable(this);
 
-        public virtual IEnumerable<TreeNode<T>> GetLevelOrderEnumerable() => new LevelOrderEnumerable(this);
+        public IEnumerable<BinaryTreeNode<T>> GetLevelOrderEnumerable() => new LevelOrderEnumerable(this);
 
         #region Enumerators
 
-        protected class InOrderEnumerable : IEnumerable<TreeNode<T>>
+        private class InOrderEnumerable : IEnumerable<BinaryTreeNode<T>>
         {
-            private readonly TreeNode<T> _root;
+            private readonly BinaryTreeNode<T> _root;
 
-            public InOrderEnumerable(TreeNode<T> root) => _root = root;
+            public InOrderEnumerable(BinaryTreeNode<T> root) => _root = root;
 
-            public IEnumerator<TreeNode<T>> GetEnumerator() => new InOrderEnumerator(_root);
+            public IEnumerator<BinaryTreeNode<T>> GetEnumerator() => new InOrderEnumerator(_root);
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
 
-        protected class InOrderEnumerator : IEnumerator<TreeNode<T>>
+        private class InOrderEnumerator : IEnumerator<BinaryTreeNode<T>>
         {
-            private TreeNode<T> _root;
-            private Stack<TreeNode<T>> _stack;
+            private BinaryTreeNode<T> _root;
+            private Stack<BinaryTreeNode<T>> _stack;
 
-            public InOrderEnumerator(TreeNode<T> root)
+            public InOrderEnumerator(BinaryTreeNode<T> root)
             {
                 _root = root;
-                _stack = new Stack<TreeNode<T>>();
+                _stack = new Stack<BinaryTreeNode<T>>();
             }
 
-            public TreeNode<T> Current { get; private set; }
+            public BinaryTreeNode<T> Current { get; private set; }
 
             object IEnumerator.Current => Current;
 
@@ -111,30 +111,30 @@ namespace Structures.Tree
             }
         }
 
-        protected class LevelOrderEnumerable : IEnumerable<TreeNode<T>>
+        private class LevelOrderEnumerable : IEnumerable<BinaryTreeNode<T>>
         {
-            private readonly TreeNode<T> _root;
+            private readonly BinaryTreeNode<T> _root;
 
-            public LevelOrderEnumerable(TreeNode<T> root) => _root = root;
+            public LevelOrderEnumerable(BinaryTreeNode<T> root) => _root = root;
 
-            public IEnumerator<TreeNode<T>> GetEnumerator() => new LevelOrderEnumerator(_root);
+            public IEnumerator<BinaryTreeNode<T>> GetEnumerator() => new LevelOrderEnumerator(_root);
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
 
-        protected class LevelOrderEnumerator : IEnumerator<TreeNode<T>>
+        private class LevelOrderEnumerator : IEnumerator<BinaryTreeNode<T>>
         {
-            private readonly TreeNode<T> _root;
-            private readonly Queue<TreeNode<T>> _queue;
+            private readonly BinaryTreeNode<T> _root;
+            private readonly Queue<BinaryTreeNode<T>> _queue;
 
-            public LevelOrderEnumerator(TreeNode<T> root)
+            public LevelOrderEnumerator(BinaryTreeNode<T> root)
             {
                 _root = root;
-                _queue = new Queue<TreeNode<T>>();
+                _queue = new Queue<BinaryTreeNode<T>>();
                 _queue.Enqueue(_root);
             }
 
-            public TreeNode<T> Current { get; private set; }
+            public BinaryTreeNode<T> Current { get; private set; }
 
             object IEnumerator.Current => Current;
 

@@ -1,94 +1,28 @@
 ﻿using Structures.Helper;
 using Structures.Interface;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Structures.Tree
 {
-    internal class KdTree<T> : ITree<T> where T : IKdComparable
+    internal class KdTree<T> : BinarySearchTree<T> where T : IKdComparable
     {
-        private KdTreeNode<T> _root;
         private KdComparer<T> _comparer = new KdComparer<T>();
-
-        public IEnumerable<T> InOrderTraversal
-        {
-            get
-            {
-                if (_root == null)
-                    yield break;
-
-                foreach (var node in _root.GetInOrderEnumerable())
-                    yield return node.Data;
-            }
-        }
-
-        public IEnumerable<T> LevelOrderTraversal
-        {
-            get
-            {
-                if (_root == null)
-                    yield break;
-
-                foreach (var node in _root.GetLevelOrderEnumerable())
-                    yield return node.Data;
-            }
-        }
-
-        public int Count { get; private set; }
-
-        public T Min => throw new NotImplementedException("K-d tree does not support getting min and max value.");
-
-        public T Max => throw new NotImplementedException("K-d tree does not support getting min and max value.");
 
         public KdTree() { }
 
         public KdTree(IEnumerable<T> data)
         {
-            _root = new KdTreeNode<T>(data);
+            Root = new KdTreeNode<T>(data);
             Count = data.Count();
         }
 
-        public ICollection<T> Find(T data) => Find(data, data);
-
-        public ICollection<T> Find(T lowerBound, T upperBound)
+        public override void Insert(T data)
         {
-            var result = new LinkedList<T>();
-
-            if (_root == null || !_comparer.GreaterThanOrEqual(upperBound, lowerBound))
-                return result;
-
-            var stack = new Stack<KdTreeNode<T>>();
-            var actualNode = _root;
-
-            while (stack.Count > 0 || actualNode != null)
+            if (Root == null)
             {
-                if (actualNode != null)
-                {
-                    stack.Push(actualNode);
-                    actualNode = (KdTreeNode<T>)(CompareKeys(lowerBound, actualNode.Data, actualNode.Level) <= 0 ? actualNode.Left : null);
-                }
-                else
-                {
-                    actualNode = stack.Pop();
-
-                    if (_comparer.Between(actualNode.Data, lowerBound, upperBound))
-                    {
-                        result.AddLast(actualNode.Data);
-                    }
-                    actualNode = (KdTreeNode<T>)(CompareKeys(upperBound, actualNode.Data, actualNode.Level) > 0 ? actualNode.Right : null);
-                }
-            }
-
-            return result;
-        }
-
-        public void Insert(T data)
-        {
-            if (_root == null)
-            {
-                _root = new KdTreeNode<T>(data, 0);
+                Root = new KdTreeNode<T>(data, 0);
                 Count++;
                 return;
             }
@@ -108,7 +42,7 @@ namespace Structures.Tree
             Count++;
         }
 
-        public void Update(T oldData, T newData)
+        public override void Update(T oldData, T newData)
         {
             var nearestOld = Nearest(oldData, true);
 
@@ -137,7 +71,7 @@ namespace Structures.Tree
             }
         }
 
-        public void Delete(T data)
+        public override void Delete(T data)
         {
             var nodeToDelete = Nearest(data, true);
 
@@ -149,23 +83,32 @@ namespace Structures.Tree
             Count--;
         }
 
-        public IEnumerator<T> GetEnumerator()
+        protected override bool LowerGreaterThanUpper(T lower, T upper)
         {
-            if (_root == null)
-                yield break;
-
-            foreach (var node in _root)
-                yield return node.Data;
+            return !_comparer.GreaterThanOrEqual(upper, lower);
         }
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        protected override bool CanGoLeft(BinaryTreeNode<T> actualNode, T data)
+        {
+            return CompareKeys(data, actualNode.Data, ((KdTreeNode<T>)actualNode).Level) <= 0;
+        }
+
+        protected override bool CanGoRight(BinaryTreeNode<T> actualNode, T data)
+        {
+            return CompareKeys(data, actualNode.Data, ((KdTreeNode<T>)actualNode).Level) > 0;
+        }
+
+        protected override bool Between(BinaryTreeNode<T> actualNode, T lower, T upper)
+        {
+            return _comparer.Between(actualNode.Data, lower, upper);
+        }
 
         private KdTreeNode<T> Nearest(T data, bool exactMatch)
         {
-            if (_root == null)
+            if (Root == null)
                 return null;
 
-            KdTreeNode<T> actualNode = _root;
+            KdTreeNode<T> actualNode = (KdTreeNode<T>)Root;
 
             while (true)
             {
@@ -196,8 +139,8 @@ namespace Structures.Tree
         {
             if (nodeToDelete.IsLeaf)
             {
-                if (nodeToDelete == _root)
-                    _root = null;
+                if (nodeToDelete == Root)
+                    Root = null;
                 nodeToDelete.Delete();
                 return;
             }

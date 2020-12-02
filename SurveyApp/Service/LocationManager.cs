@@ -14,12 +14,12 @@ namespace SurveyApp.Service
         /// <summary>
         /// Properties' collection
         /// </summary>
-        public FileStructureAdapter<Location> Locations { get; private set; }
+        public HashFileAdapter<Location> Locations { get; private set; }
 
         /// <summary>
         /// Default constructor
         /// </summary>
-        public LocationManager() => Locations = new FileStructureAdapter<Location>();
+        public LocationManager() => Locations = new HashFileAdapter<Location>();
 
         /// <summary>
         /// Finds locations by specified <paramref name="criteria"/>

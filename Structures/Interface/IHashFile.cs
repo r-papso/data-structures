@@ -4,10 +4,10 @@ using System.Collections.Generic;
 namespace Structures.Interface
 {
     /// <summary>
-    /// Defines operations available in structure stored at the disk
+    /// Defines operations available in hash structure stored at the disk
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IFileStructure<T> : IStructure<T>, IDisposable
+    public interface IHashFile<T> : ITable<T>, IDisposable
     {
         /// <summary>
         /// Provides traversal over primary file of the structure

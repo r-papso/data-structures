@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Structures.Tree
 {
-    internal class KdTreeNode<T> : TreeNode<T> where T : IKdComparable
+    internal class KdTreeNode<T> : BinaryTreeNode<T> where T : IKdComparable
     {
         public int Level { get; set; }
 

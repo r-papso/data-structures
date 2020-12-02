@@ -1,6 +1,4 @@
 ﻿using Structures;
-using Structures.Interface;
-using System;
 using System.IO;
 using System.Linq;
 using Xunit;
@@ -37,7 +35,7 @@ namespace StructuresTests
         public void HashSetInsertion(int dataCount)
         {
             var hashSet = StructureFactory.Instance.GetHashSet<TwoDimObject>();
-            InsertionTest(hashSet, dataCount);
+            ITableTests.InsertionTest(hashSet, dataCount, (found, wanted) => found.Count == 1 && found.First().Equals(wanted));
         }
 
         [Theory]
@@ -50,7 +48,7 @@ namespace StructuresTests
         public void HashSetIteration(int dataCount)
         {
             var hashSet = StructureFactory.Instance.GetHashSet<TwoDimObject>();
-            IterationTest(hashSet, dataCount);
+            ITableTests.IterationTest(hashSet, dataCount);
         }
 
         [Theory]
@@ -63,7 +61,7 @@ namespace StructuresTests
         public void HashSetDeletion(int dataCount)
         {
             var hashSet = StructureFactory.Instance.GetHashSet<TwoDimObject>();
-            DeletionTest(hashSet, dataCount);
+            ITableTests.DeletionTest(hashSet, dataCount);
         }
 
         [Theory]
@@ -74,7 +72,7 @@ namespace StructuresTests
         public void HashSetRandomInsertDelete(int dataCount)
         {
             var hashSet = StructureFactory.Instance.GetHashSet<TwoDimObject>();
-            RandomInsertDeletTest(hashSet, dataCount);
+            ITableTests.RandomInsertDeletTest(hashSet, dataCount, (found, wanted) => found.Count == 1 && found.First().Equals(wanted));
         }
 
         #endregion
@@ -94,7 +92,7 @@ namespace StructuresTests
             {
                 using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
                 {
-                    DeletionTest(hashing, dataCount);
+                    ITableTests.DeletionTest(hashing, dataCount);
                 }
 
                 RemoveFiles();
@@ -114,7 +112,7 @@ namespace StructuresTests
             {
                 using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
                 {
-                    InsertionTest(hashing, dataCount);
+                    ITableTests.InsertionTest(hashing, dataCount, (found, wanted) => found.Count == 1 && found.First().Equals(wanted));
                 }
 
                 RemoveFiles();
@@ -134,7 +132,7 @@ namespace StructuresTests
             {
                 using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
                 {
-                    IterationTest(hashing, dataCount);
+                    ITableTests.IterationTest(hashing, dataCount);
                 }
 
                 RemoveFiles();
@@ -152,7 +150,7 @@ namespace StructuresTests
             {
                 using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
                 {
-                    RandomInsertDeletTest(hashing, dataCount);
+                    ITableTests.RandomInsertDeletTest(hashing, dataCount, (found, wanted) => found.Count == 1 && found.First().Equals(wanted));
                 }
 
                 RemoveFiles();
@@ -188,115 +186,6 @@ namespace StructuresTests
         #endregion
 
         #region Private methods
-
-        private void InsertionTest(IStructure<TwoDimObject> structure, int dataCount)
-        {
-            var data = Generator.GenerateRandomData(dataCount);
-
-            foreach (var item in data)
-            {
-                structure.Insert(item);
-            }
-
-            foreach (var item in data)
-            {
-                var found = structure.Find(item);
-                Assert.True(found.Count == 1 && found.First().Equals(item));
-            }
-        }
-
-        private void DeletionTest(IStructure<TwoDimObject> structure, int dataCount)
-        {
-            var data = Generator.GenerateRandomData(dataCount);
-
-            foreach (var item in data)
-            {
-                structure.Insert(item);
-            }
-
-            foreach (var item in data)
-            {
-                structure.Delete(item);
-                var found = structure.Find(item);
-                Assert.Equal(0, found.Count);
-            }
-        }
-
-        private void IterationTest(IStructure<TwoDimObject> structure, int dataCount)
-        {
-            var data = Generator.GenerateRandomData(dataCount);
-
-            foreach (var item in data)
-            {
-                structure.Insert(item);
-            }
-
-            int count = 0;
-            foreach (var item in structure)
-                count++;
-
-            Assert.Equal(dataCount, count);
-        }
-
-        private void RandomInsertDeletTest(IStructure<TwoDimObject> structure, int dataCount)
-        {
-            var data = Generator.GenerateRandomData(dataCount);
-            var inserted = data.Take(data.Count / 2).ToList();
-            var toInsert = data.Skip(data.Count / 2).ToList();
-            var randOperation = new Random();
-            var randIndex = new Random();
-
-            foreach (var item in inserted)
-            {
-                structure.Insert(item);
-            }
-
-            while (true)
-            {
-                if (inserted.Count == 0)
-                {
-                    var item = toInsert[randIndex.Next(0, toInsert.Count)];
-                    structure.Insert(item);
-                    toInsert.Remove(item);
-
-                    var found = structure.Find(item);
-                    Assert.True(found.Count == 1 && found.First().Equals(item));
-                }
-                else if (toInsert.Count == 0)
-                {
-                    var item = inserted[randIndex.Next(0, inserted.Count)];
-                    structure.Delete(item);
-                    inserted.Remove(item);
-
-                    var found = structure.Find(item);
-                    Assert.True(found.Count == 0);
-                }
-                else
-                {
-                    if (randOperation.NextDouble() < 0.5)
-                    {
-                        var item = toInsert[randIndex.Next(0, toInsert.Count)];
-                        structure.Insert(item);
-                        toInsert.Remove(item);
-
-                        var found = structure.Find(item);
-                        Assert.True(found.Count == 1 && found.First().Equals(item));
-                    }
-                    else
-                    {
-                        var item = inserted[randIndex.Next(0, inserted.Count)];
-                        structure.Delete(item);
-                        inserted.Remove(item);
-
-                        var found = structure.Find(item);
-                        Assert.True(found.Count == 0);
-                    }
-                }
-
-                if (inserted.Count == 0 && toInsert.Count == 0)
-                    break;
-            }
-        }
 
         private void RemoveFiles()
         {

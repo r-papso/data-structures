@@ -15,7 +15,45 @@ namespace StructuresTests
         [InlineData(1_000)]
         [InlineData(10_000)]
         [InlineData(100_000)]
-        public void InsertDeleteTest(int nodeCount)
+        public void InsertionTest(int nodeCount)
+        {
+            var tree = StructureFactory.Instance.GetAvlTree<TwoDimObject>();
+            ITableTests.InsertionTest(tree, nodeCount, (found, item) => found.Count == 1 && item.CompareTo(found.First()) == 0);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        [InlineData(100)]
+        [InlineData(1_000)]
+        [InlineData(10_000)]
+        [InlineData(100_000)]
+        public void DeletionTest(int nodeCount)
+        {
+            var tree = StructureFactory.Instance.GetAvlTree<TwoDimObject>();
+            ITableTests.DeletionTest(tree, nodeCount);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        [InlineData(100)]
+        [InlineData(1_000)]
+        [InlineData(10_000)]
+        public void RandomInsertDeleteTest(int nodeCount)
+        {
+            var tree = StructureFactory.Instance.GetAvlTree<TwoDimObject>();
+            ITableTests.RandomInsertDeletTest(tree, nodeCount, (found, item) => found.Count == 1 && item.CompareTo(found.First()) == 0);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        [InlineData(100)]
+        [InlineData(1_000)]
+        [InlineData(10_000)]
+        [InlineData(100_000)]
+        public void MinMaxTest(int nodeCount)
         {
             var data = Generator.GenerateRandomData(nodeCount);
             var tree = StructureFactory.Instance.GetAvlTree<TwoDimObject>();

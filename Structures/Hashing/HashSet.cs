@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Structures.Hashing
 {
-    internal class HashSet<T> : IStructure<T>
+    internal class HashSet<T> : ITable<T>
     {
         private static readonly double _expandFactor = 0.75;
         private static readonly int _defaultCapacity = 128;

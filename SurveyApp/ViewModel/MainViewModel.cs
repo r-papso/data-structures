@@ -29,7 +29,7 @@ namespace SurveyApp.ViewModel
         /// <summary>
         /// Collection of registered locations
         /// </summary>
-        public FileStructureAdapter<Location> Locations { get; }
+        public HashFileAdapter<Location> Locations { get; }
 
         /// <summary>
         /// <see cref="Helper.Timer"/> instance

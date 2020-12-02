@@ -11,7 +11,7 @@ namespace Structures.File
         private int _clusterSize;
         private long _maxAddress;
         private string _headerFilePath;
-        private ITree<long> _freeAddresses;
+        private IBSTree<long> _freeAddresses;
         private BlockStream _stream;
 
         public int ByteSize => 3 * sizeof(int) + sizeof(long) + _freeAddresses.Count * sizeof(long);
