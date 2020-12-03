@@ -27,35 +27,33 @@
                 <TextBlock Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Text="{Binding Address, StringFormat=Address: {0}}" />
                 <TextBlock Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" Text="{Binding NextBlockAddress, StringFormat=Next block address: {0}}"/>
 
-                <Expander Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3">
-                    <ListView ItemsSource="{Binding .}" MaxHeight="200">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding ID, StringFormat=ID: {0:F0}}" />
-                                    <TextBlock Margin="20,0,0,0" Text="{Binding Number, StringFormat=Number: {0:F0}}" />
-                                    <TextBlock Margin="20,0,0,0">
-                                        <TextBlock.Text>
-                                            <MultiBinding StringFormat="X1, Y1: [{0}, {1}]">
-                                                <Binding Path="X1" />
-                                                <Binding Path="Y1" />
-                                            </MultiBinding>
-                                        </TextBlock.Text>
-                                    </TextBlock>
-                                    <TextBlock Margin="20,0,0,0">
-                                        <TextBlock.Text>
-                                            <MultiBinding StringFormat="X2, Y2: [{0}, {1}]">
-                                                <Binding Path="X2" />
-                                                <Binding Path="Y2" />
-                                            </MultiBinding>
-                                        </TextBlock.Text>
-                                    </TextBlock>
-                                    <TextBlock Margin="20,0,0,0" Text="{Binding Description}"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </Expander>
+                <ListView Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" ItemsSource="{Binding .}" MaxHeight="200" HorizontalContentAlignment="Stretch">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding ID, StringFormat=ID: {0:F0}}" />
+                                <TextBlock Margin="20,0,0,0" Text="{Binding Number, StringFormat=Number: {0:F0}}" />
+                                <TextBlock Margin="20,0,0,0">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="X1, Y1: [{0}, {1}]">
+                                            <Binding Path="X1" />
+                                            <Binding Path="Y1" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                                <TextBlock Margin="20,0,0,0">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="X2, Y2: [{0}, {1}]">
+                                            <Binding Path="X2" />
+                                            <Binding Path="Y2" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                                <TextBlock Margin="20,0,0,0" Text="{Binding Description}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
             </Grid>
         </DataTemplate>
     </Window.Resources>
@@ -79,7 +77,9 @@
             <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="30"/>
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
 
@@ -88,7 +88,7 @@
 
         <Button Grid.Row="1" Grid.Column="4" Margin="5,2.5,5,2.5" Command="{Binding SearchCommand}">Search</Button>
         <Button Grid.Row="2" Grid.Column="4" Margin="5,2.5,5,2.5" Command="{Binding DeleteCommand}">Delete</Button>
-        <Button Grid.Row="3" Grid.Column="4" Margin="5,2.5,5,2.5" Command="{Binding ManageCommand}">Manage</Button>
+        <Button Grid.Row="3" Grid.Column="4" Margin="5,2.5,5,2.5" Command="{Binding ManageCommand}">Add / Update</Button>
 
         <Label Grid.Row="2" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Found data" VerticalContentAlignment="Center"/>
         <ListView Grid.Row="3" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="3" Margin="5,2.5,5,2.5" HorizontalContentAlignment="Stretch" ItemsSource="{Binding Locations.Found}">
@@ -134,12 +134,30 @@
         </ListView>
 
         <Label Grid.Row="5" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Primary file" VerticalContentAlignment="Center"/>
-        <ListView Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="3" Margin="5,2.5,5,2.5" HorizontalContentAlignment="Stretch" ItemsSource="{Binding Locations.PrimaryFile}" ItemTemplate="{StaticResource FileContentTemplate}"/>
+        <ListView Grid.Row="5" Grid.RowSpan="2" Grid.Column="2" Grid.ColumnSpan="2" Margin="5,2.5,5,2.5" HorizontalContentAlignment="Stretch" ItemsSource="{Binding Locations.PrimaryFile}" ItemTemplate="{StaticResource FileContentTemplate}"/>
 
-        <Label Grid.Row="7" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Overflow file" VerticalContentAlignment="Center"/>
-        <ListView Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="3" Margin="5,2.5,5,2.5" HorizontalContentAlignment="Stretch" ItemsSource="{Binding Locations.OverflowFile}" ItemTemplate="{StaticResource FileContentTemplate}"/>
+        <Label Grid.Row="7" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Free addresses" VerticalContentAlignment="Center"/>
+        <ListView Grid.Row="7" Grid.Column="2" Grid.ColumnSpan="2" Margin="5,2.5,5,2.5" ItemsSource="{Binding Locations.PrimaryFileFreeAddresses}">
+            <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
+        </ListView>
 
-        <StackPanel Grid.Row="8" Grid.Column="4" Orientation="Vertical" VerticalAlignment="Bottom">
+        <Label Grid.Row="8" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Overflow file" VerticalContentAlignment="Center"/>
+        <ListView Grid.Row="8" Grid.RowSpan="2" Grid.Column="2" Grid.ColumnSpan="2" Margin="5,2.5,5,2.5" HorizontalContentAlignment="Stretch" ItemsSource="{Binding Locations.OverflowFile}" ItemTemplate="{StaticResource FileContentTemplate}"/>
+
+        <Label Grid.Row="10" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Free addresses" VerticalContentAlignment="Center"/>
+        <ListView Grid.Row="10" Grid.Column="2" Grid.ColumnSpan="2" Margin="5,2.5,5,2.5" ItemsSource="{Binding Locations.OverflowFileFreeAddresses}">
+            <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
+        </ListView>
+
+        <StackPanel Grid.Row="9" Grid.Column="4" Orientation="Vertical" VerticalAlignment="Bottom">
             <Button Margin="5,2.5,5,2.5" Height="27" Command="{Binding GenerateCommand}">Generate</Button>
             <Button Margin="5,2.5,5,2.5" Height="27" Command="{Binding NewDatabaseCommand}">New Database</Button>
             <Button Margin="5,2.5,5,2.5" Height="27" Command="{Binding LoadDatabaseCommand}">Load Database</Button>

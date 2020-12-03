@@ -10,7 +10,7 @@ namespace StructuresTests
     {
         private static bool _skipTests = false;
 
-        private static int _clusterSize = 4096;
+        private static int _clusterSize = 256;
         private static string _extendibleHashingPath = "C:\\FRI\\ING\\1_rocnik\\AUS2\\ExtendibleHashing";
 
         private static string _header = Path.Combine(_extendibleHashingPath, "directory.csv");

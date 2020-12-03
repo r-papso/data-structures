@@ -43,6 +43,24 @@ namespace Structures.Hashing
             }
         }
 
+        public IEnumerable<long> PrimaryFileFreeBlocks
+        {
+            get
+            {
+                foreach (var address in _dataFile.FreeAddresses)
+                    yield return address;
+            }
+        }
+
+        public IEnumerable<long> OverflowFileFreeBlocks
+        {
+            get
+            {
+                foreach (var address in _overflowFile.FreeAddresses)
+                    yield return address;
+            }
+        }
+
         public ExtendibleHashing(string folder)
         {
             if (!CheckPaths(folder))
@@ -56,10 +74,11 @@ namespace Structures.Hashing
 
         public ExtendibleHashing(string folder, int clusterSize)
         {
+            _clusterSize = clusterSize;
             _dataFile = new BlockFile<T>(Path.Combine(folder, StaticFields.DataFileName), Path.Combine(folder, StaticFields.DataHeaderName), clusterSize);
             _overflowFile = new BlockFile<T>(Path.Combine(folder, StaticFields.OverflowFileName), Path.Combine(folder, StaticFields.OverflowHeaderName), clusterSize * 2);
 
-            Initialize(clusterSize);
+            Initialize();
         }
 
         ~ExtendibleHashing() => Release();
@@ -68,6 +87,10 @@ namespace Structures.Hashing
         {
             var result = new LinkedList<T>();
             var index = GetIndex(data.GetHashCode(), Depth);
+
+            if (!_directory[index].IsValid || _directory[index].ValidDataCount == 0)
+                return result;
+
             Block<T> block = _dataFile.GetBlock(_directory[index].Address);
 
             while (true)
@@ -80,6 +103,9 @@ namespace Structures.Hashing
 
                 if (block.NextBlockAddress == -1)
                     break;
+
+                if (block.NextBlockAddress == block.Address)
+                    throw new InvalidOperationException();
 
                 block = _overflowFile.GetBlock(block.NextBlockAddress);
             }
@@ -235,6 +261,15 @@ namespace Structures.Hashing
                 }
 
                 _dataFile.UpdateBlock(block, blockData.Address);
+
+                if (block.ValidDataCount == 0)
+                {
+                    _dataFile.RemoveBlock(block.Address);
+                    blockData.IsValid = false;
+                }
+
+                if (Depth == 1 && _directory[0].ValidDataCount == 0 && _directory[1].ValidDataCount == 0)
+                    Initialize();
             }
             else
             {
@@ -303,9 +338,8 @@ namespace Structures.Hashing
             }
         }
 
-        private void Initialize(int clusterSize)
+        private void Initialize()
         {
-            _clusterSize = clusterSize;
             _directory = new BlockMetaData[]
             {
                 new BlockMetaData()
@@ -318,7 +352,7 @@ namespace Structures.Hashing
                 new BlockMetaData()
                 {
                     IsValid = true,
-                    Address = clusterSize,
+                    Address = _clusterSize,
                     ValidDataCount = 0,
                     Depth = 1
                 }
@@ -563,13 +597,16 @@ namespace Structures.Hashing
             if (_directory[index].ValidDataCount + _directory[index].ValidDataCounts.Sum(x => x) - 1 <= BlockFactor + OverflowBlockFactor * (_directory[index].ValidDataCounts.Count - 1))
             {
                 var blocks = new LinkedList<Block<T>>();
+                var blocksHistory = new LinkedList<ITable<T>>();
                 var actualBlock = _dataFile.GetBlock(_directory[index].Address);
                 blocks.AddLast(actualBlock);
+                blocksHistory.AddLast(StructureFactory.Instance.GetHashSet(actualBlock));
 
                 while (actualBlock.NextBlockAddress != -1)
                 {
                     var nextBlock = _overflowFile.GetBlock(actualBlock.NextBlockAddress);
                     blocks.AddLast(nextBlock);
+                    blocksHistory.AddLast(StructureFactory.Instance.GetHashSet(nextBlock));
                     actualBlock = nextBlock;
                 }
 
@@ -615,16 +652,21 @@ namespace Structures.Hashing
                 }
 
                 actualBlockNode = blocks.First;
+                var actualBlockHist = blocksHistory.First;
 
                 while (actualBlockNode.Next != null)
                 {
                     if (actualBlockNode.Next.Next == null)
                         actualBlockNode.Value.NextBlockAddress = -1;
 
-                    var blockFile = actualBlockNode == blocks.First ? _dataFile : _overflowFile;
-                    blockFile.UpdateBlock(actualBlockNode.Value, actualBlockNode.Value.Address);
+                    if (actualBlockNode.Value.Any(x => actualBlockHist.Value.Find(x).Count == 0) || actualBlockNode.Value.NextBlockAddress == -1)
+                    {
+                        var blockFile = actualBlockNode == blocks.First ? _dataFile : _overflowFile;
+                        blockFile.UpdateBlock(actualBlockNode.Value, actualBlockNode.Value.Address);
+                    }
 
                     actualBlockNode = actualBlockNode.Next;
+                    actualBlockHist = actualBlockHist.Next;
                 }
 
                 _overflowFile.RemoveBlock(blocks.Last.Value.Address);
@@ -632,9 +674,12 @@ namespace Structures.Hashing
             }
             else
             {
-
                 int i = -1;
                 bool found = false;
+
+                if (!_directory[index].IsValid || _directory[index].ValidDataCount == 0)
+                    throw new ArgumentException("Data not found");
+
                 Block<T> block = _dataFile.GetBlock(_directory[index].Address);
 
                 while (true)

@@ -1,7 +1,9 @@
-﻿using Structures.Interface;
+﻿using Structures.Helper;
+using Structures.Interface;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Structures.Hashing
 {
@@ -17,6 +19,8 @@ namespace Structures.Hashing
         { }
 
         public HashSet(int initialCapacity) => _hashTable = new LinkedList<T>[initialCapacity];
+
+        public HashSet(IEnumerable<T> data) => BuildHashSet(data);
 
         public ICollection<T> Find(T data)
         {
@@ -104,6 +108,22 @@ namespace Structures.Hashing
             }
 
             _hashTable = newTable;
+        }
+
+        private void BuildHashSet(IEnumerable<T> data)
+        {
+            _hashTable = new LinkedList<T>[data.Count().NextPowerOfTwo()];
+
+            foreach (var item in data)
+            {
+                int index = GetIndex(item.GetHashCode());
+
+                if (_hashTable[index] == null)
+                    _hashTable[index] = new LinkedList<T>();
+
+                _hashTable[index].AddLast(item);
+                _count++;
+            }
         }
     }
 }

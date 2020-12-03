@@ -102,6 +102,11 @@ namespace Structures
             return new Hashing.HashSet<T>(initialCapacity);
         }
 
+        public ITable<T> GetHashSet<T>(IEnumerable<T> data)
+        {
+            return new Hashing.HashSet<T>(data);
+        }
+
         /// <summary>
         /// Gets instance of AVL tree structure
         /// </summary>

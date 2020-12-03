@@ -34,6 +34,8 @@ namespace Structures.File
             }
         }
 
+        public IEnumerable<long> FreeAddresses => _freeAddresses;
+
         public BlockFile(string dataFilePath, string headerFilePath)
         {
             _headerFilePath = headerFilePath;

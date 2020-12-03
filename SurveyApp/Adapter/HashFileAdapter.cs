@@ -34,9 +34,19 @@ namespace SurveyApp.Adapter
         public IEnumerable<IBlockState<T>> PrimaryFile => _struct?.PrimaryFileState ?? null;
 
         /// <summary>
+        /// Enumerable used to traverse through primary file's free addresses
+        /// </summary>
+        public IEnumerable<long> PrimaryFileFreeAddresses => _struct?.PrimaryFileFreeBlocks ?? null;
+
+        /// <summary>
         /// Enumerable used to traverse through structure's overflow file
         /// </summary>
         public IEnumerable<IBlockState<T>> OverflowFile => _struct?.OverflowFileState ?? null;
+
+        /// <summary>
+        /// Enumerable used to traverse through overflow file's free addresses
+        /// </summary>
+        public IEnumerable<long> OverflowFileFreeAddresses => _struct?.OverflowFileFreeBlocks ?? null;
 
         /// <summary>
         /// Event invoked when some action over this adapter has occurred
@@ -135,6 +145,8 @@ namespace SurveyApp.Adapter
         {
             OnPropertyChanged(nameof(PrimaryFile));
             OnPropertyChanged(nameof(OverflowFile));
+            OnPropertyChanged(nameof(PrimaryFileFreeAddresses));
+            OnPropertyChanged(nameof(OverflowFileFreeAddresses));
         }
     }
 }

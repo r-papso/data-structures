@@ -174,5 +174,20 @@ namespace Structures.Helper
 
             return result;
         }
+
+        /// <summary>
+        /// Calculates nearest higher power of two of number <paramref name="x"/>
+        /// </summary>
+        /// <param name="x">Number which next power of two will be calculated</param>
+        /// <returns>Nearest higher power of two of <paramref name="x"/></returns>
+        public static int NextPowerOfTwo(this int x)
+        {
+            int power = 1;
+
+            while (power < x)
+                power *= 2;
+
+            return power;
+        }
     }
 }
