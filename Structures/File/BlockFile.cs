@@ -54,6 +54,10 @@ namespace Structures.File
 
         ~BlockFile() => Release();
 
+        public bool IsFree(long address) => _freeAddresses.Find(address).Count > 0;
+
+        public void RemoveAddress(long address) => _freeAddresses.Delete(address);
+
         public Block<T> GetBlock(long address) => _stream.ReadBlock<T>(address, _clusterSize);
 
         public long AddBlock(Block<T> block)

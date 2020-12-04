@@ -88,7 +88,7 @@ namespace Structures.Hashing
             var result = new LinkedList<T>();
             var index = GetIndex(data.GetHashCode(), Depth);
 
-            if (!_directory[index].IsValid || _directory[index].ValidDataCount == 0)
+            if (!_directory[index].IsValid || (_directory[index].ValidDataCount == 0 && _directory[index].ValidDataCounts.Count == 0))
                 return result;
 
             Block<T> block = _dataFile.GetBlock(_directory[index].Address);
@@ -103,9 +103,6 @@ namespace Structures.Hashing
 
                 if (block.NextBlockAddress == -1)
                     break;
-
-                if (block.NextBlockAddress == block.Address)
-                    throw new InvalidOperationException();
 
                 block = _overflowFile.GetBlock(block.NextBlockAddress);
             }
@@ -260,16 +257,15 @@ namespace Structures.Hashing
                     index = GetIndex(data.GetHashCode(), Depth);
                 }
 
-                _dataFile.UpdateBlock(block, blockData.Address);
-
                 if (block.ValidDataCount == 0)
                 {
                     _dataFile.RemoveBlock(block.Address);
                     blockData.IsValid = false;
                 }
-
-                if (Depth == 1 && _directory[0].ValidDataCount == 0 && _directory[1].ValidDataCount == 0)
-                    Initialize();
+                else
+                {
+                    _dataFile.UpdateBlock(block, blockData.Address);
+                }
             }
             else
             {
@@ -497,28 +493,27 @@ namespace Structures.Hashing
             var blockData = _directory[blockIdx];
             var neighbourData = _directory[neighbourIdx];
 
-            if (neighbourData.IsValid)
+            if (neighbourData.ValidDataCount > 0)
             {
                 var neighbourBlock = _dataFile.GetBlock(neighbourData.Address);
 
-                if (neighbourBlock.Address < block.Address)
-                {
-                    var tempData = blockData;
-                    var tempIdx = blockIdx;
-                    var tempBlock = block;
-
-                    blockData = neighbourData;
-                    neighbourData = tempData;
-                    blockIdx = neighbourIdx;
-                    neighbourIdx = tempIdx;
-                    block = neighbourBlock;
-                    neighbourBlock = tempBlock;
-                }
-
                 foreach (var item in neighbourBlock)
                     block.Add(item);
+            }
 
-                _dataFile.RemoveBlock(neighbourData.Address);
+            if (neighbourData.Address < block.Address && (neighbourData.IsValid || _dataFile.IsFree(neighbourData.Address)))
+            {
+                if (!neighbourData.IsValid)
+                    _dataFile.RemoveAddress(neighbourData.Address);
+
+                _dataFile.RemoveBlock(blockData.Address);
+                block.Address = neighbourData.Address;
+                blockData.Address = neighbourData.Address;
+            }
+            else
+            {
+                if (neighbourData.IsValid)
+                    _dataFile.RemoveBlock(neighbourData.Address);
             }
 
             blockData.Depth--;
@@ -677,7 +672,7 @@ namespace Structures.Hashing
                 int i = -1;
                 bool found = false;
 
-                if (!_directory[index].IsValid || _directory[index].ValidDataCount == 0)
+                if (!_directory[index].IsValid || (_directory[index].ValidDataCount == 0 && _directory[index].ValidDataCounts.Count == 0))
                     throw new ArgumentException("Data not found");
 
                 Block<T> block = _dataFile.GetBlock(_directory[index].Address);

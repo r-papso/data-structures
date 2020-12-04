@@ -180,6 +180,8 @@ namespace StructuresTests
                         Assert.True(found.Count == 1 && found.First().Equals(item));
                     }
                 }
+
+                RemoveFiles();
             }
         }
 
