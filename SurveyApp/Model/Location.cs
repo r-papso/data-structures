@@ -1,12 +1,11 @@
 ﻿using Structures.Helper;
 using Structures.Interface;
 using System;
-using System.Collections;
 
 namespace SurveyApp.Model
 {
     /// <summary>
-    /// Represents instance if either property or site
+    /// Represents instance of a location
     /// </summary>
     public class Location : ISerializable
     {
@@ -180,22 +179,6 @@ namespace SurveyApp.Model
             return ID == location.ID;
         }
 
-        public override int GetHashCode()
-        {
-            var bitArray = new BitArray(new int[] { ID });
-            var hash = new BitArray(sizeof(int) * 8, false);
-            var bitsUsed = 3;
-            //highest bits
-            //var i = bitArray.Length - 1;
-            //lowest bits
-            var i = bitsUsed - 1;
-            var j = bitsUsed - 1;
-
-            while (j >= 0)
-                hash.Set(j--, bitArray.Get(i--));
-
-            return hash.ToInt();
-            //return ID;
-        }
+        public override int GetHashCode() => ID;
     }
 }
