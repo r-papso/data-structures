@@ -1,6 +1,6 @@
 ﻿namespace Structures.Tree
 {
-    internal class AvlTreeNode<T> : TreeNode<T>
+    internal class AvlTreeNode<T> : BinaryTreeNode<T>
     {
         public sbyte Balance { get; set; }
 

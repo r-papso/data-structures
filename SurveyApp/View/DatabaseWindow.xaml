@@ -1,18 +1,16 @@
-﻿<Window x:Class="SurveyApp.View.GenerateWindow"
+﻿<Window x:Class="SurveyApp.View.DatabaseWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:viewModel="clr-namespace:SurveyApp.ViewModel"
         mc:Ignorable="d"
-        Title="Generate Locations" Height="170" Width="400"
-        d:DataContext="{d:DesignInstance Type=viewModel:GenerateViewModel, IsDesignTimeCreatable=True}">
-
+        Title="DatabaseWindow" Height="170" Width="500">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="150"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="30"/>
             <ColumnDefinition Width="20"/>
         </Grid.ColumnDefinitions>
 
@@ -25,11 +23,12 @@
             <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
 
-        <Label Grid.Row="1" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Random IDs:" VerticalContentAlignment="Center"/>
-        <CheckBox Grid.Row="1" Grid.Column="2" Margin="5,2.5,5,2.5" VerticalContentAlignment="Center" IsChecked="{Binding GenerationCriteria.RandomIds}"/>
+        <Label Grid.Row="1" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Cluster size:" VerticalContentAlignment="Center"/>
+        <TextBox Grid.Row="1" Grid.Column="2" Margin="5,2.5,5,2.5" VerticalContentAlignment="Center" Text="{Binding ClusterSize}" IsEnabled="{Binding CreateNew}"/>
 
-        <Label Grid.Row="2" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Number of locations:" VerticalContentAlignment="Center"/>
-        <TextBox Grid.Row="2" Grid.Column="2" Margin="5,2.5,5,2.5" VerticalContentAlignment="Center" Text="{Binding GenerationCriteria.LocationsCount}"/>
+        <Label Grid.Row="2" Grid.Column="1" Margin="5,2.5,5,2.5" Content="Folder path:" VerticalContentAlignment="Center"/>
+        <TextBox Grid.Row="2" Grid.Column="2" Margin="5,2.5,5,2.5" VerticalContentAlignment="Center" Text="{Binding FolderPath}"/>
+        <Button Grid.Row="2" Grid.Column="3" Margin="2.5,2.5,2.5,2.5" Command="{Binding BrowserCommand}">...</Button>
 
         <Button Grid.Row="4" Grid.Column="2" Margin="5,2.5,5,2.5" HorizontalAlignment="Right" Width="90" Command="{Binding SubmitCommand}">Submit</Button>
     </Grid>

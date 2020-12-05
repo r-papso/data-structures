@@ -2,10 +2,10 @@
 
 namespace Structures.Interface
 {
-    public interface IStructure<T> : IEnumerable<T>
+    public interface ITable<T> : IEnumerable<T>
     {
         /// <summary>
-        /// Finds all occurences in <see cref="IStructure{T}"/> of <paramref name="data"/> parameter,
+        /// Finds all occurences in <see cref="ITable{T}"/> of <paramref name="data"/> parameter,
         /// if structure implementing this interface does not support duplicate values, returned collection
         /// will contain only one element
         /// </summary>
@@ -21,15 +21,15 @@ namespace Structures.Interface
         public void Update(T oldData, T newData);
 
         /// <summary>
-        /// Inserts new element into <see cref="IStructure{T}"/>
+        /// Inserts new element into <see cref="ITable{T}"/>
         /// </summary>
-        /// <param name="data">Element to be inserted into <see cref="IStructure{T}"/></param>
+        /// <param name="data">Element to be inserted into <see cref="ITable{T}"/></param>
         public void Insert(T data);
 
         /// <summary>
-        /// Removes element from <see cref="IStructure{T}"/>
+        /// Removes element from <see cref="ITable{T}"/>
         /// </summary>
-        /// <param name="data">Element to be removed from <see cref="IStructure{T}"/></param>
+        /// <param name="data">Element to be removed from <see cref="ITable{T}"/></param>
         public void Delete(T data);
     }
 }

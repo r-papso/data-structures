@@ -1,23 +1,17 @@
-﻿using Structures.Exception;
+﻿using Structures.Helper;
 using Structures.Interface;
-using SurveyApp.Interface;
 using System;
-using System.Collections.Generic;
 
 namespace SurveyApp.Model
 {
     /// <summary>
-    /// Represents possible location types
+    /// Represents instance of a location
     /// </summary>
-    public enum LocationType : byte { Property, Site };
-
-    /// <summary>
-    /// Represents instance if either property or site
-    /// </summary>
-    public class Location : IKdComparable, ISaveable
+    public class Location : ISerializable
     {
-        private static int _dimensionCount = 2;
-        private static int _idSequence = 0;
+        private static readonly int _maxDescLength = 20;
+
+        private string _description;
 
         /// <summary>
         /// Unique ID of location
@@ -25,61 +19,71 @@ namespace SurveyApp.Model
         public int ID { get; set; }
 
         /// <summary>
-        /// ID of location
+        /// Number of location
         /// </summary>
         public int Number { get; set; }
 
         /// <summary>
-        /// Location's type
+        /// Location's first longitude coordinate
         /// </summary>
-        public LocationType LocationType { get; set; }
+        public float X1 { get; set; }
+
+        /// <summary>
+        /// Location's first latitude coordinate
+        /// </summary>
+        public float Y1 { get; set; }
+
+        /// <summary>
+        /// Location's second longitude coordinate
+        /// </summary>
+        public float X2 { get; set; }
+
+        /// <summary>
+        /// Location's second latitude coordinate
+        /// </summary>
+        public float Y2 { get; set; }
 
         /// <summary>
         /// Location's description
         /// </summary>
-        public string Description { get; set; }
+        public string Description
+        {
+            get => _description;
+            set
+            {
+                if (value.Length > _maxDescLength)
+                    _description = value.Remove(_maxDescLength);
+                else
+                    _description = value;
+            }
+        }
 
-        /// <summary>
-        /// Location's latitude
-        /// </summary>
-        public double Latitude { get; set; }
-
-        /// <summary>
-        /// Location's longitude
-        /// </summary>
-        public double Longitude { get; set; }
-
-        /// <summary>
-        /// Locations with same <see cref="Latitude"/> and <see cref="Longitude"/>
-        /// </summary>
-        public ICollection<Location> SituatedLocations { get; set; } = new LinkedList<Location>();
-
-        /// <summary>
-        /// Number of location's dimensions
-        /// </summary>
-        public int DimensionCount => _dimensionCount;
+        public int ByteSize => 2 * sizeof(int) + 4 * sizeof(float) + sizeof(ushort) + _maxDescLength * sizeof(char);
 
         /// <summary>
         /// Default constructor
         /// </summary>
-        public Location() => ID = ++_idSequence;
+        public Location() { }
 
         /// <summary>
         /// Constructor specifying all properties
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="locationType"></param>
+        /// <param name="number"></param>
+        /// <param name="x1"></param>
+        /// <param name="y1"></param>
+        /// <param name="x2"></param>
+        /// <param name="y2"></param>
         /// <param name="description"></param>
-        /// <param name="latitude"></param>
-        /// <param name="longitude"></param>
-        public Location(int number, LocationType locationType, string description, double latitude, double longitude)
+        public Location(int id, int number, float x1, float y1, float x2, float y2, string description)
         {
-            ID = ++_idSequence;
+            ID = id;
             Number = number;
-            LocationType = locationType;
+            X1 = x1;
+            Y1 = y1;
+            X2 = x2;
+            Y2 = y2;
             Description = description;
-            Latitude = latitude;
-            Longitude = longitude;
         }
 
         /// <summary>
@@ -90,54 +94,91 @@ namespace SurveyApp.Model
         {
             if (other != null)
             {
+                ID = other.ID;
                 Number = other.Number;
-                LocationType = other.LocationType;
+                X1 = other.X1;
+                Y1 = other.Y1;
+                X2 = other.X2;
+                Y2 = other.Y2;
                 Description = other.Description;
-                Latitude = other.Latitude;
-                Longitude = other.Longitude;
-                SituatedLocations = other.SituatedLocations;
-            }
-            ID = ++_idSequence;
-        }
-
-        public IComparable GetKey(int dimension)
-        {
-            switch (dimension)
-            {
-                case 0:
-                    return Latitude;
-                case 1:
-                    return Longitude;
-                default:
-                    throw new DimensionRangeException(dimension, _dimensionCount);
             }
         }
 
-        public bool Identical(IKdComparable other)
+        public byte[] ToByteArray()
         {
-            var otherLoc = other as Location;
+            var result = new byte[ByteSize];
+            int offset = 0;
 
-            if (otherLoc == null)
+            var bArray = BitConverter.GetBytes(ID);
+            result.ReplaceRange(bArray, offset);
+            offset += bArray.Length;
+
+            bArray = BitConverter.GetBytes(Number);
+            result.ReplaceRange(bArray, offset);
+            offset += bArray.Length;
+
+            bArray = BitConverter.GetBytes(X1);
+            result.ReplaceRange(bArray, offset);
+            offset += bArray.Length;
+
+            bArray = BitConverter.GetBytes(Y1);
+            result.ReplaceRange(bArray, offset);
+            offset += bArray.Length;
+
+            bArray = BitConverter.GetBytes(X2);
+            result.ReplaceRange(bArray, offset);
+            offset += bArray.Length;
+
+            bArray = BitConverter.GetBytes(Y2);
+            result.ReplaceRange(bArray, offset);
+            offset += bArray.Length;
+
+            bArray = BitConverter.GetBytes(Convert.ToUInt16(Description.Length));
+            result.ReplaceRange(bArray, offset);
+            offset += bArray.Length;
+
+            bArray = Description.GetBytes();
+            result.ReplaceRange(bArray, offset);
+
+            return result;
+        }
+
+        public void FromByteArray(byte[] array, int offset = 0)
+        {
+            ID = BitConverter.ToInt32(array, offset);
+            offset += sizeof(int);
+
+            Number = BitConverter.ToInt32(array, offset);
+            offset += sizeof(int);
+
+            X1 = BitConverter.ToSingle(array, offset);
+            offset += sizeof(float);
+
+            Y1 = BitConverter.ToSingle(array, offset);
+            offset += sizeof(float);
+
+            X2 = BitConverter.ToSingle(array, offset);
+            offset += sizeof(float);
+
+            Y2 = BitConverter.ToSingle(array, offset);
+            offset += sizeof(float);
+
+            var descLength = BitConverter.ToUInt16(array, offset);
+            offset += sizeof(ushort);
+
+            Description = array.ToString(offset, descLength);
+        }
+
+        public override bool Equals(object obj)
+        {
+            var location = obj as Location;
+
+            if (location == null)
                 return false;
 
-            return ID == otherLoc.ID && Number == otherLoc.Number && LocationType == otherLoc.LocationType && Latitude == otherLoc.Latitude && Longitude == otherLoc.Longitude;
+            return ID == location.ID;
         }
 
-        public string ToCsv(string delimiter = ",")
-        {
-            return $"{ID}{delimiter}{Number}{delimiter}{LocationType:D}{delimiter}{Description}{delimiter}{Latitude}{delimiter}{Longitude}";
-        }
-
-        public void FromCsv(string csv, string delimiter = ",")
-        {
-            var props = csv.Split(new string[] { delimiter }, StringSplitOptions.None);
-
-            ID = Int32.Parse(props[0]);
-            Number = Int32.Parse(props[1]);
-            LocationType = (LocationType)Byte.Parse(props[2]);
-            Description = props[3];
-            Latitude = Double.Parse(props[4]);
-            Longitude = Double.Parse(props[5]);
-        }
+        public override int GetHashCode() => ID;
     }
 }

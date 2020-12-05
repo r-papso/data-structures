@@ -14,6 +14,7 @@ namespace SurveyApp.View
             InitializeComponent();
 
             DataContext = mainViewModel;
+            Closing += mainViewModel.OnClosing;
         }
     }
 }

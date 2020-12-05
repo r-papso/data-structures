@@ -11,7 +11,7 @@ namespace Structures.File
         private int _clusterSize;
         private long _maxAddress;
         private string _headerFilePath;
-        private ITree<long> _freeAddresses;
+        private IBSTree<long> _freeAddresses;
         private BlockStream _stream;
 
         public int ByteSize => 3 * sizeof(int) + sizeof(long) + _freeAddresses.Count * sizeof(long);
@@ -22,7 +22,7 @@ namespace Structures.File
         {
             get
             {
-                if (_maxAddress == -1)
+                if (_maxAddress < -1)
                     yield break;
 
                 long address = 0;
@@ -34,10 +34,12 @@ namespace Structures.File
             }
         }
 
+        public IEnumerable<long> FreeAddresses => _freeAddresses;
+
         public BlockFile(string dataFilePath, string headerFilePath)
         {
             _headerFilePath = headerFilePath;
-            _stream = new BlockStream(dataFilePath);
+            _stream = new BlockStream(dataFilePath, FileMode.Open);
             Restore(headerFilePath);
         }
 
@@ -47,16 +49,20 @@ namespace Structures.File
             _clusterSize = clusterSize;
             _headerFilePath = headerFilePath;
             _freeAddresses = StructureFactory.Instance.GetAvlTree<long>();
-            _stream = new BlockStream(dataFilePath);
+            _stream = new BlockStream(dataFilePath, FileMode.Create);
         }
 
         ~BlockFile() => Release();
+
+        public bool IsFree(long address) => _freeAddresses.Find(address).Count > 0;
+
+        public void RemoveAddress(long address) => _freeAddresses.Delete(address);
 
         public Block<T> GetBlock(long address) => _stream.ReadBlock<T>(address, _clusterSize);
 
         public long AddBlock(Block<T> block)
         {
-            if (_maxAddress == -1)
+            if (_maxAddress < 0)
             {
                 _maxAddress = 0;
                 _stream.WriteBlock(block, _maxAddress);
@@ -82,15 +88,9 @@ namespace Structures.File
         public void RemoveBlock(long address)
         {
             if (address == _maxAddress)
-            {
                 TrimFile();
-                if (_maxAddress == 0)
-                    _maxAddress = -1;
-            }
             else
-            {
                 _freeAddresses.Insert(address);
-            }
         }
 
         public void Dispose()
