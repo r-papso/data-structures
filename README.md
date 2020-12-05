@@ -4,7 +4,7 @@ Implementation of advanced data structures. Project contains K-d tree, AVL tree,
 
 ## Structures
 
-Class library project containing implementation of aforementioned data structures. Individual structures can be obtained from this library through StructureFactory class loctated in the [Structures](./Structures) namespace.
+Class library project containing implementation of aforementioned data structures. Individual structures can be obtained from this library through [StructureFactory](./Structures/StructureFactory.cs) class.
 
     using Structures;
     
@@ -30,7 +30,7 @@ Implementation of [Hash table](https://en.wikipedia.org/wiki/Hash_table). Object
 
 ### [ExtendibleHashing](./Structures/Hashing/ExtendibleHashing.cs)
 
-Implementation of [Extendible hashing](https://en.wikipedia.org/wiki/Extendible_hashing). This structures is located at the disk instead of computer memory. Objects stored in this structure must implement [ISerializable](./Structures/Interface/ISerializable.cs) interface. Purpose of this structure is to minimize number of file accesses during Search, Insert and Delete operations. File accesses during all these operations are constant.
+Implementation of [Extendible hashing](https://en.wikipedia.org/wiki/Extendible_hashing). This structures is located at the disk instead of computer memory. Objects stored in this structure must implement [ISerializable](./Structures/Interface/ISerializable.cs) interface and have parameterless public constructor. Purpose of this structure is to minimize number of file accesses during Search, Insert and Delete operations. File accesses during all these operations are constant.
     
 ## StructureTests
 
