@@ -1,4 +1,5 @@
 ﻿using SurveyApp.Helper;
+using SurveyApp.Interface;
 using SurveyApp.Model;
 using SurveyApp.Service;
 using System.Windows.Input;
@@ -10,7 +11,7 @@ namespace SurveyApp.ViewModel
     /// </summary>
     public class GenerateViewModel : ViewModelBase
     {
-        private readonly LocationManager _locationManager;
+        private readonly IManager<Location> _locationManager;
 
         /// <summary>
         /// Criteria of locations to be generated
@@ -32,14 +33,14 @@ namespace SurveyApp.ViewModel
         /// Constructor used by <see cref="Microsoft.Extensions.DependencyInjection"/>
         /// </summary>
         /// <param name="locationManager">Instance of <see cref="LocationManager"/></param>
-        public GenerateViewModel(LocationManager locationManager) : base()
+        public GenerateViewModel(IManager<Location> locationManager) : base()
         {
             _locationManager = locationManager;
 
             InitRelayCommands();
         }
 
-        private void Submit(object parameter) => _locationManager.GenerateLocations(GenerationCriteria);
+        private void Submit(object parameter) => _locationManager.Generate(GenerationCriteria);
 
         private void InitRelayCommands()
         {

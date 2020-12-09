@@ -116,7 +116,7 @@ namespace SurveyApp.Adapter
         /// <param name="directory">Directory where files of <see cref="IHashFile{T}"/> are stored</param>
         public void Load(string directory)
         {
-            _struct = _struct = StructureFactory.Instance.GetExtendibleHashing<T>(directory);
+            _struct = StructureFactory.Instance.GetExtendibleHashing<T>(directory);
             FilesChanged();
         }
 

@@ -102,6 +102,12 @@ namespace Structures
             return new Hashing.HashSet<T>(initialCapacity);
         }
 
+        /// <summary>
+        /// Get instance of hash set pre-filled with <paramref name="data"/>
+        /// </summary>
+        /// <typeparam name="T">Type of elements stored at hash set</typeparam>
+        /// <param name="data">Data to be filled into the hash set</param>
+        /// <returns></returns>
         public ITable<T> GetHashSet<T>(IEnumerable<T> data)
         {
             return new Hashing.HashSet<T>(data);

@@ -1,5 +1,6 @@
 ﻿using SurveyApp.Adapter;
 using SurveyApp.Helper;
+using SurveyApp.Interface;
 using SurveyApp.Model;
 using SurveyApp.Service;
 using SurveyApp.View;
@@ -15,8 +16,7 @@ namespace SurveyApp.ViewModel
     /// </summary>
     public class MainViewModel : ViewModelBase
     {
-        private readonly LocationManager _locationManager;
-        private readonly WindowService _windowService;
+        private readonly IManager<Location> _locationManager;
         private readonly GenerateViewModel _generateViewModel;
         private readonly LocationViewModel _locationViewModel;
         private readonly DatabaseViewModel _databaseViewModel;
@@ -29,7 +29,7 @@ namespace SurveyApp.ViewModel
         /// <summary>
         /// Collection of registered locations
         /// </summary>
-        public HashFileAdapter<Location> Locations { get; }
+        public HashFileAdapter<Location> Locations => _locationManager.Localizables;
 
         /// <summary>
         /// <see cref="Helper.Timer"/> instance
@@ -80,16 +80,13 @@ namespace SurveyApp.ViewModel
         /// <param name="generateViewModel"><see cref="GenerateViewModel"/> instance</param>
         /// <param name="locationViewModel"><see cref="LocationManager"/> instance</param>
         /// <param name="databaseViewModel"><see cref="DatabaseViewModel"/> instance</param>
-        public MainViewModel(LocationManager locationManager, WindowService windowService, GenerateViewModel generateViewModel,
+        public MainViewModel(IManager<Location> locationManager, GenerateViewModel generateViewModel,
                              LocationViewModel locationViewModel, DatabaseViewModel databaseViewModel) : base()
         {
             _locationManager = locationManager;
-            _windowService = windowService;
             _generateViewModel = generateViewModel;
             _locationViewModel = locationViewModel;
             _databaseViewModel = databaseViewModel;
-
-            Locations = _locationManager.Locations;
 
             InitRelayCommands();
         }
@@ -107,7 +104,7 @@ namespace SurveyApp.ViewModel
         {
             try
             {
-                _locationManager.FindLocations(SelectedId);
+                _locationManager.Find(SelectedId);
             }
             catch (Exception ex)
             {
@@ -117,7 +114,7 @@ namespace SurveyApp.ViewModel
 
         private bool CanManage(object parameter) => Locations.PrimaryFile != null;
 
-        private void Manage(object parameter) => _windowService.ShowDialog<LocationWindow>(_locationViewModel);
+        private void Manage(object parameter) => WindowService.ShowDialog<LocationWindow>(_locationViewModel);
 
         private bool CanDelete(object parameter) => Locations.PrimaryFile != null;
 
@@ -125,7 +122,7 @@ namespace SurveyApp.ViewModel
         {
             try
             {
-                _locationManager.DeleteLocation(SelectedId);
+                _locationManager.Delete(SelectedId);
             }
             catch (Exception ex)
             {
@@ -135,18 +132,18 @@ namespace SurveyApp.ViewModel
 
         private bool CanGenerate(object parameter) => Locations.PrimaryFile != null;
 
-        private void Generate(object parameter) => _windowService.ShowDialog<GenerateWindow>(_generateViewModel);
+        private void Generate(object parameter) => WindowService.ShowDialog<GenerateWindow>(_generateViewModel);
 
         private void NewDatabase(object parameter)
         {
             _databaseViewModel.CreateNew = true;
-            _windowService.ShowDialog<DatabaseWindow>(_databaseViewModel);
+            WindowService.ShowDialog<DatabaseWindow>(_databaseViewModel);
         }
 
         private void LoadDatabase(object paramter)
         {
             _databaseViewModel.CreateNew = false;
-            _windowService.ShowDialog<DatabaseWindow>(_databaseViewModel);
+            WindowService.ShowDialog<DatabaseWindow>(_databaseViewModel);
         }
 
         private void InitRelayCommands()

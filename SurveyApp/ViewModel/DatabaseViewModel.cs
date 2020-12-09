@@ -1,4 +1,6 @@
 ﻿using SurveyApp.Helper;
+using SurveyApp.Interface;
+using SurveyApp.Model;
 using SurveyApp.Service;
 using System;
 using System.Windows;
@@ -13,7 +15,7 @@ namespace SurveyApp.ViewModel
     public class DatabaseViewModel : ViewModelBase
     {
         private string _folderPath;
-        private readonly LocationManager _locationManager;
+        private readonly IManager<Location> _locationManager;
 
         /// <summary>
         /// Determines if new database should be created
@@ -58,7 +60,7 @@ namespace SurveyApp.ViewModel
         /// Constructor used by <see cref="Microsoft.Extensions.DependencyInjection"/>
         /// </summary>
         /// <param name="locationManager">Instance of <see cref="LocationManager"/></param>
-        public DatabaseViewModel(LocationManager locationManager) : base()
+        public DatabaseViewModel(IManager<Location> locationManager) : base()
         {
             _locationManager = locationManager;
 

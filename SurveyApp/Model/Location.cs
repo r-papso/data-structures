@@ -1,5 +1,6 @@
 ﻿using Structures.Helper;
 using Structures.Interface;
+using SurveyApp.Interface;
 using System;
 
 namespace SurveyApp.Model
@@ -7,7 +8,7 @@ namespace SurveyApp.Model
     /// <summary>
     /// Represents instance of a location
     /// </summary>
-    public class Location : ISerializable
+    public class Location : ISerializable, ILocalizable
     {
         private static readonly int _maxDescLength = 20;
 
