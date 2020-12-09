@@ -16,7 +16,6 @@ namespace SurveyApp.ViewModel
     /// </summary>
     public class MainViewModel : ViewModelBase
     {
-        private readonly IManager<Location> _locationManager;
         private readonly GenerateViewModel _generateViewModel;
         private readonly LocationViewModel _locationViewModel;
         private readonly DatabaseViewModel _databaseViewModel;
@@ -29,7 +28,7 @@ namespace SurveyApp.ViewModel
         /// <summary>
         /// Collection of registered locations
         /// </summary>
-        public HashFileAdapter<Location> Locations => _locationManager.Localizables;
+        public HashFileAdapter<Location> Locations => Manager.Localizables;
 
         /// <summary>
         /// <see cref="Helper.Timer"/> instance
@@ -81,9 +80,8 @@ namespace SurveyApp.ViewModel
         /// <param name="locationViewModel"><see cref="LocationManager"/> instance</param>
         /// <param name="databaseViewModel"><see cref="DatabaseViewModel"/> instance</param>
         public MainViewModel(IManager<Location> locationManager, GenerateViewModel generateViewModel,
-                             LocationViewModel locationViewModel, DatabaseViewModel databaseViewModel) : base()
+                             LocationViewModel locationViewModel, DatabaseViewModel databaseViewModel) : base(locationManager)
         {
-            _locationManager = locationManager;
             _generateViewModel = generateViewModel;
             _locationViewModel = locationViewModel;
             _databaseViewModel = databaseViewModel;
@@ -96,7 +94,7 @@ namespace SurveyApp.ViewModel
         /// </summary>
         /// <param name="sender">Object that raised the event</param>
         /// <param name="e">Information about the event</param>
-        public void OnClosing(object sender, CancelEventArgs e) => _locationManager.Release();
+        public void OnClosing(object sender, CancelEventArgs e) => Manager.Release();
 
         private bool CanSearch(object parameter) => Locations.PrimaryFile != null;
 
@@ -104,7 +102,7 @@ namespace SurveyApp.ViewModel
         {
             try
             {
-                _locationManager.Find(SelectedId);
+                Manager.Find(SelectedId);
             }
             catch (Exception ex)
             {
@@ -122,7 +120,7 @@ namespace SurveyApp.ViewModel
         {
             try
             {
-                _locationManager.Delete(SelectedId);
+                Manager.Delete(SelectedId);
             }
             catch (Exception ex)
             {

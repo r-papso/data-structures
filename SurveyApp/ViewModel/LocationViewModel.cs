@@ -13,8 +13,6 @@ namespace SurveyApp.ViewModel
     /// </summary>
     public class LocationViewModel : ViewModelBase
     {
-        private readonly IManager<Location> _locationManager;
-
         /// <summary>
         /// Represents location to be created / updated
         /// </summary>
@@ -40,9 +38,8 @@ namespace SurveyApp.ViewModel
         /// Constructor used by <see cref="Microsoft.Extensions.DependencyInjection"/>
         /// </summary>
         /// <param name="locationManager">Instance of <see cref="LocationManager"/></param>
-        public LocationViewModel(IManager<Location> locationManager) : base()
+        public LocationViewModel(IManager<Location> locationManager) : base(locationManager)
         {
-            _locationManager = locationManager;
             Location = locationManager.GetLocalizable();
 
             InitRelayCommands();
@@ -52,7 +49,7 @@ namespace SurveyApp.ViewModel
         {
             try
             {
-                _locationManager.Insert(Location);
+                Manager.Insert(Location);
             }
             catch (Exception ex)
             {
@@ -64,7 +61,7 @@ namespace SurveyApp.ViewModel
         {
             try
             {
-                _locationManager.Update(Location, Location);
+                Manager.Update(Location, Location);
             }
             catch (Exception ex)
             {
