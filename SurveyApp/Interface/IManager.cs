@@ -1,13 +1,12 @@
-﻿using Structures.Interface;
-using SurveyApp.Adapter;
+﻿using SurveyApp.Adapter;
 using SurveyApp.Model;
 
 namespace SurveyApp.Interface
 {
     /// <summary>
-    /// Manages operations performed on <see cref="ILocalizable"/>
+    /// Manages operations performed on <see cref="Localizable"/>
     /// </summary>
-    public interface IManager<T> where T : ISerializable, ILocalizable, new()
+    public interface IManager<T> where T : Localizable, new()
     {
         /// <summary>
         /// Localizables' collection

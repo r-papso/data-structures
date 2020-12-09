@@ -1,5 +1,4 @@
 ﻿using Structures;
-using Structures.Interface;
 using SurveyApp.Adapter;
 using SurveyApp.Interface;
 using SurveyApp.Model;
@@ -8,7 +7,7 @@ using System.Collections.Generic;
 
 namespace SurveyApp.Service
 {
-    public abstract class Manager<T> : IManager<T> where T : ISerializable, ILocalizable, new()
+    public abstract class Manager<T> : IManager<T> where T : Localizable, new()
     {
         public HashFileAdapter<T> Localizables { get; private set; }
 
