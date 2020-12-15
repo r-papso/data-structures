@@ -31,7 +31,7 @@ namespace SurveyApp.ViewModel
         /// Constructor used by <see cref="Microsoft.Extensions.DependencyInjection"/>
         /// </summary>
         /// <param name="locationManager">Instance of <see cref="LocationManager"/></param>
-        public GenerateViewModel(IManager<Location> locationManager) : base(locationManager)
+        public GenerateViewModel(IManager manager) : base(manager)
         {
             InitRelayCommands();
         }

@@ -1,6 +1,5 @@
 ﻿using SurveyApp.Helper;
 using SurveyApp.Interface;
-using SurveyApp.Model;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -11,7 +10,7 @@ namespace SurveyApp.ViewModel
     /// </summary>
     public abstract class ViewModelBase : INotifyPropertyChanged
     {
-        protected IManager<Location> Manager { get; }
+        protected IManager Manager { get; }
 
         /// <summary>
         /// Event invoked when <see cref="NewLocation"/> property changes
@@ -27,7 +26,7 @@ namespace SurveyApp.ViewModel
         /// Constructor
         /// </summary>
         /// <param name="manager">Manager</param>
-        public ViewModelBase(IManager<Location> manager) => Manager = manager;
+        public ViewModelBase(IManager manager) => Manager = manager;
 
         protected void StartMeasurement(object parameter) => Timer.Instance.Start();
 

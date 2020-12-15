@@ -1,7 +1,7 @@
-﻿using SurveyApp.Adapter;
+﻿using Structures.Interface;
+using SurveyApp.Adapter;
 using SurveyApp.Helper;
 using SurveyApp.Interface;
-using SurveyApp.Model;
 using SurveyApp.Service;
 using SurveyApp.View;
 using System;
@@ -28,7 +28,7 @@ namespace SurveyApp.ViewModel
         /// <summary>
         /// Collection of registered locations
         /// </summary>
-        public HashFileAdapter<Location> Locations => Manager.Localizables;
+        public HashFileAdapter<ISerializable> Locations => Manager.Serializables;
 
         /// <summary>
         /// <see cref="Helper.Timer"/> instance
@@ -79,8 +79,8 @@ namespace SurveyApp.ViewModel
         /// <param name="generateViewModel"><see cref="GenerateViewModel"/> instance</param>
         /// <param name="locationViewModel"><see cref="LocationManager"/> instance</param>
         /// <param name="databaseViewModel"><see cref="DatabaseViewModel"/> instance</param>
-        public MainViewModel(IManager<Location> locationManager, GenerateViewModel generateViewModel,
-                             LocationViewModel locationViewModel, DatabaseViewModel databaseViewModel) : base(locationManager)
+        public MainViewModel(IManager manager, GenerateViewModel generateViewModel, LocationViewModel locationViewModel,
+                             DatabaseViewModel databaseViewModel) : base(manager)
         {
             _generateViewModel = generateViewModel;
             _locationViewModel = locationViewModel;

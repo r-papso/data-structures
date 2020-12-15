@@ -64,9 +64,9 @@ namespace Structures
         /// <typeparam name="T">Type of elements stored at extendible hashing</typeparam>
         /// <param name="directory">Path to directory where the structure is stored</param>
         /// <returns>Extendible hashing loaded from <paramref name="directory"/></returns>
-        public IHashFile<T> GetExtendibleHashing<T>(string directory) where T : ISerializable, new()
+        public IHashFile<T> GetExtendibleHashing<T>(string directory, T prototype) where T : ISerializable
         {
-            return new ExtendibleHashing<T>(directory);
+            return new ExtendibleHashing<T>(directory, prototype);
         }
 
         /// <summary>
@@ -76,9 +76,9 @@ namespace Structures
         /// <param name="directory">Path to directory where the structure will be stored</param>
         /// <param name="clusterSize">File system's cluster size in bytes</param>
         /// <returns>New extendible hashing that will be stored at <paramref name="directory"/></returns>
-        public IHashFile<T> GetExtendibleHashing<T>(string directory, int clusterSize) where T : ISerializable, new()
+        public IHashFile<T> GetExtendibleHashing<T>(string directory, int clusterSize, T prototype) where T : ISerializable
         {
-            return new ExtendibleHashing<T>(directory, clusterSize);
+            return new ExtendibleHashing<T>(directory, clusterSize, prototype);
         }
 
         /// <summary>

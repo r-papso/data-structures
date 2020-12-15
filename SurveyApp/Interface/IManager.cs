@@ -1,4 +1,5 @@
-﻿using SurveyApp.Adapter;
+﻿using Structures.Interface;
+using SurveyApp.Adapter;
 using SurveyApp.Model;
 
 namespace SurveyApp.Interface
@@ -6,12 +7,12 @@ namespace SurveyApp.Interface
     /// <summary>
     /// Manages operations performed on <see cref="Localizable"/>
     /// </summary>
-    public interface IManager<T> where T : Localizable, new()
+    public interface IManager
     {
         /// <summary>
         /// Localizables' collection
         /// </summary>
-        public HashFileAdapter<T> Localizables { get; }
+        public HashFileAdapter<ISerializable> Serializables { get; }
 
         /// <summary>
         /// Finds localizables by specified <paramref name="id"/>
@@ -23,14 +24,14 @@ namespace SurveyApp.Interface
         /// Inserts a localizable
         /// </summary>
         /// <param name="data">Localizable to be inserted</param>
-        public void Insert(T data);
+        public void Insert(ISerializable data);
 
         /// <summary>
         /// Updates a localizable
         /// </summary>
         /// <param name="oldData">Old localizable values</param>
         /// <param name="newData">New localizable values</param>
-        public void Update(T oldData, T newData);
+        public void Update(ISerializable oldData, ISerializable newData);
 
         /// <summary>
         /// Deletes a localizable
@@ -66,13 +67,13 @@ namespace SurveyApp.Interface
         /// Gets instance of localizable
         /// </summary>
         /// <returns>Instance of localizable</returns>
-        public T GetLocalizable();
+        public ISerializable GetSerializable();
 
         /// <summary>
         /// Gets instance of localizable with specified id and random property values
         /// </summary>
         /// <param name="id">ID of localizable</param>
         /// <returns>Instance of localizable with specified id and random property values</returns>
-        public T GenerateLocalizable(int id);
+        public ISerializable GenerateSerializable(int id);
     }
 }

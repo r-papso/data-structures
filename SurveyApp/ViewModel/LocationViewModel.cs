@@ -1,6 +1,6 @@
-﻿using SurveyApp.Helper;
+﻿using Structures.Interface;
+using SurveyApp.Helper;
 using SurveyApp.Interface;
-using SurveyApp.Model;
 using SurveyApp.Service;
 using System;
 using System.Windows;
@@ -16,7 +16,7 @@ namespace SurveyApp.ViewModel
         /// <summary>
         /// Represents location to be created / updated
         /// </summary>
-        public Location Location { get; private set; }
+        public ISerializable Location { get; private set; }
 
         /// <summary>
         /// Provides binding <see cref="Add(object)"/> method execution
@@ -38,9 +38,9 @@ namespace SurveyApp.ViewModel
         /// Constructor used by <see cref="Microsoft.Extensions.DependencyInjection"/>
         /// </summary>
         /// <param name="locationManager">Instance of <see cref="LocationManager"/></param>
-        public LocationViewModel(IManager<Location> locationManager) : base(locationManager)
+        public LocationViewModel(IManager locationManager) : base(locationManager)
         {
-            Location = locationManager.GetLocalizable();
+            Location = locationManager.GetSerializable();
 
             InitRelayCommands();
         }

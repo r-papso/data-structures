@@ -1,23 +1,24 @@
-﻿using SurveyApp.Model;
+﻿using Structures.Interface;
+using SurveyApp.Model;
 using System;
 
 namespace SurveyApp.Service
 {
-    public class LocationManager : Manager<Location>
+    public class LocationManager : Manager
     {
         private readonly Random _rand = new Random();
 
         public LocationManager() : base()
         { }
 
-        public override Location GetLocalizable()
+        public override ISerializable GetSerializable()
         {
             return new Location();
         }
 
-        public override Location GenerateLocalizable(int locId)
+        public override ISerializable GenerateSerializable(int id)
         {
-            return new Location(locId, locId, _rand.Next(0, 1000), _rand.Next(0, 1000), _rand.Next(0, 1000), _rand.Next(0, 1000), $"Location {locId}");
+            return new Location(id, id, _rand.Next(0, 1000), _rand.Next(0, 1000), _rand.Next(0, 1000), _rand.Next(0, 1000), $"Location {id}");
         }
     }
 }

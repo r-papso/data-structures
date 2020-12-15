@@ -90,7 +90,7 @@ namespace StructuresTests
         {
             if (!_skipTests)
             {
-                using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
+                using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize, new TwoDimObject()))
                 {
                     ITableTests.DeletionTest(hashing, dataCount);
                 }
@@ -110,7 +110,7 @@ namespace StructuresTests
         {
             if (!_skipTests)
             {
-                using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
+                using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize, new TwoDimObject()))
                 {
                     ITableTests.InsertionTest(hashing, dataCount, (found, wanted) => found.Count == 1 && found.First().Equals(wanted));
                 }
@@ -130,7 +130,7 @@ namespace StructuresTests
         {
             if (!_skipTests)
             {
-                using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
+                using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize, new TwoDimObject()))
                 {
                     ITableTests.IterationTest(hashing, dataCount);
                 }
@@ -148,7 +148,7 @@ namespace StructuresTests
         {
             if (!_skipTests)
             {
-                using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
+                using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize, new TwoDimObject()))
                 {
                     ITableTests.RandomInsertDeletTest(hashing, dataCount, (found, wanted) => found.Count == 1 && found.First().Equals(wanted));
                 }
@@ -164,7 +164,7 @@ namespace StructuresTests
             {
                 var data = Generator.GenerateRandomData(10000, 1);
 
-                using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize))
+                using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, _clusterSize, new TwoDimObject()))
                 {
                     foreach (var item in data)
                     {
@@ -172,7 +172,7 @@ namespace StructuresTests
                     }
                 }
 
-                using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath))
+                using (var hashing = StructureFactory.Instance.GetExtendibleHashing<TwoDimObject>(_extendibleHashingPath, new TwoDimObject()))
                 {
                     foreach (var item in data)
                     {

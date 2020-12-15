@@ -1,6 +1,5 @@
 ﻿using SurveyApp.Helper;
 using SurveyApp.Interface;
-using SurveyApp.Model;
 using SurveyApp.Service;
 using System;
 using System.Windows;
@@ -59,7 +58,7 @@ namespace SurveyApp.ViewModel
         /// Constructor used by <see cref="Microsoft.Extensions.DependencyInjection"/>
         /// </summary>
         /// <param name="locationManager">Instance of <see cref="LocationManager"/></param>
-        public DatabaseViewModel(IManager<Location> locationManager) : base(locationManager)
+        public DatabaseViewModel(IManager manager) : base(manager)
         {
             InitRelayCommands();
         }

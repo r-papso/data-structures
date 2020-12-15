@@ -1,4 +1,5 @@
 ﻿using Structures.Helper;
+using Structures.Interface;
 using System;
 
 namespace SurveyApp.Model
@@ -6,11 +7,36 @@ namespace SurveyApp.Model
     /// <summary>
     /// Represents instance of a location
     /// </summary>
-    public class Location : Localizable
+    public class Location : ISerializable
     {
         private static readonly int _maxDescLength = 20;
 
         private string _description;
+
+        /// <summary>
+        /// Unique ID of location
+        /// </summary>
+        public int ID { get; set; }
+
+        /// <summary>
+        /// Location's first longitude coordinate
+        /// </summary>
+        public float X1 { get; set; }
+
+        /// <summary>
+        /// Location's first latitude coordinate
+        /// </summary>
+        public float Y1 { get; set; }
+
+        /// <summary>
+        /// Location's second longitude coordinate
+        /// </summary>
+        public float X2 { get; set; }
+
+        /// <summary>
+        /// Location's second latitude coordinate
+        /// </summary>
+        public float Y2 { get; set; }
 
         /// <summary>
         /// Number of location
@@ -32,7 +58,7 @@ namespace SurveyApp.Model
             }
         }
 
-        public override int ByteSize => 2 * sizeof(int) + 4 * sizeof(float) + sizeof(ushort) + _maxDescLength * sizeof(char);
+        public int ByteSize => 2 * sizeof(int) + 4 * sizeof(float) + sizeof(ushort) + _maxDescLength * sizeof(char);
 
         /// <summary>
         /// Default constructor
@@ -49,8 +75,13 @@ namespace SurveyApp.Model
         /// <param name="x2"></param>
         /// <param name="y2"></param>
         /// <param name="description"></param>
-        public Location(int id, int number, float x1, float y1, float x2, float y2, string description) : base(id, x1, y1, x2, y2)
+        public Location(int id, int number, float x1, float y1, float x2, float y2, string description)
         {
+            ID = id;
+            X1 = x1;
+            Y1 = y1;
+            X2 = x2;
+            Y2 = y2;
             Number = number;
             Description = description;
         }
@@ -73,7 +104,7 @@ namespace SurveyApp.Model
             }
         }
 
-        public override byte[] ToByteArray()
+        public byte[] ToByteArray()
         {
             var result = new byte[ByteSize];
             int offset = 0;
@@ -112,7 +143,7 @@ namespace SurveyApp.Model
             return result;
         }
 
-        public override void FromByteArray(byte[] array, int offset = 0)
+        public void FromByteArray(byte[] array, int offset = 0)
         {
             ID = BitConverter.ToInt32(array, offset);
             offset += sizeof(int);
@@ -137,5 +168,22 @@ namespace SurveyApp.Model
 
             Description = array.ToString(offset, descLength);
         }
+
+        public ISerializable Clone()
+        {
+            return new Location();
+        }
+
+        public override bool Equals(object obj)
+        {
+            var location = obj as Location;
+
+            if (location == null)
+                return false;
+
+            return ID == location.ID;
+        }
+
+        public override int GetHashCode() => ID;
     }
 }

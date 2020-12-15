@@ -133,6 +133,11 @@ namespace StructuresTests
             Description = desc;
         }
 
+        public ISerializable Clone()
+        {
+            return new TwoDimObject();
+        }
+
         public int CompareTo(object obj)
         {
             var other = obj as TwoDimObject;

@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Structures.File
 {
-    internal class BlockFile<T> : IDisposable, ISerializable where T : ISerializable, new()
+    internal class BlockFile<T> : IDisposable, ISerializable where T : ISerializable
     {
         private int _clusterSize;
         private long _maxAddress;
@@ -146,6 +146,11 @@ namespace Structures.File
                 _freeAddresses.Insert(BitConverter.ToInt32(array, offset));
                 offset += sizeof(long);
             }
+        }
+
+        public ISerializable Clone()
+        {
+            throw new NotImplementedException();
         }
 
         private void TrimFile()

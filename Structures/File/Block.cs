@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Structures.File
 {
-    internal class Block<T> : IBlockState<T>, ISerializable where T : ISerializable, new()
+    internal class Block<T> : IBlockState<T>, ISerializable where T : ISerializable
     {
         private List<T> _dataList;
 
@@ -17,7 +17,9 @@ namespace Structures.File
             _dataList = new List<T>();
         }
 
-        public int ByteSize => sizeof(int) + sizeof(long) + new T().ByteSize * ValidDataCount;
+        private T Prototype => PrototypeManager.Instance.GetPrototype<T>(StaticFields.HashingProtKey);
+
+        public int ByteSize => sizeof(int) + sizeof(long) + Prototype.ByteSize * ValidDataCount;
 
         public int ValidDataCount => _dataList.Count;
 
@@ -33,10 +35,10 @@ namespace Structures.File
             NextBlockAddress = BitConverter.ToInt64(array, offset);
             offset += sizeof(long);
 
-            var itemByteSize = new T().ByteSize;
+            var itemByteSize = Prototype.ByteSize;
             for (int i = 0; i < dataCount; i++)
             {
-                var item = new T();
+                var item = (T)Prototype.Clone();
                 item.FromByteArray(array, offset + i * itemByteSize);
                 _dataList.Add(item);
             }
@@ -63,6 +65,11 @@ namespace Structures.File
             }
 
             return result;
+        }
+
+        public ISerializable Clone()
+        {
+            return new Block<T>();
         }
 
         public bool Contains(T data) => _dataList.Any(x => x.Equals(data));

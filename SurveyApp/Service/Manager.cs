@@ -1,4 +1,5 @@
 ﻿using Structures;
+using Structures.Interface;
 using SurveyApp.Adapter;
 using SurveyApp.Interface;
 using SurveyApp.Model;
@@ -7,35 +8,31 @@ using System.Collections.Generic;
 
 namespace SurveyApp.Service
 {
-    public abstract class Manager<T> : IManager<T> where T : Localizable, new()
+    public abstract class Manager : IManager
     {
-        public HashFileAdapter<T> Localizables { get; private set; }
+        public HashFileAdapter<ISerializable> Serializables { get; }
 
-        public Manager() => Localizables = new HashFileAdapter<T>();
+        public Manager() => Serializables = new HashFileAdapter<ISerializable>();
 
-        public void Find(int id)
+        public void Find(int id) => Serializables.Find(GenerateSerializable(id));
+
+        public void Insert(ISerializable data) => Serializables.Insert(data);
+
+        public void Update(ISerializable oldData, ISerializable newData) => Serializables.Update(oldData, newData);
+
+        public void Delete(int id) => Serializables.Delete(GenerateSerializable(id));
+
+        public void Generate(GenerationCriteria criteria) => Serializables.Generate(GenerateLocalizables(criteria));
+
+        public void NewDatabase(string directory, int clusterSize) => Serializables.New(directory, clusterSize, GetSerializable());
+
+        public void LoadDatabase(string directory) => Serializables.Load(directory, GetSerializable());
+
+        public void Release() => Serializables.Release();
+
+        private IEnumerable<ISerializable> GenerateLocalizables(GenerationCriteria criteria)
         {
-            var loc = new T() { ID = id };
-            Localizables.Find(loc);
-        }
-
-        public void Insert(T location) => Localizables.Insert(location);
-
-        public void Update(T oldLocation, T newLocation) => Localizables.Update(oldLocation, newLocation);
-
-        public void Delete(int id) => Localizables.Delete(new T() { ID = id });
-
-        public void Generate(GenerationCriteria criteria) => Localizables.Generate(GenerateLocalizables(criteria));
-
-        public void NewDatabase(string directory, int clusterSize) => Localizables.New(directory, clusterSize);
-
-        public void LoadDatabase(string directory) => Localizables.Load(directory);
-
-        public void Release() => Localizables.Release();
-
-        private IEnumerable<T> GenerateLocalizables(GenerationCriteria criteria)
-        {
-            var locations = new List<T>();
+            var collection = new List<ISerializable>();
             var randId = new Random();
             var usedIds = StructureFactory.Instance.GetHashSet<int>();
 
@@ -53,14 +50,14 @@ namespace SurveyApp.Service
                     usedIds.Insert(id);
                 }
 
-                locations.Add(GenerateLocalizable(id));
+                collection.Add(GenerateSerializable(id));
             }
 
-            return locations;
+            return collection;
         }
 
-        public abstract T GetLocalizable();
+        public abstract ISerializable GetSerializable();
 
-        public abstract T GenerateLocalizable(int locId);
+        public abstract ISerializable GenerateSerializable(int id);
     }
 }
