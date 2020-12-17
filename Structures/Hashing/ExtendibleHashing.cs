@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Structures.Hashing
 {
-    internal class ExtendibleHashing<T> : IHashFile<T> where T : ISerializable, new()
+    internal class ExtendibleHashing<T> : IHashFile<T> where T : ISerializable
     {
         private static readonly int _maxDepth = 24;
 
@@ -21,9 +21,11 @@ namespace Structures.Hashing
 
         private int Depth => Convert.ToInt32(Math.Log(_directory.Length, 2));
 
-        private int BlockFactor => (_clusterSize - sizeof(int) - sizeof(long)) / new T().ByteSize;
+        private int BlockFactor => (_clusterSize - sizeof(int) - sizeof(long)) / Prototype.ByteSize;
 
-        private int OverflowBlockFactor => (_clusterSize * 2 - sizeof(int) - sizeof(long)) / new T().ByteSize;
+        private int OverflowBlockFactor => (_clusterSize * 2 - sizeof(int) - sizeof(long)) / Prototype.ByteSize;
+
+        private T Prototype => PrototypeManager.Instance.GetPrototype<T>(StaticFields.HashingProtKey);
 
         public IEnumerable<IBlockState<T>> PrimaryFileState
         {
@@ -61,8 +63,10 @@ namespace Structures.Hashing
             }
         }
 
-        public ExtendibleHashing(string folder)
+        public ExtendibleHashing(string folder, T prototype)
         {
+            PrototypeManager.Instance.RegisterPrototype(StaticFields.HashingProtKey, prototype);
+
             if (!CheckPaths(folder))
                 throw new ArgumentException("Folder does not contain necessary files");
 
@@ -72,8 +76,10 @@ namespace Structures.Hashing
             Restore(folder);
         }
 
-        public ExtendibleHashing(string folder, int clusterSize)
+        public ExtendibleHashing(string folder, int clusterSize, T prototype)
         {
+            PrototypeManager.Instance.RegisterPrototype(StaticFields.HashingProtKey, prototype);
+
             _clusterSize = clusterSize;
             _dataFile = new BlockFile<T>(Path.Combine(folder, StaticFields.DataFileName), Path.Combine(folder, StaticFields.DataHeaderName), clusterSize);
             _overflowFile = new BlockFile<T>(Path.Combine(folder, StaticFields.OverflowFileName), Path.Combine(folder, StaticFields.OverflowHeaderName), clusterSize * 2);

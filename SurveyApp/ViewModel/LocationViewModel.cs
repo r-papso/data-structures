@@ -1,5 +1,6 @@
-﻿using SurveyApp.Helper;
-using SurveyApp.Model;
+﻿using Structures.Interface;
+using SurveyApp.Helper;
+using SurveyApp.Interface;
 using SurveyApp.Service;
 using System;
 using System.Windows;
@@ -12,12 +13,10 @@ namespace SurveyApp.ViewModel
     /// </summary>
     public class LocationViewModel : ViewModelBase
     {
-        private readonly LocationManager _locationManager;
-
         /// <summary>
         /// Represents location to be created / updated
         /// </summary>
-        public Location Location { get; private set; } = new Location();
+        public ISerializable Location { get; private set; }
 
         /// <summary>
         /// Provides binding <see cref="Add(object)"/> method execution
@@ -39,9 +38,9 @@ namespace SurveyApp.ViewModel
         /// Constructor used by <see cref="Microsoft.Extensions.DependencyInjection"/>
         /// </summary>
         /// <param name="locationManager">Instance of <see cref="LocationManager"/></param>
-        public LocationViewModel(LocationManager locationManager) : base()
+        public LocationViewModel(IManager locationManager) : base(locationManager)
         {
-            _locationManager = locationManager;
+            Location = locationManager.GetSerializable();
 
             InitRelayCommands();
         }
@@ -50,7 +49,7 @@ namespace SurveyApp.ViewModel
         {
             try
             {
-                _locationManager.InsertLocation(Location);
+                Manager.Insert(Location);
             }
             catch (Exception ex)
             {
@@ -62,7 +61,7 @@ namespace SurveyApp.ViewModel
         {
             try
             {
-                _locationManager.UpdateLocation(Location, Location);
+                Manager.Update(Location, Location);
             }
             catch (Exception ex)
             {

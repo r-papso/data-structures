@@ -10,7 +10,7 @@ namespace SurveyApp.Adapter
     /// Adapter encapsulating <see cref="IHashFile{T}"/> used in data binding and visualisation of this structure
     /// </summary>
     /// <typeparam name="T">Type of elements stored at <see cref="IHashFile{T}"/></typeparam>
-    public class HashFileAdapter<T> : INotifyPropertyChanged where T : ISerializable, new()
+    public class HashFileAdapter<T> : INotifyPropertyChanged where T : ISerializable
     {
         private IHashFile<T> _struct;
         private IEnumerable<T> _found;
@@ -114,9 +114,9 @@ namespace SurveyApp.Adapter
         /// Loads <see cref="IHashFile{T}"/> from specified directory
         /// </summary>
         /// <param name="directory">Directory where files of <see cref="IHashFile{T}"/> are stored</param>
-        public void Load(string directory)
+        public void Load(string directory, T prototype)
         {
-            _struct = _struct = StructureFactory.Instance.GetExtendibleHashing<T>(directory);
+            _struct = StructureFactory.Instance.GetExtendibleHashing<T>(directory, prototype);
             FilesChanged();
         }
 
@@ -125,9 +125,9 @@ namespace SurveyApp.Adapter
         /// </summary>
         /// <param name="directory">Directory where <see cref="IHashFile{T}"/> will be created</param>
         /// <param name="clusterSize">File system's cluster size in bytes</param>
-        public void New(string directory, int clusterSize)
+        public void New(string directory, int clusterSize, T prototype)
         {
-            _struct = StructureFactory.Instance.GetExtendibleHashing<T>(directory, clusterSize);
+            _struct = StructureFactory.Instance.GetExtendibleHashing<T>(directory, clusterSize, prototype);
             FilesChanged();
         }
 

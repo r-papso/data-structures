@@ -14,7 +14,7 @@ namespace Structures.File
             _stream = new FileStream(path, fileMode, FileAccess.ReadWrite, FileShare.None);
         }
 
-        public Block<T> ReadBlock<T>(long address, int clusterSize) where T : ISerializable, new()
+        public Block<T> ReadBlock<T>(long address, int clusterSize) where T : ISerializable
         {
             var block = new Block<T>();
             var bytes = new byte[clusterSize];
@@ -27,7 +27,7 @@ namespace Structures.File
             return block;
         }
 
-        public void WriteBlock<T>(Block<T> block, long address) where T : ISerializable, new()
+        public void WriteBlock<T>(Block<T> block, long address) where T : ISerializable
         {
             _stream.Seek(address, SeekOrigin.Begin);
             var byteArr = block.ToByteArray();

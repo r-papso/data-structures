@@ -18,5 +18,7 @@ namespace Structures.Helper
         public static readonly string OverflowFileName = "overflow_file_data.bin";
 
         public static readonly string OverflowHeaderName = "overflow_file_header.bin";
+
+        public static readonly string HashingProtKey = "extendible_hashing_prototype";
     }
 }

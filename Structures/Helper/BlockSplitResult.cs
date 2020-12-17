@@ -3,7 +3,7 @@ using Structures.Interface;
 
 namespace Structures.Helper
 {
-    internal class BlockSplitResult<T> where T : ISerializable, new()
+    internal class BlockSplitResult<T> where T : ISerializable
     {
         public BlockMetaData Block1Data { get; set; }
 

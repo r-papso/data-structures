@@ -22,5 +22,11 @@
         /// <param name="array">Array representation of object</param>
         /// <param name="offset">Start index in array where deserialization will begin</param>
         public void FromByteArray(byte[] array, int offset = 0);
+
+        /// <summary>
+        /// Creates new instance with same type as instance implementing this interface
+        /// </summary>
+        /// <returns>New instance with same type</returns>
+        public ISerializable Clone();
     }
 }

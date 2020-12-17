@@ -19,11 +19,6 @@ namespace SurveyApp.Model
         public int ID { get; set; }
 
         /// <summary>
-        /// Number of location
-        /// </summary>
-        public int Number { get; set; }
-
-        /// <summary>
         /// Location's first longitude coordinate
         /// </summary>
         public float X1 { get; set; }
@@ -42,6 +37,11 @@ namespace SurveyApp.Model
         /// Location's second latitude coordinate
         /// </summary>
         public float Y2 { get; set; }
+
+        /// <summary>
+        /// Number of location
+        /// </summary>
+        public int Number { get; set; }
 
         /// <summary>
         /// Location's description
@@ -78,11 +78,11 @@ namespace SurveyApp.Model
         public Location(int id, int number, float x1, float y1, float x2, float y2, string description)
         {
             ID = id;
-            Number = number;
             X1 = x1;
             Y1 = y1;
             X2 = x2;
             Y2 = y2;
+            Number = number;
             Description = description;
         }
 
@@ -167,6 +167,11 @@ namespace SurveyApp.Model
             offset += sizeof(ushort);
 
             Description = array.ToString(offset, descLength);
+        }
+
+        public ISerializable Clone()
+        {
+            return new Location();
         }
 
         public override bool Equals(object obj)

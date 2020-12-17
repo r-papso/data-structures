@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using SurveyApp.Interface;
 using SurveyApp.Service;
 using SurveyApp.View;
 using SurveyApp.ViewModel;
@@ -23,8 +24,7 @@ namespace SurveyApp
 
         private void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<WindowService>();
-            services.AddSingleton<LocationManager>();
+            services.AddSingleton<IManager, LocationManager>();
             services.AddSingleton<GenerateViewModel>();
             services.AddSingleton<LocationViewModel>();
             services.AddSingleton<DatabaseViewModel>();
