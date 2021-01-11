@@ -1,7 +1,6 @@
 ﻿using Structures.Interface;
 using SurveyApp.Helper;
 using SurveyApp.Interface;
-using SurveyApp.Service;
 using System;
 using System.Windows;
 using System.Windows.Input;
@@ -37,10 +36,11 @@ namespace SurveyApp.ViewModel
         /// <summary>
         /// Constructor used by <see cref="Microsoft.Extensions.DependencyInjection"/>
         /// </summary>
-        /// <param name="locationManager">Instance of <see cref="LocationManager"/></param>
-        public LocationViewModel(IManager locationManager) : base(locationManager)
+        /// <param name="manager">Instance of <see cref="IManager"/></param>
+        /// <param name="factory">Instance of <see cref="IFactory"/></param>
+        public LocationViewModel(IManager manager, IFactory factory) : base(manager)
         {
-            Location = locationManager.GetSerializable();
+            Location = factory.GetSerializable();
 
             InitRelayCommands();
         }

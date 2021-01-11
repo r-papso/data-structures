@@ -25,7 +25,7 @@ namespace Structures.Hashing
 
         private int OverflowBlockFactor => (_clusterSize * 2 - sizeof(int) - sizeof(long)) / Prototype.ByteSize;
 
-        private T Prototype => PrototypeManager.Instance.GetPrototype<T>(StaticFields.HashingProtKey);
+        private T Prototype => PrototypeManager.Instance.Get<T>(StaticFields.HashingProtKey);
 
         public IEnumerable<IBlockState<T>> PrimaryFileState
         {
@@ -65,7 +65,7 @@ namespace Structures.Hashing
 
         public ExtendibleHashing(string folder, T prototype)
         {
-            PrototypeManager.Instance.RegisterPrototype(StaticFields.HashingProtKey, prototype);
+            PrototypeManager.Instance.Register(StaticFields.HashingProtKey, prototype);
 
             if (!CheckPaths(folder))
                 throw new ArgumentException("Folder does not contain necessary files");
@@ -78,7 +78,7 @@ namespace Structures.Hashing
 
         public ExtendibleHashing(string folder, int clusterSize, T prototype)
         {
-            PrototypeManager.Instance.RegisterPrototype(StaticFields.HashingProtKey, prototype);
+            PrototypeManager.Instance.Register(StaticFields.HashingProtKey, prototype);
 
             _clusterSize = clusterSize;
             _dataFile = new BlockFile<T>(Path.Combine(folder, StaticFields.DataFileName), Path.Combine(folder, StaticFields.DataHeaderName), clusterSize);
@@ -380,6 +380,8 @@ namespace Structures.Hashing
                 _dataFile.Dispose();
                 _overflowFile.Dispose();
             }
+
+            PrototypeManager.Instance.TryUnregister<T>(StaticFields.HashingProtKey);
         }
 
         private bool CheckPaths(string folder)

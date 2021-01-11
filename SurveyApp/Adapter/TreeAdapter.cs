@@ -165,7 +165,7 @@ namespace SurveyApp.Adapter
         /// Creates new <see cref="IBSTree{T}"/> from <paramref name="data"/> and invokes <see cref="CollectionChanged"/> event
         /// </summary>
         /// <param name="data">Data used in tree construction</param>
-        public void Generate(IEnumerable<T> data)
+        public void Fill(IEnumerable<T> data)
         {
             Tree = StructureFactory.Instance.GetKdTree(data);
 

@@ -1,7 +1,6 @@
 ﻿using SurveyApp.Helper;
 using SurveyApp.Interface;
 using SurveyApp.Model;
-using SurveyApp.Service;
 using System.Windows.Input;
 
 namespace SurveyApp.ViewModel
@@ -36,7 +35,7 @@ namespace SurveyApp.ViewModel
             InitRelayCommands();
         }
 
-        private void Submit(object parameter) => Manager.Generate(GenerationCriteria);
+        private void Submit(object parameter) => Manager.FillDatabase(GenerationCriteria);
 
         private void InitRelayCommands()
         {

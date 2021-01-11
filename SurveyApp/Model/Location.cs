@@ -169,10 +169,7 @@ namespace SurveyApp.Model
             Description = array.ToString(offset, descLength);
         }
 
-        public ISerializable Clone()
-        {
-            return new Location();
-        }
+        public ISerializable Clone() => new Location();
 
         public override bool Equals(object obj)
         {

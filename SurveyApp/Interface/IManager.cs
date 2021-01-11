@@ -43,7 +43,7 @@ namespace SurveyApp.Interface
         /// Generates localizables according to <paramref name="criteria"/>
         /// </summary>
         /// <param name="criteria">Criteria used for generate localizables</param>
-        public void Generate(GenerationCriteria criteria);
+        public void FillDatabase(GenerationCriteria criteria);
 
         /// <summary>
         /// Initializes new database at specified directory
@@ -62,18 +62,5 @@ namespace SurveyApp.Interface
         /// Releases all resources held by database
         /// </summary>
         public void Release();
-
-        /// <summary>
-        /// Gets instance of localizable
-        /// </summary>
-        /// <returns>Instance of localizable</returns>
-        public ISerializable GetSerializable();
-
-        /// <summary>
-        /// Gets instance of localizable with specified id and random property values
-        /// </summary>
-        /// <param name="id">ID of localizable</param>
-        /// <returns>Instance of localizable with specified id and random property values</returns>
-        public ISerializable GenerateSerializable(int id);
     }
 }
