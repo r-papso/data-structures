@@ -27,6 +27,8 @@ namespace Structures.Hashing
 
         private T Prototype => PrototypeManager.Instance.Get<T>(StaticFields.HashingProtKey);
 
+        public int Count { get; private set; }
+
         public IEnumerable<IBlockState<T>> PrimaryFileState
         {
             get
@@ -181,6 +183,8 @@ namespace Structures.Hashing
                     break;
                 }
             }
+
+            Count++;
         }
 
         public void Update(T oldData, T newData)
@@ -277,6 +281,8 @@ namespace Structures.Hashing
             {
                 RemoveFromOverflowFile(data);
             }
+
+            Count--;
         }
 
         public IEnumerator<T> GetEnumerator() => new ExtendibleHashingEnumerator(_dataFile, _overflowFile, _directory);

@@ -11,10 +11,13 @@ namespace StructuresTests
         public static void InsertionTest(ITable<TwoDimObject> structure, int dataCount, Func<ICollection<TwoDimObject>, TwoDimObject, bool> foundEvaluator)
         {
             var data = Generator.GenerateRandomData(dataCount);
+            int i = 0;
+
 
             foreach (var item in data)
             {
                 structure.Insert(item);
+                Assert.Equal(++i, structure.Count);
             }
 
             foreach (var item in data)
@@ -27,10 +30,12 @@ namespace StructuresTests
         public static void DeletionTest(ITable<TwoDimObject> structure, int dataCount)
         {
             var data = Generator.GenerateRandomData(dataCount);
+            int i = 0;
 
             foreach (var item in data)
             {
                 structure.Insert(item);
+                Assert.Equal(++i, structure.Count);
             }
 
             foreach (var item in data)
@@ -38,6 +43,7 @@ namespace StructuresTests
                 structure.Delete(item);
                 var found = structure.Find(item);
                 Assert.Equal(0, found.Count);
+                Assert.Equal(--i, structure.Count);
             }
         }
 
@@ -55,6 +61,7 @@ namespace StructuresTests
                 count++;
 
             Assert.Equal(dataCount, count);
+            Assert.Equal(count, structure.Count);
         }
 
         public static void RandomInsertDeletTest(ITable<TwoDimObject> structure, int dataCount, Func<ICollection<TwoDimObject>, TwoDimObject, bool> foundEvaluator)
