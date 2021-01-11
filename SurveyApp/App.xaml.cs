@@ -24,7 +24,8 @@ namespace SurveyApp
 
         private void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IManager, LocationManager>();
+            services.AddSingleton<IFactory, LocationFactory>();
+            services.AddSingleton<IManager, Manager>();
             services.AddSingleton<GenerateViewModel>();
             services.AddSingleton<LocationViewModel>();
             services.AddSingleton<DatabaseViewModel>();

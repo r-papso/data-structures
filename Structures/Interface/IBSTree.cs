@@ -9,11 +9,6 @@ namespace Structures.Interface
     public interface IBSTree<T> : ITable<T>
     {
         /// <summary>
-        /// Count of elements in tree
-        /// </summary>
-        public int Count { get; }
-
-        /// <summary>
         /// Minimum value of tree
         /// </summary>
         public T Min { get; }

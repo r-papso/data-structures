@@ -17,7 +17,7 @@ namespace Structures.File
             _dataList = new List<T>();
         }
 
-        private T Prototype => PrototypeManager.Instance.GetPrototype<T>(StaticFields.HashingProtKey);
+        private T Prototype => PrototypeManager.Instance.Get<T>(StaticFields.HashingProtKey);
 
         public int ByteSize => sizeof(int) + sizeof(long) + Prototype.ByteSize * ValidDataCount;
 

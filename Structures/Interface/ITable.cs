@@ -2,8 +2,17 @@
 
 namespace Structures.Interface
 {
+    /// <summary>
+    /// Defines operations available in Table structure
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface ITable<T> : IEnumerable<T>
     {
+        /// <summary>
+        /// Count of elements in table
+        /// </summary>
+        public int Count { get; }
+
         /// <summary>
         /// Finds all occurences in <see cref="ITable{T}"/> of <paramref name="data"/> parameter,
         /// if structure implementing this interface does not support duplicate values, returned collection

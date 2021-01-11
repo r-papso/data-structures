@@ -12,8 +12,9 @@ namespace Structures.Hashing
         private static readonly double _expandFactor = 0.75;
         private static readonly int _defaultCapacity = 128;
 
-        private int _count;
         private LinkedList<T>[] _hashTable;
+
+        public int Count { get; private set; }
 
         public HashSet() : this(_defaultCapacity)
         { }
@@ -47,7 +48,7 @@ namespace Structures.Hashing
             if (Find(data).Count > 0)
                 throw new ArgumentException("Cannot insert duplicate values");
 
-            if ((_count + 1) / (double)_hashTable.Length > _expandFactor)
+            if ((Count + 1) / (double)_hashTable.Length > _expandFactor)
                 Expand();
 
             int index = GetIndex(data.GetHashCode());
@@ -56,7 +57,7 @@ namespace Structures.Hashing
                 _hashTable[index] = new LinkedList<T>();
 
             _hashTable[index].AddLast(data);
-            _count++;
+            Count++;
         }
 
         public void Update(T oldData, T newData)
@@ -71,12 +72,12 @@ namespace Structures.Hashing
                 throw new ArgumentException("Data not found");
 
             _hashTable[GetIndex(data.GetHashCode())].Remove(data);
-            _count--;
+            Count--;
         }
 
         public IEnumerator<T> GetEnumerator()
         {
-            if (_count == 0)
+            if (Count == 0)
                 yield break;
 
             for (int i = 0; i < _hashTable.Length; i++)
@@ -122,7 +123,7 @@ namespace Structures.Hashing
                     _hashTable[index] = new LinkedList<T>();
 
                 _hashTable[index].AddLast(item);
-                _count++;
+                Count++;
             }
         }
     }

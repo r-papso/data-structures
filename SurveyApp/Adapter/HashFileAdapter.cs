@@ -100,7 +100,7 @@ namespace SurveyApp.Adapter
         /// Fills <see cref="IHashFile{T}"/> with elements of <paramref name="collection"/>
         /// </summary>
         /// <param name="collection">Elements to be inserted into <see cref="IHashFile{T}"/></param>
-        public void Generate(IEnumerable<T> collection)
+        public void Fill(IEnumerable<T> collection)
         {
             foreach (var item in collection)
             {

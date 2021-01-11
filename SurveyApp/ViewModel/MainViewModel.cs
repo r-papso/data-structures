@@ -74,10 +74,9 @@ namespace SurveyApp.ViewModel
         /// <summary>
         /// Constructor used by <see cref="Microsoft.Extensions.DependencyInjection"/>
         /// </summary>
-        /// <param name="locationManager"><see cref="LocationManager"/> instance</param>
-        /// <param name="windowService"><see cref="WindowService"/> instance</param>
+        /// <param name="manager"><see cref="IManager"/> instance</param>
         /// <param name="generateViewModel"><see cref="GenerateViewModel"/> instance</param>
-        /// <param name="locationViewModel"><see cref="LocationManager"/> instance</param>
+        /// <param name="locationViewModel"><see cref="LocationViewModel"/> instance</param>
         /// <param name="databaseViewModel"><see cref="DatabaseViewModel"/> instance</param>
         public MainViewModel(IManager manager, GenerateViewModel generateViewModel, LocationViewModel locationViewModel,
                              DatabaseViewModel databaseViewModel) : base(manager)
