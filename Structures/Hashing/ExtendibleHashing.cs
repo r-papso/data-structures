@@ -298,7 +298,7 @@ namespace Structures.Hashing
         private string ToCsv()
         {
             var csv = new StringBuilder();
-            csv.AppendLine($"{_clusterSize};{_directory.Length}");
+            csv.AppendLine($"{_clusterSize};{_directory.Length};{Count}");
             int begin = 0;
 
             for (int i = 0; i < _directory.Length; i++)
@@ -324,6 +324,7 @@ namespace Structures.Hashing
             var head = csv.ReadLines().First().Split(';');
             _clusterSize = Convert.ToInt32(head[0]);
             _directory = new BlockMetaData[Convert.ToInt32(head[1])];
+            Count = Convert.ToInt32(head[2]);
 
             foreach (var line in csv.ReadLines().Skip(1))
             {
@@ -352,7 +353,7 @@ namespace Structures.Hashing
             {
                 new BlockMetaData()
                 {
-                   IsValid = true,
+                    IsValid = true,
                     Address = 0,
                     ValidDataCount = 0,
                     Depth = 1
