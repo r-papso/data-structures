@@ -1,10 +1,10 @@
 # DataStructures
 
-Implementation of advanced data structures. Project contains K-d tree, AVL tree, HashSet and ExtendibleHashing structures. It has been created as a part of course [Algorithms and Data structures 2 (5II215)](https://vzdelavanie.uniza.sk/vzdelavanie/planinfo.php?kod=275016&lng=en) taught at Faculty of Management Science and Informatics, University of Žilina. 
+Implementation of advanced data structures. Project contains K-d tree, AVL tree, HashSet and ExtendibleHashing structures. The project has been created as a part of course [Algorithms and Data structures 2 (5II215)](https://vzdelavanie.uniza.sk/vzdelavanie/planinfo.php?kod=275016&lng=en) taught at Faculty of Management Science and Informatics, University of Žilina. 
 
 ## Structures
 
-Class library project containing implementation of aforementioned data structures. Individual structures can be obtained from this library through [StructureFactory](./Structures/StructureFactory.cs) class.
+Class library containing implementation of aforementioned data structures. Individual structures can be obtained from this library through [StructureFactory](./Structures/StructureFactory.cs) class.
 
     using Structures;
     
@@ -13,7 +13,7 @@ Class library project containing implementation of aforementioned data structure
         static void Main(string[] args)
         {
             // Obtaining AVL tree from StructureFactory.
-            StructureFactory.Instance.GetAvlTree<int>();
+            var avlTree = StructureFactory.Instance.GetAvlTree<int>();
         }
     }
     
@@ -30,7 +30,7 @@ Implementation of [Hash table](https://en.wikipedia.org/wiki/Hash_table). Object
 
 ### [ExtendibleHashing](./Structures/Hashing/ExtendibleHashing.cs)
 
-Implementation of [Extendible hashing](https://en.wikipedia.org/wiki/Extendible_hashing). This structures is located at the disk instead of computer memory. Objects stored in this structure must implement [ISerializable](./Structures/Interface/ISerializable.cs) interface and have parameterless public constructor. Purpose of this structure is to minimize number of file accesses during Search, Insert and Delete operations. File accesses during all these operations are constant.
+Implementation of [Extendible hashing](https://en.wikipedia.org/wiki/Extendible_hashing). Objects stored at the structure should override Equals and GetHashCode method if necessary. Objects stored in this structure must implement [ISerializable](./Structures/Interface/ISerializable.cs) interface. Purpose of this structure is to minimize number of file accesses during Search, Insert and Delete operations. File accesses during all these operations are constant.
     
 ## StructureTests
 
@@ -38,4 +38,4 @@ XUnit test project used to test functionality of each of the structures.
 
 ## SurveyApp
 
-WPF application used to demonstrate structures' functionality. It is a sample project consuming Structures class library.
+WPF application used to demonstrate functionality of the structures. It is a sample project consuming Structures class library.
