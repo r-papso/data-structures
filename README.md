@@ -6,16 +6,18 @@ Implementation of advanced data structures. Project contains K-d tree, AVL tree,
 
 Class library containing implementation of aforementioned data structures. Individual structures can be obtained from this library through [StructureFactory](./Structures/StructureFactory.cs) class.
 
-    using Structures;
-    
-    class StructureExample
+```C#
+using Structures;
+
+class StructureExample
+{
+    static void Main(string[] args)
     {
-        static void Main(string[] args)
-        {
-            // Obtaining AVL tree from StructureFactory.
-            var avlTree = StructureFactory.Instance.GetAvlTree<int>();
-        }
+        // Obtaining AVL tree from StructureFactory.
+        var avlTree = StructureFactory.Instance.GetAvlTree<int>();
     }
+}
+```
     
 ### [AvlTree](./Structures/Tree/AvlTree.cs)
 Implementation of [AVL tree](https://en.wikipedia.org/wiki/AVL_tree). Objects stored at this structure must implement [IComparable](https://docs.microsoft.com/en-us/dotnet/api/system.icomparable?view=net-5.0) interface. Structure does not support duplicate keys and is ordered by the keys in ascending order. Time complexity of **Search, Insert and Delete** operations are **O(log<sub>2</sub>n)**. Finding minimum and maximum through Min and Max properties has the same time complexity as well. **Range search** time complexity is **O(log<sub>2</sub>n + m)** where m is number of found elements.
